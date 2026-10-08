@@ -1,0 +1,17 @@
+# Community-specific knowledge base (copyrighted texts) – never commit
+modules/nexus-community-assistant/knowledge/*
+!modules/nexus-community-assistant/knowledge/README.md
+
+# Secrets and local configuration
+.env
+.env.*
+*.local.php
+
+# Whisper model files
+extras/nexus-whisper/modell/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

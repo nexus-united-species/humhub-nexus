@@ -1,0 +1,8 @@
+{
+    "id": "nexus-protected-library",
+    "name": "N.E.X.U.S. Unterstuetzer-Bibliothek",
+    "description": "Eigener Lesebereich fuer Buecher (aus EPUB importiert) -- Kapitel fuer Kapitel im Browser lesbar, ohne herunterladbare Originaldatei, mit Kopierschutz (Markieren/Rechtsklick/Drucken gesperrt). Zugang nur fuer Mitglieder des Unterstuetzer-Space.",
+    "keywords": ["nexus", "bibliothek", "epub", "buecher"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

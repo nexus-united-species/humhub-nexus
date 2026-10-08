@@ -1,0 +1,69 @@
+/* Karte der Gemeinschaften -- Farben aus dem NEXUS-Theme (Navy/Gold). */
+.nka { --nka-gold: #D4AF37; --nka-navy: #0B1F3A; max-width: 980px; margin: 0 auto; }
+.nka-titel { margin: 0; font-size: 24px; }
+.nka-einleitung { font-size: 16px; }
+.nka-zwischen { font-size: 18px; margin: 22px 0 10px; }
+.nka-klein { font-size: 13px; opacity: .75; }
+.nka-leer { padding: 18px; border: 1px dashed rgba(0, 0, 0, .25); border-radius: 10px; text-align: center; }
+
+.nka-karte { height: 60vh; min-height: 320px; max-height: 620px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, .15); margin-bottom: 6px; z-index: 0; }
+/* Stecknadel: ein um 45 Grad gedrehtes Quadrat mit einer spitzen Ecke, darin das Kreisbild. */
+.nka-nadel-form { display: block; width: 40px; height: 40px; box-sizing: border-box; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--nka-gold); border: 3px solid var(--nka-navy); box-shadow: -2px 3px 6px rgba(0, 0, 0, .45); overflow: hidden; transition: transform 150ms ease-out; transform-origin: 50% 50%; }
+.nka-nadel-form img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: rotate(45deg); }
+/* Ohne Kreisbild (Gaeste): klassische Nadel mit dunklem Punkt in der Mitte. */
+.nka-nadel-form i { display: block; width: 14px; height: 14px; margin: 10px; border-radius: 50%; background: var(--nka-navy); }
+/* Suchende: kleinere, dunkle Nadel mit Gold-Rand -- deutlich anders als eine Gemeinschaft. */
+.nka-sucht .nka-nadel-form { width: 30px; height: 30px; background: var(--nka-navy); border: 2px solid var(--nka-gold); }
+.nka-sucht .nka-nadel-form b { display: block; transform: rotate(45deg); color: #fff; font-size: 13px; font-weight: 700; line-height: 26px; text-align: center; }
+.nka .leaflet-popup-content p.nka-mensch { margin: 8px 0 0; }
+.nka-nadel:hover, .nka-nadel:focus { z-index: 1000 !important; }
+.nka-nadel:hover .nka-nadel-form, .nka-nadel:focus .nka-nadel-form { transform: rotate(-45deg) scale(1.12); }
+.nka .leaflet-popup-content { font-size: 14px; line-height: 1.4; }
+.nka .leaflet-popup-content p { margin: 6px 0 10px; }
+.nka a.nka-popup-knopf { color: #fff; }
+
+.nka-liste { list-style: none; padding: 0; margin: 0; }
+.nka-eintrag { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid rgba(0, 0, 0, .1); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.nka-eintrag p { margin: 6px 0 0; }
+.nka-ort { display: block; font-size: 14px; opacity: .8; }
+.nka-knoepfe { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; align-items: center; }
+.nka-knoepfe form { margin: 0; }
+
+.nka-gruenden { margin-top: 24px; padding: 16px 18px; border-radius: 12px; border-left: 5px solid var(--nka-gold); background: rgba(212, 175, 55, .12); }
+.nka-gruenden strong { font-size: 18px; }
+.nka-gruenden p { margin: 6px 0 12px; }
+.nka-verwalten { margin-top: 18px; text-align: right; font-size: 14px; }
+
+.nka-kasten { border: 1px solid rgba(0, 0, 0, .12); border-radius: 12px; padding: 4px 16px 14px; margin-bottom: 16px; }
+.nka-admin { border-style: dashed; }
+.nka-suche label { display: block; font-weight: 600; margin-bottom: 4px; }
+.nka-zeile { display: flex; gap: 8px; }
+.nka-zeile input, .nka-treffer input[type=text] { flex: 1; width: 100%; font-size: 16px; padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .25); }
+.nka-treffer { display: grid; gap: 6px; border: 1px solid rgba(0, 0, 0, .1); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.nka-treffer button { justify-self: start; }
+.nka-kasten > .nka-knoepfe { margin-top: 12px; }
+.nka-meldung { padding: 10px 14px; border-radius: 6px; margin: 10px 0; }
+.nka-meldung.gut { background: rgba(40, 167, 69, .15); }
+.nka-meldung.schlecht { background: rgba(220, 53, 69, .15); }
+
+@media (max-width: 600px) {
+    .nka-karte { height: 52vh; }
+    .nka-eintrag { flex-direction: column; align-items: stretch; }
+    .nka-zeile { flex-direction: column; }
+}
+
+/* Karte auf der Gast-Willkommensseite */
+.nka-gast { max-width: 900px; margin: 8px auto 32px; padding: 0 16px; text-align: center; }
+.nka-gast-titel { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+.nka-gast-text { font-size: 16px; color: #444; margin: 0 0 16px; }
+.nka-gast .nka-karte { height: 50vh; text-align: left; }
+
+/* Legende und Suchende */
+.nka-legende { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; font-size: 14px; margin: 6px 0 4px; }
+.nka-legende-schalter { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-weight: 400; cursor: pointer; min-height: 32px; }
+.nka-legende-punkt { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: middle; }
+.nka-legende-gemeinschaft { background: var(--nka-gold); border: 2px solid var(--nka-navy); }
+.nka-legende-sucht { background: var(--nka-navy); border: 2px solid var(--nka-gold); }
+.nka-mitstreiter { border-left-color: var(--nka-navy); background: rgba(11, 31, 58, .06); }
+.nka-sichtbar { margin: 0 0 16px; }
+.nka-suche textarea, .nka-treffer textarea { width: 100%; font-size: 16px; padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .25); }

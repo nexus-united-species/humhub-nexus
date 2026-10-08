@@ -1,0 +1,8 @@
+{
+    "id": "nexus-notif-banner",
+    "name": "N.E.X.U.S. Hinweis: Benachrichtigungen",
+    "description": "Zeigt vor der Browser-Abfrage einen erklaerenden Hinweis, warum Benachrichtigungen sinnvoll sind -- verhindert das reflexartige Wegklicken der rohen Systemabfrage.",
+    "keywords": ["nexus", "push", "hinweis"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

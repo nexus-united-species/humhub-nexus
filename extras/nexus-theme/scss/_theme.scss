@@ -1,0 +1,137 @@
+/**
+ * Define or overwrite your theme selectors within this file.
+**/
+
+// Lesbarkeit (Josh, 04.10.2026) -- HumHub setzt viele Nebentexte fest in Pixeln (10-12 px), die
+// wachsen mit der Grundschrift nicht mit. Hier gezielt angehoben; jeweils dieselben Selektoren wie
+// im HumHub-Original, damit sie sicher greifen.
+
+// Inhalt von Beitraegen/Kaesten und Kommentaren/Listen: HumHub setzt hier fest 13 px -- das hat
+// Vorrang vor der Grundschrift, deshalb aenderte sich am PC zuerst nichts (Josh, 04.10.2026).
+// Am Handy gilt fuer Beitragstext/Kommentare die eigene Regel weiter unten (16 px).
+.panel .panel-body,
+.media .media-body {
+    font-size: 15px;
+}
+.modal .modal-content .modal-body {
+    font-size: 14.5px;
+}
+.modal .dropdown-menu li a,
+.panel .dropdown-menu li a,
+.nav-tabs .dropdown-menu li a {
+    font-size: 14px;
+}
+
+// Zeile unter Beitraegen: Kommentieren · Gefaellt mir · Weitergeben ... (vorher 11 px)
+.wall-entry-controls a,
+.load-suppressed a {
+    font-size: 13.5px;
+}
+
+// Zeitangaben "vor 19 Stunden" (vorher 11 px)
+.media .time,
+.hh-list > div:not(.stream-end) .time,
+.hh-list > a:not(.stream-end) .time,
+.wall-entry .wall-entry-header h4 .time,
+.wall-entry .wall-entry-header .h4 .time {
+    font-size: 13px;
+}
+.wall-entry h5 a .time,
+.wall-entry .h5 a .time {
+    font-size: 13px;
+}
+
+// Kopf eines Beitrags: Name (15 px) und Unterzeile mit Kreis (12 px), kleine Zusaetze (11 px)
+.wall-entry .wall-entry-header .wall-entry-header-info h4,
+.wall-entry .wall-entry-header .wall-entry-header-info .h4 {
+    font-size: 16px;
+}
+.wall-entry .wall-entry-header .wall-entry-header-info h5,
+.wall-entry .wall-entry-header .wall-entry-header-info .h5 {
+    font-size: 13.5px;
+}
+.wall-entry h4 small,
+.wall-entry .h4 small,
+.wall-entry h4 .small,
+.wall-entry .h4 .small {
+    font-size: 13px;
+}
+
+// Kommentare: Name (13 px), Zusatz/Zeit (11 px), "mehr anzeigen" (12 px)
+.comment-container .comment .single-comment h4.comment-heading,
+.comment-container .comment .single-comment .comment-heading.h4 {
+    font-size: 15px;
+}
+.comment-container .comment .single-comment h4.comment-heading small,
+.comment-container .comment .single-comment h4.comment-heading .small,
+.comment-container .comment .single-comment .comment-heading.h4 small,
+.comment-container .comment .single-comment .comment-heading.h4 .small {
+    font-size: 13px;
+}
+.wall-entry .well .comment .showMore a {
+    font-size: 13.5px;
+}
+
+// Listen (Benachrichtigungen, Nachrichten): Zusaetze in der Ueberschrift (11 px)
+.hh-list > div:not(.stream-end) h4 small a,
+.hh-list > a:not(.stream-end) h4 small a,
+.media .media-body h5 small a {
+    font-size: 13px;
+}
+
+// Beschriftungen unter den Symbolen der oberen Leiste (10 px) -- nur leicht, sonst wird die Leiste zu breit
+#topbar-second .nav > li.nav-item > a.nav-link {
+    font-size: 11.5px;
+}
+
+// Beitragstext und Kommentare: etwas mehr Zeilenabstand. Am Handy erst 17 px, Josh 04.10.2026:
+// "etwas zu gross, 1 Punkt kleiner" -> 16 px wie die Grundschrift; die Regel bleibt, damit sich
+// der Handy-Wert getrennt einstellen laesst.
+.markdown-render,
+[data-ui-markdown],
+[data-ui-richtext] {
+    line-height: 1.6;
+}
+@media (max-width: 767px) {
+    .wall-entry .wall-entry-body .wall-entry-content,
+    .comment-container .comment .single-comment .comment-message {
+        font-size: 16px;
+    }
+    .wall-entry-controls a {
+        font-size: 14px;
+    }
+}
+
+// ── Kontrast (Rueckmeldung eines Mitglieds, 06.10.2026: "im Dark-Mode die schwache graue Schrift kaum erkennbar, genauso
+//    weisse Schrift auf gelbem Grund") ─────────────────────────────────────────────────────────
+
+// Dunkler Modus: Links leiteten sich aus unserem Navy ab (#6c737e auf fast Schwarz) -- jetzt ein
+// helles Blaugrau; das matteste Grau (soft3, #7b7773) und die "tertiaere" Schrift heller.
+[data-bs-theme=dark] {
+    --bs-link-color: #b8c7e0;
+    --bs-link-color-rgb: 184, 199, 224;
+    --bs-link-hover-color: #ffffff;
+    --bs-link-hover-color-rgb: 255, 255, 255;
+    --hh-text-color-soft3: #aaa49d;
+    --text-color-soft3: #aaa49d;
+    --bs-tertiary-color: rgba(221, 221, 221, .72);
+}
+
+// Nebentext auf den Karten der Kreis- und Mitglieder-Uebersicht: im HumHub-Kern fest #57646c, auch
+// im dunklen Modus -- dort kaum lesbar (Rueckmeldung eines Mitglieds, 07.10.2026).
+// Die Kernregel lautet ".container-cards .card .card-body .card-details" -- unsere muss mindestens so
+// genau sein, sonst gewinnt sie nicht (erster Versuch mit ".card-panel .card-details" wirkte nicht).
+[data-bs-theme=dark] .container-cards .card .card-body .card-details,
+[data-bs-theme=dark] .card-panel .card-details {
+    color: #c9c4bd;
+}
+
+// Auf Gold nie weisse Schrift: dunkles Navy (Kontrast etwa 9:1 statt 2:1). Gilt hell wie dunkel.
+.label-info,
+.badge.badge-new,
+.badge.bg-accent,
+.text-bg-accent,
+.bg-accent:not(.bg-opacity-10):not(.bg-opacity-25),
+.progress-bar-info {
+    color: #0A1628 !important;
+}

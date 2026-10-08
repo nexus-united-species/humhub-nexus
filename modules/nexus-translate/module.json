@@ -1,0 +1,8 @@
+{
+    "id": "nexus-translate",
+    "name": "N.E.X.U.S. Uebersetzen",
+    "description": "Uebersetzen-Knopf an Beitraegen -- nutzt einen bereits vorhandenen KI-Zugang (Google Gemini) statt eines kostenpflichtigen Marktplatz-Moduls.",
+    "keywords": ["nexus", "translate", "uebersetzung"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

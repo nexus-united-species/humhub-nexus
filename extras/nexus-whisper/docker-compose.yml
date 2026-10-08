@@ -1,0 +1,25 @@
+# Interner Mitschrift-Dienst fuer Sprachnachrichten (siehe whisper_dienst.py).
+# Auf dem Server unter /mnt/data/whisper/. Kein "ports:" -- nur im Portal-Netz erreichbar.
+# WHISPER_TOKEN steht in /mnt/data/whisper/.env (nicht im Git) und identisch in den
+# HumHub-Einstellungen des Moduls nexus-voice (Schluessel "whisperToken").
+services:
+  nexus-whisper:
+    image: cockpit-cockpit            # bringt faster-whisper + PyAV mit
+    container_name: nexus-whisper
+    restart: unless-stopped
+    command: ["python", "/dienst/whisper_dienst.py"]
+    environment:
+      - WHISPER_TOKEN=${WHISPER_TOKEN}
+      - WHISPER_THREADS=2
+      - HF_HUB_OFFLINE=1
+    volumes:
+      - ./whisper_dienst.py:/dienst/whisper_dienst.py:ro
+      - ./modell:/modell:ro
+    mem_limit: 1500m
+    cpus: 2
+    networks:
+      - humhub_default
+
+networks:
+  humhub_default:
+    external: true

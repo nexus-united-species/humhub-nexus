@@ -1,0 +1,8 @@
+{
+    "id": "nexus-karte",
+    "name": "N.E.X.U.S. Gemeinschaftskarte",
+    "description": "Landkarte der Gemeinschaften: zeigt jeden Kreis, den ein Admin als Gemeinschaft markiert und der einen Ort hat. Nur Ort/Region, nie eine Adresse; das Kartenmaterial laeuft ueber den eigenen Server.",
+    "keywords": ["nexus", "karte", "gemeinschaften", "standort"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

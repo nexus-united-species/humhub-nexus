@@ -1,0 +1,8 @@
+{
+    "id": "nexus-video-faststart",
+    "name": "NEXUS Video Faststart",
+    "description": "Verschiebt bei jedem hochgeladenen Video den moov-Atom an den Dateianfang, damit die Wiedergabe im Browser sofort startet statt mit Fehler abzubrechen.",
+    "keywords": ["video", "faststart", "streaming"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

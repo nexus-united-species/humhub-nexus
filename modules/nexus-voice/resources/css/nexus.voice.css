@@ -1,0 +1,143 @@
+/* Aufnahme-Leiste: unten mittig, ueber allem, fuer Beitrag/Kommentar/Nachricht gleich. */
+.nexus-voice-leiste {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 2000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    /* Feste Breite statt "so schmal wie moeglich" -- sonst brach am Handy jede Zeile um. */
+    width: min(560px, calc(100vw - 32px));
+    box-sizing: border-box;
+    padding: 12px 16px;
+    background: #fff;
+    color: #1d2433;
+    border: 1px solid rgba(0, 0, 0, .12);
+    border-left: 4px solid #D4AF37;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .22);
+}
+.nexus-voice-probe { display: flex; align-items: center; gap: 10px; flex: 1 1 220px; }
+.nexus-voice-zeit { font-variant-numeric: tabular-nums; font-size: 14px; flex: 1 1 auto; min-width: 0; }
+
+/* Dunkler Modus -- VOR der Handy-Regel, und der goldene Akzent wird ausdruecklich
+   wiederhergestellt (sonst loeschte "border-color" ihn, am Handy fiel das auf). */
+@media (prefers-color-scheme: dark) {
+    .nexus-voice-leiste { background: #1f2430; color: #eef0f4; border-color: rgba(255, 255, 255, .15); border-left-color: #D4AF37; }
+}
+
+/* Handy: Leiste ueber die ganze Breite am unteren Rand (Josh, 26.09.2026, Screenshot --
+   vorher ein schmaler Kasten in der Mitte, alles umgebrochen). Status oben, Abspieler
+   in voller Breite, Knoepfe nebeneinander und gross genug fuer den Finger. */
+@media (max-width: 600px) {
+    .nexus-voice-leiste {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        transform: none;
+        border-radius: 16px 16px 0 0;
+        border-left-width: 0;
+        border-right-width: 0;
+        border-bottom-width: 0;
+        border-top: 4px solid #D4AF37;
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+        gap: 12px;
+    }
+    .nexus-voice-zeit { flex: 1 1 calc(100% - 30px); font-size: 16px; }
+    .nexus-voice-probe { flex: 1 1 100%; }
+    .nexus-voice-leiste .btn { flex: 1 1 0; min-height: 46px; font-size: 16px; }
+}
+.nexus-voice-punkt {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #d9363e;
+    animation: nexus-voice-puls 1.2s ease-in-out infinite;
+}
+@keyframes nexus-voice-puls { 50% { opacity: .25; } }
+/* Waehrend der Mitschrift: goldener statt roter Punkt -- es wird nicht mehr aufgenommen. */
+.nexus-voice-punkt-arbeit { background: #D4AF37; }
+@media (prefers-reduced-motion: reduce) { .nexus-voice-punkt { animation: none; } }
+
+/* Abspieler in Beitraegen/Kommentaren/Nachrichten */
+audio.nexus-voice-player {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    height: 40px;
+    margin: 6px 0;
+}
+
+/* Mikrofon-Knopf nicht an den Upload-Knopf kleben */
+.nexus-voice-btn { margin-left: 4px; }
+
+
+/* ── Videonachrichten (Josh, 02.10.2026): runder Kreis wie bei Telegram ── */
+.nexus-video-buehne { flex: 1 1 100%; display: flex; justify-content: center; }
+.nexus-video-kreis {
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #0B1F3A;
+    border: 4px solid #D4AF37;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .3);
+}
+.nexus-video-kreis video, .nexus-video-kreis canvas { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+/* Safari/iPhone (und manche Android-Browser) schneiden ein <video> trotz "overflow: hidden" + rundem
+   Rand NICHT rund zu -- es zeichnet sich in einer eigenen Ebene und bleibt eckig (Josh, 02.10.2026:
+   "am PC rund, am Handy 4-eckig"). Abhilfe: zusaetzlich eine Maske am Rahmen und der runde Rand am
+   Video selbst. */
+.nexus-video-kreis, .nexus-videonachricht {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);   /* voll deckend: zeichnet nichts weg, erzwingt nur das Zuschneiden */
+    transform: translateZ(0);
+}
+.nexus-video-kreis.gespiegelt video { transform: scaleX(-1); }
+.nexus-video-kreis.nimmt-auf { border-color: #d9363e; animation: nexus-video-rand 1.2s ease-in-out infinite; }
+@keyframes nexus-video-rand { 50% { border-color: rgba(217, 54, 62, .35); } }
+@media (prefers-reduced-motion: reduce) { .nexus-video-kreis.nimmt-auf { animation: none; } }
+@media (max-width: 600px) { .nexus-video-kreis { width: 64vw; height: 64vw; max-width: 260px; max-height: 260px; } }
+
+/* Fertige Videonachricht in Beitraegen, Kommentaren und Nachrichten */
+.nexus-videonachricht {
+    position: relative;
+    width: 240px; height: 240px;
+    max-width: 70vw; max-height: 70vw;
+    margin: 8px 0;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    background: #0B1F3A;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+.nexus-videonachricht video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.nexus-videonachricht svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
+.nexus-videonachricht .spur { fill: none; stroke: rgba(255, 255, 255, .25); stroke-width: 3; }
+.nexus-videonachricht .fortschritt { fill: none; stroke: #D4AF37; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset .25s linear; }
+.nexus-videonachricht-symbol {
+    position: absolute; left: 50%; top: 50%;
+    width: 56px; height: 56px; margin: -28px 0 0 -28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .45);
+    color: #fff; font-size: 24px; line-height: 56px; text-align: center; padding-left: 4px; box-sizing: border-box;
+    transition: opacity 150ms ease-out;
+}
+.nexus-videonachricht.spielt .nexus-videonachricht-symbol { opacity: 0; }
+.nexus-videonachricht-dauer {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    padding: 1px 8px; border-radius: 10px;
+    background: rgba(0, 0, 0, .5); color: #fff;
+    font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.nexus-videonachricht-dauer:empty { display: none; }
+.nexus-videonachricht:focus-visible { outline: 3px solid #D4AF37; outline-offset: 3px; }
+
+/* Private Nachrichten: Das Mail-Modul legt seine Knoepfe (Hochladen, Senden) ab 768 px Breite IN das
+   Schreibfeld und haelt dafuer rechts nur 115 px frei. Mit Mikrofon und Kamera reichte das nicht mehr,
+   die Knoepfe lagen ueber dem Text (Josh, 02.10.2026, Screenshot). Mehr Platz freihalten, nur wenn
+   unsere Knoepfe wirklich drin sind. */
+@media (min-width: 768px) {
+    .mail-message-form .richtext-create-input-group:has(.nexus-voice-btn) .humhub-ui-richtext { padding-right: 225px; }
+}

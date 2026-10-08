@@ -1,0 +1,8 @@
+{
+    "id": "nexus-meeting",
+    "name": "N.E.X.U.S. Meetings live",
+    "description": "Zeigt laufende Online-Treffen aus dem Kalender als kleinen Hinweis und oeffnet sie im kleinen Fenster (kMeet) -- abschaltbar. Behebt dabei den Ladefehler des Jitsi-Moduls bei langsamem Netz.",
+    "keywords": ["nexus", "meeting", "jitsi", "kmeet", "kalender"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

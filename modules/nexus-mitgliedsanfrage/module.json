@@ -1,0 +1,8 @@
+{
+    "id": "nexus-mitgliedsanfrage",
+    "name": "N.E.X.U.S. Mitgliedsanfrage",
+    "description": "Schickt den Admins die Antworten, die ein neues Mitglied bei der Registrierung auf die Kennenlern-Fragen gegeben hat -- einmal je Mensch, als Nachricht des Assistenten.",
+    "keywords": ["nexus", "registrierung", "mitgliedsanfrage"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

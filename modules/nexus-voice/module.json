@@ -1,0 +1,8 @@
+{
+    "id": "nexus-voice",
+    "name": "N.E.X.U.S. Sprachnachrichten",
+    "description": "Mikrofon- und Kamera-Knopf in Beitraegen, Kommentaren und privaten Nachrichten: Sprachnachricht bis 5 Minuten, Videonachricht bis 3 Minuten (runder Abspieler wie bei Telegram). Beides wird als normaler Dateianhang hochgeladen.",
+    "keywords": ["nexus", "voice", "sprachnachricht", "audio"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

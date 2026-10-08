@@ -1,0 +1,36 @@
+/**
+ * Design "NEXUS" -- Farben der Marke N.E.X.U.S.
+ *
+ * WARUM EIN EIGENER ORDNER:
+ * Der Ordner themes/HumHub wird vom Container bei JEDEM Neustart aus dem
+ * Abbild zurueckgesetzt -- Aenderungen dort sind nach dem naechsten Neustart
+ * spurlos verschwunden (am 28.08.2026 genau so passiert, samt der eigenen
+ * Sicherungskopie). Ein Ordner mit eigenem Namen bleibt unangetastet.
+ *
+ * WARUM NICHT IN DER DATENBANK:
+ * Die Eintraege "theme.var.NEXUS.*" in der Tabelle "setting" sehen wie
+ * Einstellungen aus, sind aber nur eine Abschrift der hier uebersetzten
+ * Werte. Sie werden bei jedem Neubau ueberschrieben und aendern nichts.
+ *
+ * Farbwerte identisch zu den Bild-Karten des Cockpits
+ * (app/services/bildkarten_service.py), damit alles zusammenpasst.
+ *
+ * Nach Aenderungen: Zwischenspeicher leeren und /data/assets leeren,
+ * sonst bleibt das alte Stylesheet stehen.
+ */
+
+// Basis, von der geerbt wird.
+$baseTheme: "HumHub";
+
+$primary: #0A1628;   // Navy -- Kopfleiste, Schaltflaechen
+$accent:  #D4AF37;   // Gold -- Hervorhebungen, Verweise
+
+// Lesbarkeit (Josh, 04.10.2026: "Standard-Schriftgroesse zu klein und schlecht lesbar, am Handy
+// je nach Licht"). HumHub-Standard ist 14 px mit viel hellem Grau.
+// - Grundschrift 16 px ueber $font-size-base (1.143 x 14 px; kurz 15 px -- Missverstaendnis, gemeint war der Beitragstext am Handy), NICHT ueber $font-size-root: das
+//   wuerde auch alle Abstaende um 14 % aufblasen und die Kopfleiste sprengen.
+// - Grautoene fuer Nebentexte dunkler; vorher #7a7a7a / #aeaeae auf Weiss (das zweite ist bei
+//   Sonnenlicht praktisch unsichtbar). Die festen Kleinst-Schriften stehen in _theme.scss.
+$font-size-base: 1.143rem;
+$text-color-secondary: #5f6368;
+$text-color-soft2: #6e7378;

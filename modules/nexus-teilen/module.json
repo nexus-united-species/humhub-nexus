@@ -1,0 +1,8 @@
+{
+    "id": "nexus-teilen",
+    "name": "N.E.X.U.S. Teilen",
+    "description": "Teilen-Knopf unter Beitraegen und Wiki-Seiten (Handy-Teilen-Menue oder Link kopieren, Text in der Sprache des Teilenden) und oeffentliche Lese-Links fuer einzeln freigegebene Beitraege und Wiki-Seiten.",
+    "keywords": ["nexus", "teilen", "share", "signal", "oeffentlich"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

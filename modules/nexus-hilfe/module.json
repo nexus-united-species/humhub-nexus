@@ -1,0 +1,8 @@
+{
+    "id": "nexus-hilfe",
+    "name": "N.E.X.U.S. Hilfe & Support",
+    "description": "Hilfe-Seite mit Anleitungen, Frag Nova und Anfrage-Formular; Anfragen landen im privaten Kreis Support-Team, das Team bekommt eine Nachricht, der Mensch eine Eingangsbestaetigung.",
+    "keywords": ["nexus", "hilfe", "support"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

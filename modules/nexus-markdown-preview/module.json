@@ -1,0 +1,8 @@
+{
+    "id": "nexus-markdown-preview",
+    "name": "N.E.X.U.S. Markdown-Vorschau",
+    "description": "Zeigt neben hochgeladenen .md-Dateien einen Vorschau-Knopf, der die Datei formatiert (Ueberschriften, Listen, Fett/Kursiv) statt als Rohtext anzeigt.",
+    "keywords": ["nexus", "markdown", "datei", "vorschau"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

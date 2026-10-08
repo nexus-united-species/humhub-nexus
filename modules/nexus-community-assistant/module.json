@@ -1,0 +1,8 @@
+{
+    "id": "nexus-community-assistant",
+    "name": "N.E.X.U.S. Community-Assistent",
+    "description": "Woechentliche Zusammenfassung an Admins, konfigurierbare Meeting-Erinnerungen, wiederkehrender Spendenaufruf/Selbstvorstellung und Direktfrage-Antworten per @-Erwaehnung -- alles ueber ein eigenes Bot-Konto.",
+    "keywords": ["nexus", "assistent", "ki", "meetings", "zusammenfassung"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

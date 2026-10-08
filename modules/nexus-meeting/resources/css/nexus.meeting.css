@@ -1,0 +1,72 @@
+/* Meetings live -- Farben des NEXUS-Themes (Navy/Gold). */
+
+/* Hinweis "Jetzt live": PC kleine Karte unten links, Handy schmale Leiste unten */
+.nexus-meeting-hinweis {
+    position: fixed; left: 16px; bottom: 16px; z-index: 1900;
+    width: min(380px, calc(100vw - 32px));
+    background: #0B1F3A; color: #fff;
+    border-left: 4px solid #d9363e; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+    padding: 6px 8px;
+}
+.nexus-meeting-zeile { display: flex; align-items: center; gap: 8px; padding: 4px 2px; }
+.nexus-meeting-zeile + .nexus-meeting-zeile { border-top: 1px solid rgba(255, 255, 255, .15); }
+.nexus-meeting-text { flex: 1 1 auto; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nexus-meeting-punkt {
+    display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%;
+    background: #d9363e; animation: nexus-meeting-puls 1.4s ease-in-out infinite; vertical-align: middle;
+}
+@keyframes nexus-meeting-puls { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .nexus-meeting-punkt { animation: none; } }
+.nexus-meeting-los { background: #D4AF37; border-color: #D4AF37; color: #0B1F3A; font-weight: 700; flex: 0 0 auto; }
+.nexus-meeting-los:hover, .nexus-meeting-los:focus { background: #e6c45a; color: #0B1F3A; }
+.nexus-meeting-x {
+    flex: 0 0 auto; width: 30px; height: 30px; border: 0; border-radius: 50%;
+    background: transparent; color: #fff; font-size: 20px; line-height: 1; opacity: .7;
+}
+.nexus-meeting-x:hover, .nexus-meeting-x:focus { opacity: 1; background: rgba(255, 255, 255, .12); }
+
+@media (max-width: 600px) {
+    .nexus-meeting-hinweis {
+        left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); width: auto;
+        padding: 4px 6px; border-radius: 12px;
+    }
+    .nexus-meeting-text { font-size: 13px; }
+}
+
+/* Meeting-Fenster */
+.nexus-meeting-fenster {
+    position: fixed; z-index: 2100;
+    display: flex; flex-direction: column;
+    background: #0B1F3A;
+    border: 2px solid #D4AF37; border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .45);
+    overflow: hidden;
+}
+.nexus-meeting-kopf { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 12px; background: #0B1F3A; color: #fff; }
+.nexus-meeting-name { flex: 1 1 auto; min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nexus-meeting-knopf {
+    flex: 0 0 auto; min-width: 34px; height: 30px; border: 0; border-radius: 6px;
+    background: rgba(255, 255, 255, .12); color: #fff; font-size: 16px; line-height: 1;
+}
+.nexus-meeting-knopf:hover, .nexus-meeting-knopf:focus { background: rgba(255, 255, 255, .25); }
+.nexus-meeting-raus:hover, .nexus-meeting-raus:focus { background: #d9363e; }
+.nexus-meeting-buehne { position: relative; flex: 1 1 auto; background: #000; }
+.nexus-meeting-buehne iframe { display: block; width: 100%; height: 100%; border: 0; }
+.nexus-meeting-laedt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+
+/* klein: PC unten rechts (Josh 06.10.2026: war zu klein -- 360x250 -> 480x320) */
+.nexus-meeting-fenster.ist-klein { right: 16px; bottom: 16px; width: 480px; height: 320px; max-width: calc(100vw - 32px); }
+/* gross: PC das ganze Browserfenster (vorher ein Kasten mit 90 % -- "auch das ist etwas klein") */
+.nexus-meeting-fenster.ist-gross { inset: 0; width: auto; height: auto; border-radius: 0; border-width: 0; }
+/* echter Vollbildmodus (Knopf ⛶) */
+.nexus-meeting-fenster:fullscreen { inset: 0; width: 100vw; height: 100vh; border-radius: 0; border-width: 0; }
+/* voll: Handy, ganzer Bildschirm */
+.nexus-meeting-fenster.ist-voll { inset: 0; width: auto; height: auto; border-radius: 0; border-width: 0; }
+
+@media (max-width: 600px) {
+    /* Handy klein: Bildchen unten rechts, ueber dem Hinweis */
+    .nexus-meeting-fenster.ist-klein { right: 8px; bottom: calc(70px + env(safe-area-inset-bottom)); width: 46vw; height: 34vw; min-height: 120px; }
+    .nexus-meeting-fenster.ist-klein .nexus-meeting-name { display: none; }
+    .nexus-meeting-fenster.ist-voll .nexus-meeting-kopf { padding-top: calc(4px + env(safe-area-inset-top)); }
+}

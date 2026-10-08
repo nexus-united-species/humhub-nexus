@@ -1,0 +1,10 @@
+{
+  "id": "nexus-supporter-bridge",
+  "name": "N.E.X.U.S. Unterstuetzer-Bruecke",
+  "description": "Verbindet Ko-fi-Zahlungen mit der geschuetzten Unterstuetzer-Bibliothek (privater HumHub-Space). Eigenstaendiges Modul, keine Aenderung am HumHub-Core.",
+  "keywords": ["ko-fi", "supporter", "membership", "nexus"],
+  "version": "1.0.0",
+  "humhub": {
+    "minVersion": "1.18"
+  }
+}

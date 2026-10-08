@@ -1,0 +1,8 @@
+{
+    "id": "nexus-arbeitszeit",
+    "name": "N.E.X.U.S. Arbeitsstunden",
+    "description": "Mitglieder tragen Arbeitsstunden fuer N.E.X.U.S. ein (Formular oder Nachricht an den Assistenten), jeweils einem Kreis zugeordnet; Admins geben frei oder bitten um Ruecksprache; Excel-Export.",
+    "keywords": ["nexus", "arbeitszeit", "stunden", "zeiterfassung"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

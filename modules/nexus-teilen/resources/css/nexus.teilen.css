@@ -1,0 +1,42 @@
+/* N.E.X.U.S. Teilen -- Meldung unten, kleines Ersatz-Fenster, Globus fuer "oeffentlich lesbar". */
+.nexus-teilen-globus { color: #b8941f; cursor: help; }
+
+.nexus-teilen-meldung {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    z-index: 100000; max-width: min(92vw, 520px);
+    background: #0b1a2e; color: #fff; border-left: 4px solid #D4AF37;
+    padding: 12px 16px; border-radius: 8px; box-shadow: 0 6px 24px rgba(0, 0, 0, .25);
+    font-size: 15px; line-height: 1.45; white-space: pre-line;
+    transition: opacity .5s ease;
+}
+.nexus-teilen-meldung.weg { opacity: 0; }
+
+.nexus-teilen-fenster {
+    position: fixed; inset: 0; z-index: 100001;
+    background: rgba(11, 26, 46, .55);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.nexus-teilen-kasten {
+    background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #1f2933);
+    width: 100%; max-width: 480px; border-radius: 10px; padding: 18px 18px 14px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .3);
+}
+.nexus-teilen-kasten h3 { margin: 0 0 10px; font-size: 18px; }
+.nexus-teilen-kasten textarea {
+    width: 100%; font-size: 14px; border-radius: 6px; padding: 8px;
+    border: 1px solid var(--bs-border-color, #d1d5db); resize: vertical;
+    background: var(--bs-tertiary-bg, #f9fafb); color: inherit;
+}
+.nexus-teilen-erklaerung { white-space: pre-line; font-size: 15px; line-height: 1.5; margin: 0; }
+.nexus-teilen-hinweis { font-size: 13px; color: var(--bs-secondary-color, #6b7280); margin: 8px 0 0; }
+.nexus-teilen-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+/* Schaufenster (nur Admins) */
+.nexus-teilen-schaufenster.drin { color: #b8941f; font-weight: 600; }
+.nexus-teilen-kasten.nexus-teilen-breit { max-width: 720px; }
+.nexus-teilen-pruefung { font-size: 14px; padding: 8px 10px; border-radius: 6px; margin-bottom: 6px; background: #ecfdf5; color: #065f46; }
+.nexus-teilen-pruefung.warnung { background: #fffbeb; color: #92400e; border-left: 4px solid #D4AF37; }
+.nexus-teilen-vorschau { margin-top: 10px; max-height: 50vh; overflow-y: auto; border: 1px solid var(--bs-border-color, #e5e7eb); border-radius: 8px; padding: 12px 14px; }
+.nexus-teilen-vorschau img, .nexus-teilen-vorschau video { max-width: 100%; height: auto; }
+.nexus-teilen-vorschau h4 { margin-top: 0; }
+mark.nexus-teilen-name { background: #fde68a; color: #1f2933; padding: 0 2px; border-radius: 3px; }
