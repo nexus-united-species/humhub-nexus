@@ -7,8 +7,8 @@ use nexus\modules\supporterBridge\models\Supporter;
 use nexus\modules\supporterBridge\models\SupporterEvent;
 use nexus\modules\supporterBridge\services\KofiWebhookService;
 use Yii;
-use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
+use humhub\components\access\ControllerAccess;
+use humhub\components\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -18,13 +18,10 @@ use yii\web\NotFoundHttpException;
  */
 class AdminController extends Controller
 {
-    public function beforeAction($action)
+    /** Nur Systemadministratoren -- ueber HumHubs Zugriffsregeln (auch Gast-, Wartungs- und Kontoregeln). */
+    protected function getAccessRules()
     {
-        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->isSystemAdmin()) {
-            throw new ForbiddenHttpException('Nur fuer Administratoren.');
-        }
-
-        return parent::beforeAction($action);
+        return [[ControllerAccess::RULE_ADMIN_ONLY]];
     }
 
     public function actionIndex()

@@ -3,7 +3,7 @@
 namespace nexus\modules\karte\models;
 
 use humhub\modules\user\models\User;
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * Ein Mitglied, das in seiner Region Mitstreiter sucht.

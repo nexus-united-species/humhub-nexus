@@ -11,6 +11,11 @@ use yii\web\Response;
  * Oeffentlicher Endpunkt, den Ko-fi anspricht. Bewusst ohne
  * Anmeldepflicht -- die Absicherung laeuft ausschliesslich ueber den
  * verification_token, den nur Ko-fi und wir kennen.
+ *
+ * Bewusst yii\web\Controller statt humhub\components\Controller: Ko-fi ist kein angemeldeter
+ * Mensch. HumHubs Zugriffsregeln wuerden den Aufruf bei abgeschaltetem Gastzugang auf die
+ * Anmeldeseite umleiten, und Ko-fi kann kein CSRF-Token mitsenden. Geschuetzt wird hier durch
+ * POST-Pflicht, Mengenbegrenzung je Adresse und den geheimen Pruefschluessel (hash_equals).
  */
 class WebhookController extends Controller
 {

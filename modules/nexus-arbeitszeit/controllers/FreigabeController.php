@@ -2,13 +2,13 @@
 
 namespace nexus\modules\arbeitszeit\controllers;
 
+use humhub\components\access\ControllerAccess;
 use humhub\components\Controller;
 use nexus\modules\arbeitszeit\models\Eintrag;
 use humhub\modules\space\models\Space;
 use nexus\modules\arbeitszeit\services\NextcloudBericht;
 use nexus\modules\arbeitszeit\services\ZeitService;
 use Yii;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -17,12 +17,10 @@ use yii\web\NotFoundHttpException;
  */
 class FreigabeController extends Controller
 {
-    public function beforeAction($action)
+    /** Nur Systemadministratoren -- ueber HumHubs Zugriffsregeln (auch Gast-, Wartungs- und Kontoregeln). */
+    protected function getAccessRules()
     {
-        if (Yii::$app->user->isGuest || !Yii::$app->user->getIdentity()->isSystemAdmin()) {
-            throw new ForbiddenHttpException('Nur fuer Administratoren.');
-        }
-        return parent::beforeAction($action);
+        return [[ControllerAccess::RULE_ADMIN_ONLY]];
     }
 
     public function actionIndex(?string $monat = null)

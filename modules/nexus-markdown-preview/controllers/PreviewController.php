@@ -6,7 +6,7 @@ use cebe\markdown\GithubMarkdown;
 use humhub\modules\file\models\File;
 use Yii;
 use yii\helpers\HtmlPurifier;
-use yii\web\Controller;
+use humhub\components\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 

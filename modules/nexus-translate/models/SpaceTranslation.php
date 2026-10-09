@@ -2,7 +2,7 @@
 
 namespace humhub\modules\nexusTranslate\models;
 
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * @property int $space_id

@@ -2,7 +2,7 @@
 
 namespace nexus\modules\supporterBridge\models;
 
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * Schlankes Audit-Protokoll. Bewusst OHNE Zahlungsdetails -- nur wer, was,

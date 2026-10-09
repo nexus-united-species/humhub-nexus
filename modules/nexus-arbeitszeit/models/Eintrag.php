@@ -4,7 +4,7 @@ namespace nexus\modules\arbeitszeit\models;
 
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * Ein Arbeitsstunden-Eintrag.

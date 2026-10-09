@@ -2,7 +2,7 @@
 
 namespace nexus\modules\supporterBridge\models;
 
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * @property int $id

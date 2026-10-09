@@ -2,7 +2,7 @@
 
 namespace nexus\modules\teilen\models;
 
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 use yii\helpers\Url;
 
 /**

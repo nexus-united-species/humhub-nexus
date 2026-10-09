@@ -6,7 +6,8 @@ use humhub\modules\space\models\Space;
 use nexus\modules\protectedLibrary\models\Book;
 use nexus\modules\protectedLibrary\models\Chapter;
 use Yii;
-use yii\web\Controller;
+use humhub\components\access\ControllerAccess;
+use humhub\components\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
@@ -17,13 +18,21 @@ use yii\web\NotFoundHttpException;
  */
 class ReaderController extends Controller
 {
+    protected function getAccessRules()
+    {
+        return [[ControllerAccess::RULE_LOGGED_IN_ONLY]];
+    }
+
     public function beforeAction($action)
     {
+        // Erst HumHubs Regeln (Anmeldung, Wartung, gesperrte Konten), dann: Unterstuetzer oder Admin?
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
         if (!$this->hatZugang()) {
             throw new ForbiddenHttpException('Dieser Bereich ist nur fuer Unterstuetzer:innen zugaenglich.');
         }
-
-        return parent::beforeAction($action);
+        return true;
     }
 
     /**

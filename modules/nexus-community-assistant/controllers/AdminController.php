@@ -7,8 +7,8 @@ use nexus\modules\communityAssistant\models\Meeting;
 use nexus\modules\communityAssistant\models\MeetingSpace;
 use nexus\modules\communityAssistant\models\ReminderState;
 use Yii;
-use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
+use humhub\components\access\ControllerAccess;
+use humhub\components\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -19,13 +19,10 @@ use yii\web\NotFoundHttpException;
  */
 class AdminController extends Controller
 {
-    public function beforeAction($action)
+    /** Nur Systemadministratoren -- ueber HumHubs Zugriffsregeln (auch Gast-, Wartungs- und Kontoregeln). */
+    protected function getAccessRules()
     {
-        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->isSystemAdmin()) {
-            throw new ForbiddenHttpException('Nur fuer Administratoren.');
-        }
-
-        return parent::beforeAction($action);
+        return [[ControllerAccess::RULE_ADMIN_ONLY]];
     }
 
     public function actionIndex()

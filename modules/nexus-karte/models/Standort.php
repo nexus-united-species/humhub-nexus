@@ -3,7 +3,7 @@
 namespace nexus\modules\karte\models;
 
 use humhub\modules\space\models\Space;
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * Ort einer Gemeinschaft.

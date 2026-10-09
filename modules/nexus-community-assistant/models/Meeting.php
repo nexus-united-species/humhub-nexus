@@ -2,7 +2,7 @@
 
 namespace nexus\modules\communityAssistant\models;
 
-use yii\db\ActiveRecord;
+use humhub\components\ActiveRecord;
 
 /**
  * @property int $id
