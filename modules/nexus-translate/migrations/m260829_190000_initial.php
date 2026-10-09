@@ -1,6 +1,6 @@
 <?php
 
-use yii\db\Migration;
+use humhub\components\Migration;
 
 class m260829_190000_initial extends Migration
 {

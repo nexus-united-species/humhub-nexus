@@ -1,6 +1,6 @@
 <?php
 
-use yii\db\Migration;
+use humhub\components\Migration;
 
 /**
  * Pruefsumme des Originals an jeder Uebersetzung (25.09.2026): die automatische

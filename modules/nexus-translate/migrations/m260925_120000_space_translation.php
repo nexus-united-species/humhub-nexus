@@ -1,6 +1,6 @@
 <?php
 
-use yii\db\Migration;
+use humhub\components\Migration;
 
 /**
  * Uebersetzte Kreis-Namen und -Kurzbeschreibungen (Josh, 25.09.2026).

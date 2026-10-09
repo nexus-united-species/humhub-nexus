@@ -6,13 +6,16 @@ use nexus\modules\protectedLibrary\models\Book;
 use nexus\modules\protectedLibrary\services\EpubImportService;
 use Yii;
 use humhub\components\access\ControllerAccess;
-use humhub\components\Controller;
+use humhub\modules\admin\components\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 
 class AdminController extends Controller
 {
-    /** Nur Systemadministratoren -- ueber HumHubs Zugriffsregeln (auch Gast-, Wartungs- und Kontoregeln). */
+    /**
+     * Admin-Grundklasse von HumHub (Verwaltungsbereich, Admin-Menue). Deren Standardregel waere die
+     * Berechtigung \"Einstellungen verwalten\" -- hier bewusst enger: nur Systemadministratoren.
+     */
     protected function getAccessRules()
     {
         return [[ControllerAccess::RULE_ADMIN_ONLY]];

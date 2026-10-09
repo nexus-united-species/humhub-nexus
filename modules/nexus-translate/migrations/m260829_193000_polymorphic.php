@@ -1,6 +1,6 @@
 <?php
 
-use yii\db\Migration;
+use humhub\components\Migration;
 
 /**
  * Die urspruengliche Tabelle war fest an "post" gebunden (Fremdschluessel).

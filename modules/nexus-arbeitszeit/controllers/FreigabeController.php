@@ -3,7 +3,7 @@
 namespace nexus\modules\arbeitszeit\controllers;
 
 use humhub\components\access\ControllerAccess;
-use humhub\components\Controller;
+use humhub\modules\admin\components\Controller;
 use nexus\modules\arbeitszeit\models\Eintrag;
 use humhub\modules\space\models\Space;
 use nexus\modules\arbeitszeit\services\NextcloudBericht;
@@ -17,7 +17,10 @@ use yii\web\NotFoundHttpException;
  */
 class FreigabeController extends Controller
 {
-    /** Nur Systemadministratoren -- ueber HumHubs Zugriffsregeln (auch Gast-, Wartungs- und Kontoregeln). */
+    /**
+     * Admin-Grundklasse von HumHub (Verwaltungsbereich, Admin-Menue). Deren Standardregel waere die
+     * Berechtigung \"Einstellungen verwalten\" -- hier bewusst enger: nur Systemadministratoren.
+     */
     protected function getAccessRules()
     {
         return [[ControllerAccess::RULE_ADMIN_ONLY]];

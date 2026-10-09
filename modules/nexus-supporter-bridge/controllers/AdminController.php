@@ -8,7 +8,7 @@ use nexus\modules\supporterBridge\models\SupporterEvent;
 use nexus\modules\supporterBridge\services\KofiWebhookService;
 use Yii;
 use humhub\components\access\ControllerAccess;
-use humhub\components\Controller;
+use humhub\modules\admin\components\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -18,7 +18,10 @@ use yii\web\NotFoundHttpException;
  */
 class AdminController extends Controller
 {
-    /** Nur Systemadministratoren -- ueber HumHubs Zugriffsregeln (auch Gast-, Wartungs- und Kontoregeln). */
+    /**
+     * Admin-Grundklasse von HumHub (Verwaltungsbereich, Admin-Menue). Deren Standardregel waere die
+     * Berechtigung \"Einstellungen verwalten\" -- hier bewusst enger: nur Systemadministratoren.
+     */
     protected function getAccessRules()
     {
         return [[ControllerAccess::RULE_ADMIN_ONLY]];
