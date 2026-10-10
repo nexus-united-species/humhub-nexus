@@ -1,0 +1,8 @@
+{
+    "id": "nexus-gesundheit",
+    "name": "N.E.X.U.S. Gesundheitswissen",
+    "description": "Nachschlagewerk mit geprueften Gesundheitsartikeln in einem Kreis: Suche nach Beschwerden (auch mit Alltagswoertern), Themen und Schlagworte, Artikelseiten mit Inhaltsverzeichnis und Querverweisen, Versionsgeschichte, Aenderungsvorschlaege der Mitglieder an die Admins.",
+    "keywords": ["nexus", "gesundheit", "wissen", "wiki", "heilpflanzen"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}
