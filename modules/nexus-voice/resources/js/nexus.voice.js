@@ -17,7 +17,9 @@
               keinMikro: 'Kein Zugriff auf das Mikrofon. Bitte im Browser erlauben (Schloss-Symbol neben der Adresse).',
               nichtMoeglich: 'Dieser Browser kann keine Sprachnachrichten aufnehmen.',
               uploadFehlt: 'Anhängen hat nicht geklappt – bitte die Seite neu laden und nochmal versuchen.',
-              schreibt: 'Angehängt ✓ – Mitschrift wird erstellt, bitte noch nicht senden …',
+              schreibt: 'Mitschrift wird erstellt, bitte noch nicht senden …',
+              hochladen: 'Wird hochgeladen … bitte mit dem Senden warten.', hochgeladen: 'Hochgeladen ✓ – du kannst jetzt senden.',
+              nochNichtFertig: 'Die Aufnahme wird noch hochgeladen. Bitte warte, bis „Hochgeladen ✓“ erscheint, und sende dann.',
               ohneMitschrift: 'Ohne Mitschrift',
               nichtsVerstanden: 'In der Aufnahme wurde kein Text erkannt. Die Aufnahme ist trotzdem angehängt.',
               mitschriftFehlt: 'Die Mitschrift hat nicht geklappt. Die Aufnahme ist trotzdem angehängt.',
@@ -33,7 +35,9 @@
               keinMikro: 'No access to the microphone. Please allow it in your browser (lock icon next to the address).',
               nichtMoeglich: 'This browser cannot record voice messages.',
               uploadFehlt: 'Attaching failed – please reload the page and try again.',
-              schreibt: 'Attached ✓ – creating transcript, please do not send yet …',
+              schreibt: 'Creating transcript, please do not send yet …',
+              hochladen: 'Uploading … please wait before sending.', hochgeladen: 'Uploaded ✓ – you can send now.',
+              nochNichtFertig: 'The recording is still uploading. Please wait until “Uploaded ✓” appears, then send.',
               ohneMitschrift: 'Without transcript',
               nichtsVerstanden: 'No speech was recognised. The recording is attached anyway.',
               mitschriftFehlt: 'The transcript did not work. The recording is attached anyway.',
@@ -49,7 +53,9 @@
               keinMikro: 'Sin acceso al micrófono. Permítelo en el navegador (icono del candado junto a la dirección).',
               nichtMoeglich: 'Este navegador no puede grabar mensajes de voz.',
               uploadFehlt: 'No se pudo adjuntar – recarga la página e inténtalo de nuevo.',
-              schreibt: 'Adjuntado ✓ – creando la transcripción, no envíes todavía …',
+              schreibt: 'Creando la transcripción, no envíes todavía …',
+              hochladen: 'Subiendo … espera antes de enviar.', hochgeladen: 'Subido ✓ – ya puedes enviar.',
+              nochNichtFertig: 'La grabación todavía se está subiendo. Espera a que aparezca «Subido ✓» y envía después.',
               ohneMitschrift: 'Sin transcripción',
               nichtsVerstanden: 'No se reconoció texto. La grabación está adjuntada de todos modos.',
               mitschriftFehlt: 'La transcripción no funcionó. La grabación está adjuntada de todos modos.',
@@ -125,6 +131,72 @@
         }
     }
 
+    function status(art, text) {
+        if (window.humhub && humhub.modules && humhub.modules.ui && humhub.modules.ui.status) {
+            humhub.modules.ui.status[art](text);
+        }
+    }
+
+    // ── Senden erst, wenn die Aufnahme wirklich hochgeladen ist (10.10.2026) ──
+    // Ein Video braucht zum Hochladen und Umwandeln oft 20-40 Sekunden, die Mitschrift ist meist
+    // schneller fertig. Wer dann auf "Senden" klickte, schickte den Text OHNE Video ab -- das Video
+    // landete verwaist auf dem Server. Deshalb sind die Senden-Knoepfe des Formulars gesperrt,
+    // bis HumHubs Upload-Widget die Datei zurueckmeldet.
+    function sperrBereich(uploadInput) {
+        return uploadInput.closest('.modal') || uploadInput.closest('form') || document.body;
+    }
+
+    function sendenSperren(bereich, an) {
+        bereich.querySelectorAll('[type="submit"]').forEach(function (b) {
+            if (an) {
+                if (!b.disabled) { b.disabled = true; b.dataset.nexusVoiceGesperrt = '1'; }
+            } else if (b.dataset.nexusVoiceGesperrt) {
+                b.disabled = false;
+                delete b.dataset.nexusVoiceGesperrt;
+            }
+        });
+    }
+
+    // Faengt auch ein Absenden ohne Knopf ab (Enter / Tastenkuerzel), solange etwas hochlaedt.
+    document.addEventListener('submit', function (e) {
+        var bereich = e.target.closest('.modal') || e.target;
+        if (bereich.nexusVoiceUploads > 0) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            meldung(T.nochNichtFertig);
+        }
+    }, true);
+
+    function hochladen(uploadInput, datei) {
+        var $input = window.jQuery(uploadInput);
+        var bereich = sperrBereich(uploadInput);
+        var name = 'fileuploadalways.nexusvoice' + Date.now();
+        bereich.nexusVoiceUploads = (bereich.nexusVoiceUploads || 0) + 1;
+        sendenSperren(bereich, true);
+        status('info', T.hochladen);
+        $input.on(name, function (e, data) {
+            if (!data || !data.files || data.files.indexOf(datei) === -1) { return; }
+            $input.off(name);
+            bereich.nexusVoiceUploads = Math.max(0, bereich.nexusVoiceUploads - 1);
+            if (!bereich.nexusVoiceUploads) { sendenSperren(bereich, false); }
+            if (data.textStatus === 'success') {
+                status('success', T.hochgeladen);
+            } else {
+                meldung(T.uploadFehlt);
+            }
+        });
+        // Genau der Weg eines ausgewaehlten Fotos: HumHubs Upload-Widget
+        // (jQuery-fileupload) prueft, laedt hoch und haengt die Datei ans Formular.
+        try {
+            $input.fileupload('add', { files: [datei] });
+        } catch (fehler) {
+            $input.off(name);
+            bereich.nexusVoiceUploads = Math.max(0, bereich.nexusVoiceUploads - 1);
+            if (!bereich.nexusVoiceUploads) { sendenSperren(bereich, false); }
+            throw fehler;
+        }
+    }
+
     function starte(uploadInput) {
         if (!kannAufnehmen) { meldung(T.nichtMoeglich); return; }
         if (aktiv) { return; }
@@ -194,9 +266,7 @@
         an.addEventListener('click', function () {
             var datei = new File([blob], dateiname(format.endung), { type: typ });
             try {
-                // Genau der Weg eines ausgewaehlten Fotos: HumHubs Upload-Widget
-                // (jQuery-fileupload) prueft, laedt hoch und haengt die Datei ans Formular.
-                window.jQuery(uploadInput).fileupload('add', { files: [datei] });
+                hochladen(uploadInput, datei);
             } catch (e) {
                 meldung(T.uploadFehlt);
                 return;
@@ -540,7 +610,7 @@
         an.addEventListener('click', function () {
             var datei = new File([blob], dateiname(endung, VIDEO_PRAEFIX), { type: typ });
             try {
-                window.jQuery(uploadInput).fileupload('add', { files: [datei] });
+                hochladen(uploadInput, datei);
             } catch (e) {
                 meldung(T.uploadFehlt);
                 return;
@@ -553,10 +623,8 @@
                     mitschreiben(sitzung, uploadInput, tonDatei);
                     return;
                 }
+                // Die Erfolgsmeldung kommt aus hochladen(), sobald das Video wirklich oben ist.
                 schliesse();
-                if (window.humhub && humhub.modules && humhub.modules.ui && humhub.modules.ui.status) {
-                    humhub.modules.ui.status.success(T.videoAngehaengt);
-                }
             });
         });
         an.focus();
