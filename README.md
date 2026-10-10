@@ -50,6 +50,7 @@
 | [`nexus-hilfe`](modules/nexus-hilfe) | **Hilfe & Support:** Hilfeseite, KI-Fragefunktion und Anfrageformular (auch ohne Anmeldung); Anfragen landen in einem privaten Support-Kreis. |
 | [`nexus-mitgliedsanfrage`](modules/nexus-mitgliedsanfrage) | **Antworten neuer Mitglieder** auf die Kennenlern-Fragen der Registrierung gehen als Nachricht an die Admins. |
 | [`nexus-community-assistant`](modules/nexus-community-assistant) | **KI-Assistent** mit eigenem Bot-Konto: Wochenzusammenfassung für Admins, Meeting-Erinnerungen, Begrüßung, Antworten auf @-Erwähnungen und Direktnachrichten. Wissensbasis frei befüllbar ([`knowledge/`](modules/nexus-community-assistant/knowledge)). |
+| [`nexus-gesundheit`](modules/nexus-gesundheit) | **Gesundheitswissen** im Stil von Wikipedia in einem Kreis: Suche auch mit Alltagswörtern, Themen, Schlagworte, Querverweise, Versionen. Nur Admins bearbeiten, Kreis-Mitglieder schicken Vorschläge. Artikel werden aus einem eigenen Ordner importiert (nicht im Repo). |
 | [`nexus-arbeitszeit`](modules/nexus-arbeitszeit) | **Ehrenamtliche Arbeitsstunden** erfassen (Formular oder Nachricht an den Assistenten), Kreisen zuordnen, freigeben, als Excel exportieren. |
 | [`nexus-protected-library`](modules/nexus-protected-library) | **Geschützter Lesebereich** für Bücher (EPUB-Import), kapitelweise im Browser lesbar, nur für Mitglieder eines Unterstützer-Kreises. |
 | [`nexus-supporter-bridge`](modules/nexus-supporter-bridge) | **Ko-fi-Anbindung:** Unterstützende erhalten automatisch Zugang zum Unterstützer-Kreis. |
@@ -120,6 +121,7 @@ Fehler, Fragen und Ideen gerne als [Issue](https://github.com/nexus-united-speci
 | [`nexus-hilfe`](modules/nexus-hilfe) | **Help & support:** help page, AI question feature and request form (also without login); requests go to a private support space. |
 | [`nexus-mitgliedsanfrage`](modules/nexus-mitgliedsanfrage) | **New members' answers** to the registration questions are sent to the admins as a message. |
 | [`nexus-community-assistant`](modules/nexus-community-assistant) | **AI assistant** with its own bot account: weekly summary for admins, meeting reminders, welcome messages, replies to @-mentions and direct messages. Knowledge base is up to you ([`knowledge/`](modules/nexus-community-assistant/knowledge)). |
+| [`nexus-gesundheit`](modules/nexus-gesundheit) | **Health knowledge** as a Wikipedia-style reference in a space: search with everyday words, topics, keywords, cross-links, versions. Only admins edit, space members send suggestions. Articles are imported from your own folder (not in the repo). |
 | [`nexus-arbeitszeit`](modules/nexus-arbeitszeit) | **Volunteer hours:** log hours (form or message to the assistant), assign them to spaces, approve, export to Excel. |
 | [`nexus-protected-library`](modules/nexus-protected-library) | **Protected reading area** for books (EPUB import), readable chapter by chapter in the browser, only for members of a supporter space. |
 | [`nexus-supporter-bridge`](modules/nexus-supporter-bridge) | **Ko-fi integration:** supporters automatically get access to the supporter space. |
