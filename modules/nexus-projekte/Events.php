@@ -19,6 +19,7 @@ class Events
     private const MENUE_KREIS = 110;   // direkt unter "Stream" (100)
     private const MENUE_OBEN = 250;
     private const STARTSEITE = 150;
+    private const KREIS_SEITENLEISTE = 5;   // ganz oben rechts im Kreis
 
     public static function onKreisMenue($event): void
     {
@@ -64,6 +65,15 @@ class Events
     {
         if (!Yii::$app->user->isGuest) {
             $event->sender->addWidget(MeineAufgabenKasten::class, [], ['sortOrder' => self::STARTSEITE]);
+        }
+    }
+
+    /** Rechts im Kreis: was ich in DIESEM Kreis zu tun habe -- erscheint nur, wenn etwas offen ist */
+    public static function onKreisSeitenleiste($event): void
+    {
+        $kreis = $event->sender->space ?? null;
+        if ($kreis instanceof Space && !Yii::$app->user->isGuest && Module::istAn($kreis)) {
+            $event->sender->addWidget(MeineAufgabenKasten::class, ['kreis' => $kreis], ['sortOrder' => self::KREIS_SEITENLEISTE]);
         }
     }
 

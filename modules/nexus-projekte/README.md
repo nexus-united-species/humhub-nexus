@@ -13,7 +13,7 @@
 - **Each card has exactly one responsible person** (so it is clear who is in charge), any number of helpers, a due date, a checklist of steps and links to documents (wiki pages, files).
 - **"I will take this"**: any space member can pick up an open card with one click.
 - **One-click feedback**: when a card is moved to "Up for feedback", the space gets a post asking for feedback. Members click **"Looks good"** or **"I have a change"** (with a short explanation). The card shows who agreed, who asked for changes and which project members have not answered yet.
-- **"My tasks"** in the top bar (and as a box on the dashboard): everything that concerns you across all spaces – cards you are responsible for or helping with, and feedback rounds waiting for you – sorted by date, overdue items in red.
+- **"My tasks"** in the top bar (and as a box on the dashboard and, filtered to that space, at the top of each space's sidebar): everything that concerns you across all spaces – cards you are responsible for or helping with, and feedback rounds waiting for you – sorted by date, overdue items in red.
 - **Reminders** as private messages: one day before a due date, once when a card is overdue (only to the responsible person and the lead, never publicly), and one day before a feedback round ends to project members who have not answered.
 - Works on phones: buttons instead of drag and drop.
 
@@ -56,7 +56,7 @@ Optional settings in `protected/config/common.php`:
 - **Jede Kachel:** genau eine verantwortliche Person, Mithelfende, Frist, Teilschritte zum Abhaken, Links zu Unterlagen.
 - **„Das übernehme ich“** – ein Klick für jedes Kreismitglied.
 - **Abstimmung mit einem Klick:** Kommt eine Kachel auf „Zur Abstimmung“, erscheint ein Beitrag im Kreis. Mitglieder klicken „Passt so“ oder „Ich habe eine Änderung“. Die Kachel zeigt, wer zugestimmt hat, wer etwas ändern möchte und wer aus dem Projekt sich noch nicht gemeldet hat.
-- **„Meine Aufgaben“** oben im Portal und auf der Startseite: alles aus allen Kreisen, nach Datum, Überfälliges rot.
+- **„Meine Aufgaben“** oben im Portal, auf der Startseite und rechts in jedem Kreis (nur die Aufgaben dieses Kreises): alles aus allen Kreisen, nach Datum, Überfälliges rot.
 - **Erinnerungen** als private Nachricht: einen Tag vor der Frist, einmal bei Überschreitung (nur an Verantwortliche und Leitung, nie öffentlich), einen Tag vor Ende einer Abstimmung an Beteiligte ohne Rückmeldung.
 
 **Einrichten:** Modul einschalten, dann im Kreis unter Einstellungen → Module „Projekte“ aktivieren. Einstellungen siehe oben (`projektAnlegen`, `erinnern`, `abstimmungTage`). Private Nachrichten über `nexus-arbeitszeit`, sonst entfallen nur die Nachrichten.
