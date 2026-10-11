@@ -1,0 +1,41 @@
+/* Wissenssammlungen -- Farben aus dem Theme (Bootstrap-5-Variablen), damit hell und dunkel passen */
+.nx-ws { --nx-ws-rand: var(--bs-border-color, #dee2e6); --nx-ws-leise: var(--bs-secondary-color, #6c757d); }
+.nx-ws .nx-ws-kopf h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
+.nx-ws .nx-ws-leise { color: var(--nx-ws-leise); font-size: .9rem; }
+.nx-ws .nx-ws-suche { display: flex; gap: .5rem; margin: 1rem 0; }
+.nx-ws .nx-ws-suche input { flex: 1; font-size: 1.05rem; }
+.nx-ws .nx-ws-themen { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .6rem; margin: .5rem 0 1.25rem; }
+.nx-ws .nx-ws-thema { display: block; border: 1px solid var(--nx-ws-rand); border-radius: 8px; padding: .75rem .9rem; text-decoration: none; color: inherit; }
+.nx-ws .nx-ws-thema:hover, .nx-ws .nx-ws-thema:focus { border-color: var(--bs-primary); }
+.nx-ws .nx-ws-thema i { margin-right: .4rem; }
+.nx-ws .nx-ws-worte { display: flex; flex-wrap: wrap; gap: .4rem; }
+.nx-ws .nx-ws-wort { display: inline-block; padding: .15rem .6rem; border-radius: 999px; background: var(--bs-tertiary-bg, #f1f3f5); color: inherit; font-size: .88rem; text-decoration: none; }
+.nx-ws .nx-ws-wort:hover { background: var(--bs-secondary-bg, #e9ecef); }
+.nx-ws .nx-ws-liste { list-style: none; padding: 0; margin: 0; }
+.nx-ws .nx-ws-liste li { border-bottom: 1px solid var(--nx-ws-rand); padding: .65rem 0; }
+.nx-ws .nx-ws-liste a.nx-ws-titel { font-weight: 600; }
+.nx-ws .nx-ws-liste p { margin: .2rem 0 0; color: var(--nx-ws-leise); font-size: .92rem; }
+.nx-ws .nx-ws-pfad { font-size: .85rem; color: var(--nx-ws-leise); margin-bottom: .25rem; }
+.nx-ws .nx-ws-raster { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 1.5rem; align-items: start; }
+@media (max-width: 991px) { .nx-ws .nx-ws-raster { grid-template-columns: 1fr; } .nx-ws .nx-ws-box { order: -1; } }
+.nx-ws .nx-ws-inhalt { background: var(--bs-tertiary-bg, #f8f9fa); border-radius: 8px; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .92rem; }
+.nx-ws .nx-ws-inhalt ol { margin: .25rem 0 0; padding-left: 1.25rem; }
+.nx-ws .nx-ws-text { font-size: 1rem; line-height: 1.65; }
+.nx-ws .nx-ws-text h2 { font-size: 1.25rem; margin-top: 1.5rem; border-bottom: 1px solid var(--nx-ws-rand); padding-bottom: .2rem; }
+.nx-ws .nx-ws-text h3 { font-size: 1.08rem; margin-top: 1.1rem; }
+.nx-ws .nx-ws-text a.nx-ws-querverweis { text-decoration: underline dotted; }
+.nx-ws .nx-ws-text table { width: 100%; margin: .75rem 0; }
+.nx-ws .nx-ws-text td, .nx-ws .nx-ws-text th { border: 1px solid var(--nx-ws-rand); padding: .3rem .5rem; }
+.nx-ws .nx-ws-box { border: 1px solid var(--nx-ws-rand); border-radius: 8px; padding: .75rem .9rem; font-size: .9rem; }
+.nx-ws .nx-ws-box dt { color: var(--nx-ws-leise); font-weight: normal; margin-top: .45rem; }
+.nx-ws .nx-ws-box dd { margin: 0; }
+.nx-ws .nx-ws-hinweis { border-left: 4px solid var(--bs-warning, #f0ad4e); background: var(--bs-warning-bg-subtle, #fff8e5); padding: .6rem .8rem; margin: 1.25rem 0; font-size: .92rem; }
+.nx-ws .nx-ws-knoepfe { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.nx-ws .nx-ws-formular { border: 1px solid var(--nx-ws-rand); border-radius: 8px; padding: .75rem; margin: .5rem 0 1rem; }
+.nx-ws .nx-ws-formular textarea { width: 100%; min-height: 7rem; }
+.nx-ws .nx-ws-meldung { background: var(--bs-success-bg-subtle, #e8f5e9); border-radius: 8px; padding: .5rem .8rem; margin-bottom: 1rem; }
+.nx-ws .nx-ws-admin { border: 1px dashed var(--nx-ws-rand); border-radius: 8px; padding: .5rem .8rem; margin: .75rem 0; font-size: .9rem; display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.nx-ws .nx-ws-editor { width: 100%; min-height: 28rem; font-family: var(--bs-font-monospace, monospace); font-size: .9rem; }
+.nx-ws .nx-ws-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; margin-bottom: .75rem; }
+.nx-ws .nx-ws-felder label { display: block; font-weight: 600; font-size: .88rem; }
+.nx-ws .nx-ws-felder input, .nx-ws .nx-ws-felder select { width: 100%; }
