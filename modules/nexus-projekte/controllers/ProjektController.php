@@ -419,7 +419,7 @@ class ProjektController extends ContentContainerController
         $zahl = [];
         foreach ($karten as $k) {
             if ($k->spalte === 'abstimmung') {
-                $arten = Stimme::find()->select(['art', 'n' => 'COUNT(*)'])->where(['karte_id' => $k->id, 'runde' => $k->runde])->groupBy('art')->indexBy('art')->column();
+                $arten = Stimme::find()->select(['n' => 'COUNT(*)', 'art'])->where(['karte_id' => $k->id, 'runde' => $k->runde])->groupBy('art')->indexBy('art')->column();
                 $zahl[$k->id] = ['ok' => (int)($arten['ok'] ?? 0), 'aenderung' => (int)($arten['aenderung'] ?? 0)];
             }
         }

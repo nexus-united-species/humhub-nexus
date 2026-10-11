@@ -105,7 +105,8 @@ class Projekt extends ActiveRecord
     /** @return array{gesamt: int, fertig: int} */
     public function fortschritt(): array
     {
-        $zahlen = Karte::find()->select(['spalte', 'n' => 'COUNT(*)'])->where(['projekt_id' => $this->id])->groupBy('spalte')->indexBy('spalte')->column();
+        // column() liefert die ERSTE Spalte der Auswahl -- deshalb die Anzahl zuerst
+        $zahlen = Karte::find()->select(['n' => 'COUNT(*)', 'spalte'])->where(['projekt_id' => $this->id])->groupBy('spalte')->indexBy('spalte')->column();
         return ['gesamt' => (int)array_sum($zahlen), 'fertig' => (int)($zahlen['fertig'] ?? 0)];
     }
 
