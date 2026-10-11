@@ -31,7 +31,7 @@ $this->title = Texte::t('projekte');
                 <a class="nx-pj-kachel" href="<?= Html::encode($p->url()) ?>">
                     <strong><?= Html::encode($p->titel) ?></strong>
                     <span class="nx-pj-leise">
-                        <?= Html::encode(Texte::t('leitung')) ?>: <?= Html::encode($p->leitung ? $p->leitung->displayName : '–') ?>
+                        <?= Html::encode(Texte::t('leitung')) ?>: <?= Html::encode($p->leitungNamen()) ?>
                         · <?= Html::encode($p->frist ? sprintf(Texte::t('bis'), Texte::datum($p->frist)) : Texte::t('laufend')) ?>
                     </span>
                     <div class="nx-pj-balken"><span style="width:<?= (int)$prozent ?>%"></span></div>

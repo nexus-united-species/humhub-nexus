@@ -22,7 +22,7 @@
 | | |
 |---|---|
 | Create projects | space admins (with `'projektAnlegen' => 'mitglieder'`: all members) |
-| Project lead and space admins | edit project, add cards, assign people, move cards, mark as done, delete |
+| Project leads (up to 5) and space admins | edit project, add cards, assign people, move cards, mark as done, delete |
 | Responsible person | edit their card, tick steps, move it up to "Up for feedback" (only the lead marks it done) |
 | Helpers | tick steps |
 | Space members | "I will take this", feedback, "Join in" (to get feedback reminders) |
@@ -51,7 +51,7 @@ Optional settings in `protected/config/common.php`:
 
 **Projekt-Tafeln für Kreise** – gemacht für Gemeinschaften, in denen viele Mitglieder keine Projektwerkzeuge gewohnt sind: eine Pinnwand mit Kacheln und Knöpfen statt Listen und Status.
 
-- **Projekte** im Kreis (Menüpunkt „Projekte“), jedes als Kachel mit Leitung, Termin, Fortschritt und dem, was auf dich wartet.
+- **Projekte** im Kreis (Menüpunkt „Projekte“), jedes als Kachel mit Leitung (bis zu fünf Menschen), Termin, Fortschritt und dem, was auf dich wartet.
 - **Tafel mit vier Spalten:** Offen → In Arbeit → Zur Abstimmung → Fertig.
 - **Jede Kachel:** genau eine verantwortliche Person, Mithelfende, Frist, Teilschritte zum Abhaken, Links zu Unterlagen.
 - **„Das übernehme ich“** – ein Klick für jedes Kreismitglied.

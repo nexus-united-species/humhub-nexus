@@ -56,7 +56,7 @@ class ProjektController extends ContentContainerController
     public function actionIndex()
     {
         $kreis = $this->kreis();
-        $projekte = Projekt::find()->where(['space_id' => $kreis->id])->with('leitung')
+        $projekte = Projekt::find()->where(['space_id' => $kreis->id])
             ->orderBy(['status' => SORT_ASC, 'frist' => SORT_ASC, 'id' => SORT_ASC])->all();
         $ich = $this->ich();
         $zahlen = [];
@@ -99,7 +99,7 @@ class ProjektController extends ContentContainerController
 
     public function actionFormular(int $p = 0)
     {
-        $projekt = $p > 0 ? $this->projekt($p) : new Projekt(['space_id' => $this->kreis()->id, 'leitung_id' => $this->ich()->id, 'status' => 'aktiv']);
+        $projekt = $p > 0 ? $this->projekt($p) : new Projekt(['space_id' => $this->kreis()->id, 'status' => 'aktiv']);
         $this->pruefe($projekt->isNewRecord ? Rechte::darfProjektAnlegen($this->kreis(), $this->ich()) : Rechte::darfLeiten($projekt, $this->ich()));
         return $this->render('formular', ['kreis' => $this->kreis(), 'projekt' => $projekt, 'fehler' => null]);
     }
@@ -114,11 +114,12 @@ class ProjektController extends ContentContainerController
         $projekt->ziel = trim((string)$r->post('ziel')) ?: null;
         $projekt->frist = trim((string)$r->post('frist')) ?: null;
         $projekt->status = $r->post('status') === 'abgeschlossen' ? 'abgeschlossen' : 'aktiv';
-        $leitung = $this->personen((array)$r->post('leitung', []))[0] ?? null;
-        $projekt->leitung_id = $leitung ? $leitung->id : $this->ich()->id;
         if (!$projekt->save()) {
             return $this->render('formular', ['kreis' => $kreis, 'projekt' => $projekt, 'fehler' => implode(' ', $projekt->getErrorSummary(true))]);
         }
+        // Ohne Auswahl leitet, wer das Projekt anlegt bzw. gerade bearbeitet
+        $leitung = array_map(fn($u) => (int)$u->id, $this->personen((array)$r->post('leitung', [])));
+        $projekt->setzeLeitung($leitung !== [] ? $leitung : [(int)$this->ich()->id]);
         Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert'));
         return $this->redirect($projekt->url());
     }

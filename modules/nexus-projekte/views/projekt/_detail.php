@@ -26,7 +26,7 @@ $zustimmung = array_filter($stimmen, fn($s) => $s->art === 'ok');
 $aenderungen = array_filter($stimmen, fn($s) => $s->art === 'aenderung');
 $fehlen = [];
 if ($karte->spalte === 'abstimmung') {
-    $ids = array_diff($karte->projekt->beteiligteIds(), array_map(fn($s) => (int)$s->user_id, $stimmen), [(int)$karte->verantwortlich_id]);
+    $ids = array_diff($karte->projekt->beteiligteIds(), array_map(fn($s) => (int)$s->user_id, $stimmen), [(int)$karte->verantwortlich_id], $karte->projekt->leitungIds());
     $fehlen = $ids === [] ? [] : User::find()->where(['id' => $ids])->all();
 }
 $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 'btn-default') use ($karte, $url, $ich) {

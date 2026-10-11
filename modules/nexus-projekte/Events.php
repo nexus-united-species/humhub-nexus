@@ -91,7 +91,8 @@ class Events
             foreach ($offen()->andWhere(['k.spalte' => 'abstimmung', 'k.abstimmung_bis' => $morgen])->andWhere(['<', 'k.erinnert_runde', new \yii\db\Expression('k.runde')])->all() as $k) {
                 if (self::istAn($k)) {
                     $schon = array_map('intval', Stimme::find()->select('user_id')->where(['karte_id' => $k->id, 'runde' => $k->runde])->column());
-                    $fehlen = array_diff($k->projekt->beteiligteIds(), $schon, [(int)$k->verantwortlich_id]);
+                    // Leitung und Verantwortliche fragen nicht sich selbst
+                    $fehlen = array_diff($k->projekt->beteiligteIds(), $schon, [(int)$k->verantwortlich_id], $k->projekt->leitungIds());
                     Nachrichten::abstimmungEndetMorgen($k, $fehlen === [] ? [] : User::find()->where(['id' => $fehlen])->all());
                 }
                 $k->updateAttributes(['erinnert_runde' => $k->runde]);

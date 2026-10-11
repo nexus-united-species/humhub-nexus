@@ -6,6 +6,7 @@ use humhub\modules\space\models\Membership;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\models\Karte;
+use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Stimme;
 use nexus\modules\projekte\Module;
 
@@ -57,8 +58,13 @@ class MeineAufgaben
         if ($meineKreise !== []) {
             $abgestimmt = Stimme::find()->alias('s')->innerJoin(Karte::tableName() . ' sk', 'sk.id = s.karte_id AND sk.runde = s.runde')
                 ->select('s.karte_id')->where(['s.user_id' => $id])->column();
+            $geleitet = (new \yii\db\Query())->select('projekt_id')->from(Projekt::LEITUNG_TABELLE)->where(['user_id' => $id])->column();
             $abfrage = $basis()->andWhere(['k.spalte' => 'abstimmung', 'p.space_id' => $meineKreise])
                 ->andWhere(['or', ['k.verantwortlich_id' => null], ['!=', 'k.verantwortlich_id', $id]]);
+            if ($geleitet !== []) {
+                // Die Leitung wartet selbst auf Rueckmeldungen -- das ist keine Aufgabe fuer sie
+                $abfrage->andWhere(['not in', 'p.id', $geleitet]);
+            }
             if ($abgestimmt !== []) {
                 $abfrage->andWhere(['not in', 'k.id', $abgestimmt]);
             }

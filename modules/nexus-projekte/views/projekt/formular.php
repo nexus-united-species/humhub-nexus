@@ -31,9 +31,9 @@ $this->title = Texte::t($neu ? 'projekt_anlegen' : 'projekt_bearbeiten');
                 <div><label><?= Html::encode(Texte::t('leitung')) ?></label>
                     <?= UserPickerField::widget([
                         'name' => 'leitung',
-                        'selection' => $projekt->leitung ? [$projekt->leitung] : [],
+                        'selection' => $projekt->isNewRecord ? [Yii::$app->user->getIdentity()] : $projekt->leitungen(),
                         'url' => $kreis->createUrl('/space/membership/search'),
-                        'maxSelection' => 1,
+                        'maxSelection' => nexus\modules\projekte\models\Projekt::MAX_LEITUNG,
                         'placeholder' => Texte::t('personen'),
                     ]) ?></div>
                 <div><label for="nx-pj-frist"><?= Html::encode(Texte::t('frist')) ?></label>

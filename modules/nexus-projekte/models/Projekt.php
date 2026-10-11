@@ -11,7 +11,6 @@ use humhub\modules\user\models\User;
  * @property int $space_id
  * @property string $titel
  * @property string|null $ziel
- * @property int|null $leitung_id
  * @property string|null $frist
  * @property string $status      aktiv | abgeschlossen
  * @property string $created_at
@@ -19,13 +18,14 @@ use humhub\modules\user\models\User;
  * @property string $updated_at
  *
  * @property-read Space $kreis
- * @property-read User|null $leitung
  * @property-read Karte[] $karten
  */
 class Projekt extends ActiveRecord
 {
     public const STATUS = ['aktiv', 'abgeschlossen'];
     public const MITMACHER_TABELLE = 'nexus_projekt_mitmacher';
+    public const LEITUNG_TABELLE = 'nexus_projekt_leitung';
+    public const MAX_LEITUNG = 5;
 
     public static function tableName()
     {
@@ -40,7 +40,6 @@ class Projekt extends ActiveRecord
             ['ziel', 'string', 'max' => 5000],
             ['frist', 'date', 'format' => 'php:Y-m-d'],
             ['status', 'in', 'range' => self::STATUS],
-            ['leitung_id', 'integer'],
         ];
     }
 
@@ -59,9 +58,38 @@ class Projekt extends ActiveRecord
         return $this->hasOne(Space::class, ['id' => 'space_id']);
     }
 
-    public function getLeitung()
+    /** @return int[] */
+    public function leitungIds(): array
     {
-        return $this->hasOne(User::class, ['id' => 'leitung_id']);
+        return array_map('intval', (new \yii\db\Query())->select('user_id')->from(self::LEITUNG_TABELLE)
+            ->where(['projekt_id' => $this->id])->orderBy('user_id')->column());
+    }
+
+    /** @return User[] */
+    public function leitungen(): array
+    {
+        $ids = $this->leitungIds();
+        return $ids === [] ? [] : User::find()->where(['id' => $ids])->orderBy('id')->all();
+    }
+
+    public function istLeitung(int $userId): bool
+    {
+        return in_array($userId, $this->leitungIds(), true);
+    }
+
+    /** @param int[] $userIds */
+    public function setzeLeitung(array $userIds): void
+    {
+        $db = static::getDb();
+        $db->createCommand()->delete(self::LEITUNG_TABELLE, ['projekt_id' => $this->id])->execute();
+        foreach (array_slice(array_unique(array_filter(array_map('intval', $userIds))), 0, self::MAX_LEITUNG) as $id) {
+            $db->createCommand()->insert(self::LEITUNG_TABELLE, ['projekt_id' => $this->id, 'user_id' => $id])->execute();
+        }
+    }
+
+    public function leitungNamen(): string
+    {
+        return implode(', ', array_map(fn(User $u) => $u->displayName, $this->leitungen())) ?: '–';
     }
 
     public function getKarten()
@@ -94,7 +122,7 @@ class Projekt extends ActiveRecord
     {
         $kartenIds = Karte::find()->select('id')->where(['projekt_id' => $this->id])->column();
         $ids = array_merge(
-            [(int)$this->leitung_id],
+            $this->leitungIds(),
             array_map('intval', Karte::find()->select('verantwortlich_id')->where(['projekt_id' => $this->id])->andWhere(['not', ['verantwortlich_id' => null]])->column()),
             $kartenIds === [] ? [] : array_map('intval', (new \yii\db\Query())->select('user_id')->from(Karte::HELFER_TABELLE)->where(['karte_id' => $kartenIds])->column()),
             $this->mitmacherIds(),

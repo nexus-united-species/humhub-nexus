@@ -35,7 +35,7 @@ class Rechte
     /** Projektleitung und Kreis-Admins: Projekt aendern, Kacheln anlegen, zuweisen, verschieben, loeschen */
     public static function darfLeiten(Projekt $projekt, ?User $mensch): bool
     {
-        return $mensch !== null && ((int)$projekt->leitung_id === (int)$mensch->id || self::istKreisAdmin($projekt->kreis, $mensch));
+        return $mensch !== null && ($projekt->istLeitung((int)$mensch->id) || self::istKreisAdmin($projekt->kreis, $mensch));
     }
 
     /** Verantwortliche duerfen ihre Kachel bearbeiten und verschieben -- nur "Fertig" setzt die Leitung */

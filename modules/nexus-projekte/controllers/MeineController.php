@@ -27,7 +27,8 @@ class MeineController extends Controller
         ProjekteAsset::register($this->view);
         $this->view->title = Texte::t('meine_aufgaben');
         $geleitet = array_filter(
-            Projekt::find()->where(['leitung_id' => $ich->id, 'status' => 'aktiv'])->with('kreis')->orderBy('titel')->all(),
+            Projekt::find()->innerJoin(Projekt::LEITUNG_TABELLE . ' l', 'l.projekt_id = ' . Projekt::tableName() . '.id')
+                ->where(['l.user_id' => $ich->id, 'status' => 'aktiv'])->with('kreis')->orderBy('titel')->all(),
             fn(Projekt $p) => $p->kreis !== null && Module::istAn($p->kreis)
         );
         return $this->render('index', [

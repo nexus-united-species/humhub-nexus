@@ -64,9 +64,10 @@ class Nachrichten
 
     public static function uebernommen(Karte $karte, User $von): void
     {
-        $leitung = $karte->projekt->leitung;
-        if ($leitung !== null && (int)$leitung->id !== (int)$von->id) {
-            self::senden($leitung, $karte->projekt, sprintf("🙋 %s übernimmt **%s**.\n\n%s", $von->displayName, $karte->titel, $karte->url(true)));
+        foreach ($karte->projekt->leitungen() as $leitung) {
+            if ((int)$leitung->id !== (int)$von->id) {
+                self::senden($leitung, $karte->projekt, sprintf("🙋 %s übernimmt **%s**.\n\n%s", $von->displayName, $karte->titel, $karte->url(true)));
+            }
         }
     }
 
@@ -114,7 +115,7 @@ class Nachrichten
     private static function verantwortlicheUndLeitung(Karte $karte): array
     {
         $liste = [];
-        foreach ([$karte->verantwortlich, $karte->projekt->leitung] as $m) {
+        foreach (array_merge([$karte->verantwortlich], $karte->projekt->leitungen()) as $m) {
             if ($m !== null) {
                 $liste[$m->id] = $m;
             }

@@ -33,7 +33,7 @@ $this->title = $projekt->titel;
                 <h1><?= Html::encode($projekt->titel) ?><?php if ($projekt->status !== 'aktiv') : ?> <span class="nx-pj-leise">(<?= Html::encode(Texte::t('abgeschlossen')) ?>)</span><?php endif; ?></h1>
                 <?php if ($projekt->ziel) : ?><div style="white-space:pre-wrap"><?= Html::encode($projekt->ziel) ?></div><?php endif; ?>
                 <div class="nx-pj-leise">
-                    <?= Html::encode(Texte::t('leitung')) ?>: <?= Html::encode($projekt->leitung ? $projekt->leitung->displayName : '–') ?>
+                    <?= Html::encode(Texte::t('leitung')) ?>: <?= Html::encode($projekt->leitungNamen()) ?>
                     · <?= Html::encode($projekt->frist ? sprintf(Texte::t('bis'), Texte::datum($projekt->frist)) : Texte::t('laufend')) ?>
                 </div>
             </div>
@@ -45,7 +45,7 @@ $this->title = $projekt->titel;
                         <a class="btn btn-primary btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/karte', ['p' => $projekt->id])) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('neue_karte')) ?></a>
                         <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/formular', ['p' => $projekt->id])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>
                     <?php endif; ?>
-                    <?php if ($istMitglied && (int)$projekt->leitung_id !== (int)$ich->id) : ?>
+                    <?php if ($istMitglied && !$projekt->istLeitung((int)$ich->id)) : ?>
                         <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/mitmachen', ['p' => $projekt->id]), 'post', ['title' => Texte::t('mitmacher_hinweis')]) ?>
                             <?= Html::hiddenInput('an', $machtMit ? '0' : '1') ?>
                             <button type="submit" class="btn btn-default btn-sm"><i class="fa fa-<?= $machtMit ? 'check' : 'hand-paper-o' ?>"></i> <?= Html::encode(Texte::t($machtMit ? 'nicht_mehr' : 'mitmachen')) ?></button>
