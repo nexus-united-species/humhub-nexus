@@ -1,0 +1,45 @@
+/* Projekt-Tafeln -- Farben aus dem Theme (Bootstrap-5-Variablen), damit hell und dunkel passen */
+.nx-pj { --nx-pj-rand: var(--bs-border-color, #dee2e6); --nx-pj-leise: var(--bs-secondary-color, #6c757d); --nx-pj-flaeche: var(--bs-tertiary-bg, #f4f5f7); }
+.nx-pj .nx-pj-leise { color: var(--nx-pj-leise); font-size: .88rem; }
+.nx-pj .nx-pj-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.nx-pj .nx-pj-kopf h1 { font-size: 1.5rem; margin: 0 0 .2rem; }
+.nx-pj .nx-pj-balken { height: 8px; background: var(--nx-pj-flaeche); border-radius: 4px; overflow: hidden; margin: .35rem 0; min-width: 160px; }
+.nx-pj .nx-pj-balken > span { display: block; height: 100%; background: var(--bs-success, #198754); }
+.nx-pj .nx-pj-raster { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .75rem; margin-bottom: 1.25rem; }
+.nx-pj .nx-pj-kachel { display: block; border: 1px solid var(--nx-pj-rand); border-radius: 10px; padding: .8rem .95rem; color: inherit; text-decoration: none; }
+.nx-pj a.nx-pj-kachel:hover, .nx-pj a.nx-pj-kachel:focus { border-color: var(--bs-primary); }
+.nx-pj .nx-pj-kachel.nx-pj-neu { border-style: dashed; display: flex; align-items: center; justify-content: center; gap: .4rem; color: var(--nx-pj-leise); min-height: 7rem; }
+.nx-pj .nx-pj-kachel strong { display: block; font-size: 1.02rem; }
+.nx-pj .nx-pj-tafel { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; align-items: start; }
+@media (max-width: 991px) { .nx-pj .nx-pj-tafel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575px) { .nx-pj .nx-pj-tafel { grid-template-columns: 1fr; } }
+.nx-pj .nx-pj-spalte { background: var(--nx-pj-flaeche); border-radius: 10px; padding: .55rem; min-width: 0; }
+.nx-pj .nx-pj-spalte h2 { font-size: .9rem; font-weight: 600; margin: .1rem .2rem .55rem; display: flex; justify-content: space-between; color: var(--nx-pj-leise); }
+.nx-pj .nx-pj-karte { display: block; background: var(--bs-body-bg, #fff); border: 1px solid var(--nx-pj-rand); border-radius: 8px; padding: .5rem .65rem; margin-bottom: .5rem; color: inherit; text-decoration: none; font-size: .92rem; line-height: 1.35; }
+.nx-pj .nx-pj-karte:hover, .nx-pj .nx-pj-karte:focus { border-color: var(--bs-primary); }
+.nx-pj .nx-pj-karte.nx-pj-gewaehlt { border: 2px solid var(--bs-primary); padding: calc(.5rem - 1px) calc(.65rem - 1px); }
+.nx-pj .nx-pj-karte .nx-pj-meta { display: flex; flex-wrap: wrap; gap: .1rem .6rem; margin-top: .3rem; font-size: .8rem; color: var(--nx-pj-leise); }
+.nx-pj .nx-pj-rot { color: var(--bs-danger, #dc3545) !important; }
+.nx-pj .nx-pj-gruen { color: var(--bs-success, #198754) !important; }
+.nx-pj .nx-pj-gelb { color: var(--bs-warning-text-emphasis, #997404) !important; }
+.nx-pj .nx-pj-blau { color: var(--bs-primary) !important; }
+.nx-pj .nx-pj-detail { border: 1px solid var(--nx-pj-rand); border-radius: 10px; padding: 1rem 1.15rem; margin-top: 1rem; scroll-margin-top: 80px; }
+.nx-pj .nx-pj-detail h2 { font-size: 1.2rem; margin: 0 0 .2rem; }
+.nx-pj .nx-pj-knoepfe { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 0; align-items: center; }
+.nx-pj .nx-pj-knoepfe form { display: inline; margin: 0; }
+.nx-pj .nx-pj-unterlagen { display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0; }
+.nx-pj .nx-pj-unterlagen a { border: 1px solid var(--nx-pj-rand); border-radius: 6px; padding: .2rem .6rem; font-size: .88rem; text-decoration: none; }
+.nx-pj .nx-pj-schritte { list-style: none; padding: 0; margin: .4rem 0; }
+.nx-pj .nx-pj-schritte li { padding: .15rem 0; }
+.nx-pj .nx-pj-schritte button { background: none; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; }
+.nx-pj .nx-pj-schritte .nx-pj-erledigt { text-decoration: line-through; color: var(--nx-pj-leise); }
+.nx-pj .nx-pj-abstimmung { background: var(--nx-pj-flaeche); border-radius: 8px; padding: .7rem .85rem; margin-top: .8rem; font-size: .92rem; }
+.nx-pj .nx-pj-abstimmung blockquote { margin: .3rem 0 .5rem; padding-left: .7rem; border-left: 3px solid var(--nx-pj-rand); white-space: pre-wrap; font-size: .9rem; }
+.nx-pj .nx-pj-meldung { background: var(--bs-success-bg-subtle, #e8f5e9); border-radius: 8px; padding: .5rem .8rem; margin-bottom: 1rem; }
+.nx-pj .nx-pj-liste { list-style: none; padding: 0; margin: 0; }
+.nx-pj .nx-pj-liste li { display: flex; justify-content: space-between; gap: .75rem; border-bottom: 1px solid var(--nx-pj-rand); padding: .55rem 0; }
+.nx-pj .nx-pj-liste li:last-child { border-bottom: 0; }
+.nx-pj .nx-pj-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; margin-bottom: .75rem; }
+.nx-pj .nx-pj-felder label, .nx-pj label.nx-pj-label { display: block; font-weight: 600; font-size: .88rem; margin-bottom: .2rem; }
+.nx-pj .nx-pj-ganz { grid-column: 1 / -1; }
+.nx-pj .nx-pj-avatar { width: 22px; height: 22px; border-radius: 50%; vertical-align: -6px; margin-right: .25rem; }

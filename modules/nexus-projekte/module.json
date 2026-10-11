@@ -1,0 +1,8 @@
+{
+    "id": "nexus-projekte",
+    "name": "N.E.X.U.S. Project Boards",
+    "description": "Simple project boards for spaces: projects with cards in four columns (open, in progress, up for feedback, done), one responsible person per card, helpers, deadlines, checklists, one-click feedback, automatic posts and reminders, and a personal 'My tasks' list across all spaces.",
+    "keywords": ["projects", "kanban", "tasks", "board", "deadlines", "nexus"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}
