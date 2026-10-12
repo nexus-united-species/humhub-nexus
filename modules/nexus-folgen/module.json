@@ -1,0 +1,8 @@
+{
+    "id": "nexus-folgen",
+    "name": "N.E.X.U.S. Follow Spaces",
+    "description": "New accounts automatically follow selected spaces (without notifications), so everyone sees what happens there on the dashboard -- while posting stays reserved for members. Includes a console command to apply this to existing accounts.",
+    "keywords": ["follow", "spaces", "dashboard", "onboarding", "nexus"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}
