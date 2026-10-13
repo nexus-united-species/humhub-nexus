@@ -23,6 +23,8 @@ class Texte
             'mehr' => 'Mehr lesen',
             'zurueck' => 'Alle Abzeichen',
             'weiter' => 'Schön',
+            'vorschau' => 'So sieht dein Profilbild dann aus',
+            'abzeichen_eins' => 'Abzeichen',
         ],
         'en' => [
             'abzeichen' => 'Badges',
@@ -39,6 +41,8 @@ class Texte
             'mehr' => 'Read more',
             'zurueck' => 'All badges',
             'weiter' => 'Nice',
+            'vorschau' => 'This is how your profile picture will look',
+            'abzeichen_eins' => 'Badge',
         ],
         'es' => [
             'abzeichen' => 'Insignias',
@@ -55,6 +59,8 @@ class Texte
             'mehr' => 'Leer más',
             'zurueck' => 'Todas las insignias',
             'weiter' => 'Qué bien',
+            'vorschau' => 'Así se verá tu foto de perfil',
+            'abzeichen_eins' => 'Insignia',
         ],
     ];
 
