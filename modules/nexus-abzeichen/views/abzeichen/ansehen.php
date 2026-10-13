@@ -29,7 +29,8 @@ if (!$zeige) {
             <div class="nx-abz-gross-siegel" aria-hidden="true"><i class="fa fa-<?= $symbol ?>"></i></div>
             <div class="nx-abz-marke"><?= Html::encode(Texte::t('abzeichen_eins')) ?></div>
             <h1><?= Html::encode($seite['titel']) ?></h1>
-            <?php if ($abz->kurz() !== '') : ?><p class="nx-abz-kurz"><?= Html::encode($abz->kurz()) ?></p><?php endif; ?>
+            <?php $unter = $seite['untertitel'] !== '' ? $seite['untertitel'] : Html::encode($abz->kurz()); /* Untertitel ist bereits gereinigtes HTML */ ?>
+            <?php if ($unter !== '') : ?><p class="nx-abz-kurz"><?= $unter ?></p><?php endif; ?>
         </header>
 
         <div class="nx-abz-text"><?= $seite['html'] ?></div>

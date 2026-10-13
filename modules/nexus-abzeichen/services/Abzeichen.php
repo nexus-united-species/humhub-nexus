@@ -57,10 +57,11 @@ class Abzeichen
     }
 
     /**
-     * Text fuer die Abzeichen-Seite aufbereitet: Titel (erste Ueberschrift) getrennt, Abschnitte je
+     * Text fuer die Abzeichen-Seite aufbereitet: Titel (erste Ueberschrift) und ein direkt folgender
+     * kursiver Absatz als Untertitel getrennt, Abschnitte je
      * Zwischenueberschrift, "### I. Name – Untertitel" + Zitat als Versprechen-Karte, ein Absatz nur
      * in Kursiv als Schlusssatz. Arbeitet auf dem bereits gereinigten HTML und fuegt nur Rahmen hinzu.
-     * @return array{titel: string, html: string}
+     * @return array{titel: string, untertitel: string, html: string}
      */
     public function seite(): array
     {
@@ -69,6 +70,11 @@ class Abzeichen
         if (preg_match('#<h1>(.*?)</h1>#s', $html, $m)) {
             $titel = trim(strip_tags($m[1]));
             $html = str_replace($m[0], '', $html);
+        }
+        $untertitel = '';
+        if (preg_match('#^\s*<p><em>([^<]*)</em></p>#', $html, $m)) {
+            $untertitel = trim($m[1]);
+            $html = substr($html, strlen($m[0]));
         }
         $html = preg_replace_callback('#<h3>(.*?)</h3>\s*<blockquote>(.*?)</blockquote>#s', static function ($m) {
             $kopf = trim($m[1]);
@@ -90,6 +96,6 @@ class Abzeichen
                 $aus .= str_starts_with($teil, '<h2>') ? '<section class="nx-abz-abschnitt">' . $teil . '</section>' : $teil;
             }
         }
-        return ['titel' => $titel, 'html' => $aus];
+        return ['titel' => $titel, 'untertitel' => $untertitel, 'html' => $aus];
     }
 }

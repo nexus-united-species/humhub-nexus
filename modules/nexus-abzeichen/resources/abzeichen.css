@@ -34,7 +34,7 @@
     box-shadow: 0 0 0 5px var(--bs-body-bg, #fff), 0 0 0 7px var(--nx-abz-farbe, #D4AF37), 0 10px 28px rgba(160, 120, 0, .35); }
 .nx-abz-marke { text-transform: uppercase; letter-spacing: .18em; font-size: .75rem; color: var(--nx-abz-tief); font-weight: 600; }
 .nx-abz-kopf h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.9rem, 1.4rem + 2vw, 2.7rem); margin: .25rem 0 .5rem; font-weight: 600; }
-.nx-abz-kurz { font-size: 1.08rem; color: var(--nx-abz-leise); max-width: 34em; margin: 0 auto; }
+.nx-abz-kurz { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 1.15rem; color: var(--nx-abz-tief); max-width: 34em; margin: 0 auto; }
 
 .nx-abz .nx-abz-text { font-size: 1.02rem; line-height: 1.7; }
 .nx-abz-abschnitt { margin-top: 2.1rem; }
