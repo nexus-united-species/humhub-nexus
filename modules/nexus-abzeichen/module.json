@@ -1,0 +1,8 @@
+{
+    "id": "nexus-abzeichen",
+    "name": "N.E.X.U.S. Badges",
+    "description": "Gentle recognition without competition: badges members can declare for themselves (shown as a frame around their profile picture, removable any time) and private moments of thanks, e.g. after two active hours on the platform in a week. No rankings, no public counters, no penalties.",
+    "keywords": ["badges", "recognition", "gamification", "profile", "nexus"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}
