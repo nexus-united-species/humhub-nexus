@@ -69,7 +69,7 @@ class Beitraege
                 'art' => 'beitrag',
                 'datum' => $content->created_at,
                 'name' => (string)$model->getContentName(),
-                'text' => self::kurz((string)$model->getContentDescription(), self::AUSZUG_ZEICHEN),
+                'text' => self::kurz(self::klartext((string)$model->getContentDescription()), self::AUSZUG_ZEICHEN),
                 'bezug' => '',
                 'ort' => self::ort($content),
                 'url' => $content->getUrl(),
@@ -93,8 +93,8 @@ class Beitraege
                 'art' => 'kommentar',
                 'datum' => $kommentar->created_at,
                 'name' => (string)$model->getContentName(),
-                'text' => self::kurz(RichText::convert((string)$kommentar->message, RichText::FORMAT_PLAINTEXT), self::AUSZUG_ZEICHEN),
-                'bezug' => self::kurz((string)$model->getContentDescription(), self::BEZUG_ZEICHEN),
+                'text' => self::kurz(self::klartext((string)$kommentar->message), self::AUSZUG_ZEICHEN),
+                'bezug' => self::kurz(self::klartext((string)$model->getContentDescription()), self::BEZUG_ZEICHEN),
                 'ort' => self::ort($content),
                 'url' => $kommentar->getUrl(),
             ];
@@ -114,6 +114,16 @@ class Beitraege
             return Texte::t('profil', ['{name}' => $behaelter->displayName]);
         }
         return '';
+    }
+
+    /** Markdown (Links, Videos, Erwaehnungen) als lesbarer Text -- sonst stuende "[...](oembed:...)" da */
+    private static function klartext(string $text): string
+    {
+        try {
+            return RichText::convert($text, RichText::FORMAT_PLAINTEXT);
+        } catch (Throwable $e) {
+            return $text;
+        }
     }
 
     private static function kurz(string $text, int $max): string
