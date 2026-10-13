@@ -97,7 +97,7 @@
     border: 1px dashed var(--nx-abz-rand); font-size: .92rem; }
 .nx-abz-stufen li.nx-abz-erreicht { color: inherit; border: 1px solid #D4AF37; background: rgba(212, 175, 55, .12); }
 .nx-abz-stufen li.nx-abz-erreicht::before { content: "★"; color: #D4AF37; }
-.nx-abz-stufe-zahl { min-width: 5.5em; font-variant-numeric: tabular-nums; font-weight: 600; }
+.nx-abz-stufe-zahl { min-width: 7em; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
 .nx-abz-teilen { margin-top: .7rem; }
 .nx-abz-teilen summary { cursor: pointer; color: var(--bs-link-color, #21A1B3); }
 .nx-abz-teilen form { margin-top: .5rem; }
