@@ -8,7 +8,7 @@
 
 Many gamification systems reward with points and rankings. That turns voluntary work into a contest. This module does the opposite:
 
-- **Badges (self-declared):** members read a text, for example a pledge or a code of conduct, and commit with one click. The badge appears as a **coloured frame and a small seal around their profile picture everywhere on the platform**. It can be removed at any time with one click, without questions. Only "shows the badge: yes/no" is stored: **no date, no number, no order**, so nobody stands above anyone else.
+- **Badges (self-declared):** members read a text, for example a pledge or a code of conduct, and commit with one click. The badge appears as a **coloured frame and a small seal around their profile picture everywhere on the platform**. Hovering over the picture (on phones: tapping the seal or holding the picture) shows a small speech bubble such as "Has made our pledge" with a link to the text; a normal tap still opens the profile. It can be removed at any time with one click, without questions. Only "shows the badge: yes/no" is stored: **no date, no number, no order**, so nobody stands above anyone else.
 - **Moments (private):** when someone reaches something, a short golden celebration appears and a quiet counter grows on their own badge page. **Only they can see it.** No rankings, no red marks, no losing streaks: a quieter week is fine. Two kinds are built in:
   - `aktivzeit`: weeks with at least *n* active minutes on the platform (time spent there, not work).
   - `arbeitsstunden`: the sum of working hours **approved by an admin** in the module `nexus-arbeitszeit` (if installed). It is celebrated at each new level.
@@ -26,6 +26,7 @@ Many gamification systems reward with points and rankings. That turns voluntary 
             'name' => ['en' => 'Our pledge'],
             'kurz' => ['en' => 'Three promises to yourself and the future'],
             'textDatei' => '/data/abzeichen/pledge.md',   // or 'text' => 'Markdown …'
+            'hinweis' => ['en' => 'Has made our pledge'],  // speech bubble on the profile picture (default: name)
             'farbe' => '#D4AF37',                         // frame colour, default gold
             'symbol' => 'star',                           // Font Awesome name for the seal
         ],
