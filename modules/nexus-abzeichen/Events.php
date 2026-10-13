@@ -23,6 +23,12 @@ class Events
     /** Ab dieser Bildbreite bekommt das Profilbild zusaetzlich das kleine Siegel (darunter nur den Rahmen) */
     private const SIEGEL_AB_PIXEL = 32;
     private const MENUE_POSITION = 650;
+    /**
+     * Vorlesetext direkt im Element verstecken, nicht nur ueber das Stylesheet: Wer das Portal schon vor
+     * einer Aenderung offen hatte, bekommt beim Weiterklicken neues HTML, aber das alte Stylesheet --
+     * der Text stand dann sichtbar neben dem Profilbild (Rueckmeldung 13.10.2026).
+     */
+    private const UNSICHTBAR = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0';
 
     /**
      * Jede Seite: aktive Zeit zaehlen, Stylesheet laden, faellige Feier zeigen.
@@ -125,7 +131,7 @@ class Events
                     . ' data-nx-abz-hinweis="' . Html::encode($abz->hinweis()) . '"'
                     . ' data-nx-abz-link="' . Html::encode(Url::to(['/nexus-abzeichen/abzeichen/ansehen', 'a' => $abz->kennung])) . '"'
                     . ' data-nx-abz-mehr="' . Html::encode(Texte::t('mehr')) . '">'
-                    . $event->result . $siegel . '<span class="nx-abz-unsichtbar">' . Html::encode($abz->hinweis()) . '</span></span>';
+                    . $event->result . $siegel . '<span class="nx-abz-unsichtbar" style="' . self::UNSICHTBAR . '">' . Html::encode($abz->hinweis()) . '</span></span>';
                 return;
             }
         } catch (Throwable $e) {
