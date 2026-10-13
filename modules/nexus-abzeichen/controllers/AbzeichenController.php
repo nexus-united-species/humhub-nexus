@@ -7,6 +7,7 @@ use humhub\components\Controller;
 use nexus\modules\abzeichen\Module;
 use nexus\modules\abzeichen\services\Aktivzeit;
 use nexus\modules\abzeichen\services\Bekenntnisse;
+use nexus\modules\abzeichen\services\Teilen;
 use nexus\modules\abzeichen\services\Texte;
 use Yii;
 use yii\web\NotFoundHttpException;
@@ -23,7 +24,7 @@ class AbzeichenController extends Controller
     {
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
-            [ControllerAccess::RULE_POST => ['bekennen']],
+            [ControllerAccess::RULE_POST => ['bekennen', 'teilen']],
         ];
     }
 
@@ -36,6 +37,9 @@ class AbzeichenController extends Controller
             'meine' => Bekenntnisse::von($ich),
             'momente' => $this->module->alleMomente(),
             'zaehler' => Aktivzeit::zaehler($ich),
+            'geteilt' => Aktivzeit::geteilt($ich),
+            'kreis' => Teilen::kreis(),
+            'meldung' => Yii::$app->session->getFlash(self::FLASH),
         ]);
     }
 
@@ -48,6 +52,26 @@ class AbzeichenController extends Controller
             'zeige' => Bekenntnisse::hat((int)Yii::$app->user->id, $abz->kennung),
             'meldung' => Yii::$app->session->getFlash(self::FLASH),
         ]);
+    }
+
+    /** Eine Feier freiwillig im Kreis teilen -- aus der Feier (Antwort als JSON) oder von der Abzeichen-Seite */
+    public function actionTeilen(string $m)
+    {
+        $moment = null;
+        foreach ($this->module->alleMomente() as $kandidat) {
+            if ($kandidat->kennung === $m) {
+                $moment = $kandidat;
+            }
+        }
+        if ($moment === null) {
+            throw new NotFoundHttpException();
+        }
+        $url = Teilen::teilen(Yii::$app->user->getIdentity(), $moment, (string)Yii::$app->request->post('notiz', ''));
+        if (Yii::$app->request->isAjax) {
+            return $this->asJson(['ok' => $url !== null, 'url' => $url]);
+        }
+        Yii::$app->session->setFlash(self::FLASH, Texte::t($url !== null ? 'geteilt_ok' : 'teilen_fehler'));
+        return $this->redirect(['index']);
     }
 
     public function actionBekennen(string $a)

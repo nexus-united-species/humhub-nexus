@@ -76,6 +76,32 @@ class Aktivzeit
     }
 
     /**
+     * Wert auf eine hoehere Zahl setzen (z. B. erreichte Stunden-Stufe) und die Feier vormerken.
+     * Sinkt nie. @return bool true, wenn sich etwas geaendert hat
+     */
+    public static function wertAnheben(int $userId, string $moment, int $wert): bool
+    {
+        return Yii::$app->db->createCommand(
+            'INSERT INTO ' . self::MOMENTE . ' (user_id, moment, anzahl, feier_offen) VALUES (:u, :m, :w, 1)
+             ON DUPLICATE KEY UPDATE feier_offen = IF(anzahl < VALUES(anzahl), 1, feier_offen), anzahl = GREATEST(anzahl, VALUES(anzahl))',
+            [':u' => $userId, ':m' => $moment, ':w' => $wert]
+        )->execute() > 0;
+    }
+
+    /** Als geteilt merken -- derselbe Stand laesst sich nicht zweimal teilen */
+    public static function geteiltMerken(int $userId, string $moment, int $wert): void
+    {
+        Yii::$app->db->createCommand()->update(self::MOMENTE, ['geteilt' => $wert], ['user_id' => $userId, 'moment' => $moment])->execute();
+    }
+
+    /** @return array<string, int> Moment-Kennung => zuletzt geteilter Wert */
+    public static function geteilt(int $userId): array
+    {
+        $zeilen = Yii::$app->db->createCommand('SELECT moment, geteilt FROM ' . self::MOMENTE . ' WHERE user_id = :u', [':u' => $userId])->queryAll();
+        return array_map('intval', array_column($zeilen, 'geteilt', 'moment'));
+    }
+
+    /**
      * Faellige Feiern -- werden dabei als gezeigt markiert.
      * @return array<int, array{moment: Moment, anzahl: int}>
      */

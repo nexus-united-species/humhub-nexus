@@ -7,11 +7,15 @@ use humhub\modules\ui\menu\MenuLink;
 use humhub\modules\user\models\User;
 use nexus\modules\abzeichen\assets\AbzeichenAsset;
 use nexus\modules\abzeichen\services\Aktivzeit;
+use nexus\modules\abzeichen\services\Arbeitsstunden;
+use nexus\modules\abzeichen\services\Moment;
 use nexus\modules\abzeichen\services\Bekenntnisse;
+use nexus\modules\abzeichen\services\Teilen;
 use nexus\modules\abzeichen\services\Texte;
 use Throwable;
 use Yii;
 use yii\helpers\Json;
+use yii\helpers\Url;
 use yii\web\Application as WebApplication;
 
 class Events
@@ -54,15 +58,44 @@ class Events
     /** Kurzer goldener Moment -- nur bei vollem Seitenaufbau, damit das Skript sicher ausgefuehrt wird */
     private static function feierZeigen(int $userId): void
     {
-        foreach (Aktivzeit::feiernAbholen($userId) as $f) {
-            $daten = Json::htmlEncode([
-                'text' => $f['moment']->feier(),
-                'zaehler' => $f['moment']->name() . ': ' . $f['anzahl'],
-                'symbol' => $f['moment']->symbol(),
-                'knopf' => Texte::t('weiter'),
-            ]);
-            Yii::$app->view->registerJs("window.nexusAbzeichenFeier && window.nexusAbzeichenFeier($daten);");
+        $feiern = Aktivzeit::feiernAbholen($userId);
+        if ($feiern === []) {
+            return;
         }
+        $ich = Yii::$app->user->getIdentity();
+        $kreis = Teilen::kreis();
+        foreach ($feiern as $f) {
+            Yii::$app->view->registerJs('window.nexusAbzeichenFeier && window.nexusAbzeichenFeier('
+                . Json::htmlEncode(self::feierDaten($f['moment'], $f['anzahl'], $ich, $kreis)) . ');');
+        }
+    }
+
+    private static function feierDaten(Moment $m, int $wert, User $ich, $kreis): array
+    {
+        $text = $m->feier($wert);
+        // "Im Portal unterwegs" feiert jede Woche -- erreicht diese Woche eine Stufe, steht sie dabei
+        if ($m->art() === Moment::ART_AKTIVZEIT && $m->istStufe($wert)) {
+            $text .= ' ' . strtr(Texte::t('neue_stufe'), ['{stufe}' => $m->stufeBei($wert)[1]]);
+        }
+        $daten = [
+            'text' => $text,
+            'zaehler' => $m->name() . ': ' . $m->wertText($wert),
+            'symbol' => $m->symbol(),
+            'knopf' => Texte::t('weiter'),
+        ];
+        if ($kreis !== null && Teilen::moeglich($ich, $m, $kreis)) {
+            $daten['teilen'] = [
+                'url' => Url::to(['/nexus-abzeichen/abzeichen/teilen', 'm' => $m->kennung]),
+                'knopf' => Texte::t('teilen'),
+                'wo' => strtr(Texte::t('teilen_wo'), ['{kreis}' => $kreis->name]),
+                'notiz' => Texte::t('notiz'),
+                'senden' => Texte::t('senden'),
+                'ok' => Texte::t('geteilt_ok'),
+                'fehler' => Texte::t('teilen_fehler'),
+                'max' => Teilen::MAX_NOTIZ,
+            ];
+        }
+        return $daten;
     }
 
     /** Rahmen und Siegel um das Profilbild -- nur das erste Abzeichen des Menschen in der eingestellten Reihenfolge */
@@ -114,6 +147,8 @@ class Events
         $modul = Module::instanz();
         if ($modul !== null) {
             Aktivzeit::aufraeumen(max(2, (int)$modul->wochenAufbewahren));
+            // Sicherheitsnetz, falls eine Freigabe am Ereignis vorbeiging (z. B. direkt in der Datenbank)
+            Arbeitsstunden::allePruefen();
         }
     }
 }

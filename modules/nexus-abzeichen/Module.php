@@ -29,6 +29,7 @@ class Module extends \humhub\components\Module
      *       'abzeichen' => ['genesis-pakt' => ['name' => [...], 'kurz' => [...], 'textDatei' => '/data/abzeichen/genesis-pakt.md']],
      *       'momente' => ['portal-2-stunden' => ['art' => 'aktivzeit', 'minutenProWoche' => 120, 'name' => [...], 'feier' => [...]]],
      *       'ausnahmen' => [29],
+     *       'teilenKreis' => 4,
      *   ]]
      * Alle Schluessel: services/Abzeichen.php, services/Moment.php, README.md.
      */
@@ -41,6 +42,9 @@ class Module extends \humhub\components\Module
 
     /** @var int[] Konten ohne Zeitzaehlung und Feiern (z. B. Bot-Konten) */
     public $ausnahmen = [];
+
+    /** @var int|null Kreis (Space-ID), in dem man eine Feier freiwillig teilen kann; leer = kein Teilen */
+    public $teilenKreis = null;
 
     /** @var int Wochen, die Zeitzaehler aufbewahrt werden */
     public $wochenAufbewahren = 8;
