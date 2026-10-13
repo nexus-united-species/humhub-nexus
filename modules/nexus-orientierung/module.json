@@ -1,0 +1,8 @@
+{
+    "id": "nexus-orientierung",
+    "name": "N.E.X.U.S. Orientierung",
+    "description": "Leichter zurechtfinden: Zurueck aus den letzten Aktivitaeten an genau die Stelle, an der man war, und eine Seite mit allen Beitraegen und Kommentaren einer Person.",
+    "keywords": ["nexus", "orientierung", "barrierearm", "zurueck", "profil", "kommentare"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

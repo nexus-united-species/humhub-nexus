@@ -1,0 +1,22 @@
+/* Zurueck an dieselbe Stelle: der angeklickte Eintrag leuchtet kurz auf */
+#activityStream [data-stream-entry].nx-or-markiert { outline: 3px solid #D4AF37; outline-offset: -3px; border-radius: 6px;
+    background: rgba(212, 175, 55, .15); transition: background .6s; }
+
+/* Beitraege & Kommentare: gross, ruhig, gut lesbar */
+.nx-or { --nx-or-leise: var(--bs-secondary-color, #6c757d); --nx-or-rand: var(--bs-border-color, #dee2e6); }
+.nx-or .nx-or-leise { color: var(--nx-or-leise); }
+.nx-or-liste { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .75rem; }
+.nx-or-link { display: block; padding: .85rem 1rem; border: 1px solid var(--nx-or-rand); border-left: 4px solid #21A1B3;
+    border-radius: 10px; color: inherit; text-decoration: none; font-size: 1.05rem; line-height: 1.55; }
+.nx-or-kommentar .nx-or-link { border-left-color: #D4AF37; }
+.nx-or-link:hover, .nx-or-link:focus-visible { background: var(--bs-tertiary-bg, #f6f7f9); text-decoration: none; color: inherit; }
+.nx-or-link:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
+.nx-or-kopf { display: flex; flex-wrap: wrap; gap: .25rem .6rem; align-items: baseline; }
+.nx-or-ort { font-weight: 600; }
+.nx-or-ort::before { content: "·"; margin-right: .6rem; color: var(--nx-or-leise); font-weight: 400; }
+.nx-or-zeit { color: var(--nx-or-leise); font-size: .92rem; }
+.nx-or-zeit::before { content: "·"; margin-right: .6rem; }
+.nx-or-bezug { display: block; color: var(--nx-or-leise); font-size: .95rem; margin-top: .2rem; }
+.nx-or-text { display: block; margin-top: .35rem; }
+.nx-or-blaettern { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+.nx-or-blaettern .btn { font-size: 1.05rem; padding: .5rem 1.1rem; }
