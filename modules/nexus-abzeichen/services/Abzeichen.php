@@ -9,6 +9,7 @@ use yii\helpers\HtmlPurifier;
  * Ein Abzeichen zum Bekennen. Einstellungen (Texte als String oder ['de' => ..., 'en' => ...]):
  *   name       Name, z. B. "Genesis-Pakt"
  *   kurz       ein Satz, worum es geht
+ *   hinweis    Satz in der Sprechblase am Profilbild (Vorgabe: der Name)
  *   text       ausfuehrlicher Text (Markdown) -- oder
  *   textDatei  Pfad zu einer Markdown-Datei auf dem Server (bzw. ['de' => Pfad, 'en' => Pfad])
  *   farbe      Rahmenfarbe (#RRGGBB), Vorgabe Gold
@@ -31,6 +32,12 @@ class Abzeichen
     public function kurz(): string
     {
         return Texte::waehle($this->e['kurz'] ?? null);
+    }
+
+    /** Satz in der Sprechblase am Profilbild, z. B. "Hat den Genesis-Pakt geschlossen" */
+    public function hinweis(): string
+    {
+        return Texte::waehle($this->e['hinweis'] ?? null) ?: $this->name();
     }
 
     public function farbe(): string

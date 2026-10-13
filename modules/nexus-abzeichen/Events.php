@@ -119,8 +119,13 @@ class Events
                 $siegel = (int)($bild->width ?? 0) >= self::SIEGEL_AB_PIXEL
                     ? '<span class="nx-abz-siegel" aria-hidden="true"><i class="fa fa-' . Html::encode($abz->symbol()) . '"></i></span>'
                     : '';
-                $event->result = '<span class="nx-abz-rahmen" style="--nx-abz-farbe:' . Html::encode($abz->farbe()) . '" title="'
-                    . Html::encode($abz->name()) . '">' . $event->result . $siegel . '</span>';
+                // Hinweis als eigene Sprechblase (abzeichen.js): erscheint bei Maus darueber, am Handy beim
+                // Antippen des Siegels oder Gedrueckthalten -- ein "title" zeigt sich am Handy gar nicht
+                $event->result = '<span class="nx-abz-rahmen" style="--nx-abz-farbe:' . Html::encode($abz->farbe()) . '"'
+                    . ' data-nx-abz-hinweis="' . Html::encode($abz->hinweis()) . '"'
+                    . ' data-nx-abz-link="' . Html::encode(Url::to(['/nexus-abzeichen/abzeichen/ansehen', 'a' => $abz->kennung])) . '"'
+                    . ' data-nx-abz-mehr="' . Html::encode(Texte::t('mehr')) . '">'
+                    . $event->result . $siegel . '<span class="nx-abz-unsichtbar">' . Html::encode($abz->hinweis()) . '</span></span>';
                 return;
             }
         } catch (Throwable $e) {
