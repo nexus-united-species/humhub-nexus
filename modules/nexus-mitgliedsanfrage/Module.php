@@ -27,6 +27,12 @@ class Module extends \humhub\components\Module
      */
     public $willkommenKreis = null;
 
+    /**
+     * @var string|null Adresse der Registrierungsseite (Authentik), auf die die Einladungsseite nach
+     * der E-Mail-Adresse fuehrt; leer = Anmeldeseite (dort gibt es auch "Registrieren").
+     */
+    public $registrierenUrl = null;
+
     public function getName()
     {
         return 'N.E.X.U.S. Mitgliedsanfrage';

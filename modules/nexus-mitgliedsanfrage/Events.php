@@ -2,6 +2,7 @@
 
 namespace nexus\modules\mitgliedsanfrage;
 
+use humhub\modules\space\models\Membership;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\arbeitszeit\services\Benachrichtigung;
@@ -14,6 +15,8 @@ class Events
     public const TITEL = '👋 Neue Mitglieder';
     public const ANGABE = 'nexus_anfrage';
     private const MAX_ZEICHEN = 1000;
+    /** So frisch muss eine Kreis-Mitgliedschaft sein, um als "gerade aus der Einladung" zu gelten */
+    private const NEU_SEKUNDEN = 900;
 
     /** Reihenfolge und Ueberschriften der Antworten in der Nachricht an die Admins. */
     private const FRAGEN = [
@@ -34,7 +37,7 @@ class Events
             }
             $angaben = $dienst->getUserAttributes();
             if (self::melden($mensch, $angaben[self::ANGABE] ?? null)) {
-                self::zumWillkommenKreis();
+                self::zumErstenKreis($mensch);
             }
         } catch (Throwable $e) {
             // Die Meldung ist Beiwerk -- ein Fehler hier darf nie eine Anmeldung verhindern.
@@ -81,19 +84,64 @@ class Events
     }
 
     /**
-     * Beim allerersten Betreten (= gerade gemeldet) in den Willkommen-Kreis (Einstellung
-     * "willkommenKreis") statt auf die Uebersicht: Dort stehen die Anleitungen fuer den Anfang. Die
-     * Anmeldung hat ihre Weiterleitung schon gesetzt (AuthController::login), hier wird nur das Ziel
-     * ersetzt. Ohne Einstellung bleibt es beim normalen Ziel.
+     * Beim allerersten Betreten (= gerade gemeldet): Wer ueber einen Einladungslink kam, landet in
+     * dem Kreis, in den er eingeladen wurde -- sonst im Willkommen-Kreis (Einstellung
+     * "willkommenKreis"), wo die Anleitungen fuer den Anfang stehen. Die Anmeldung hat ihre
+     * Weiterleitung schon gesetzt (AuthController::login), hier wird nur das Ziel ersetzt.
+     * Das Ziel wird auch als "Ruecksprung" gemerkt: Die Seite mit den Nutzungsbedingungen leitet
+     * danach dorthin -- sonst landete man auf einer Seite, die sich der Browser zufaellig noch aus
+     * einer frueheren Sitzung gemerkt hatte (Test 14.10.2026: fremde Unterhaltung, Fehlermeldung).
      */
-    private static function zumWillkommenKreis(): void
+    private static function zumErstenKreis(User $mensch): void
     {
-        $id = (int)Yii::$app->getModule('nexus-mitgliedsanfrage')->willkommenKreis;
-        $kreis = $id > 0 ? Space::findOne(['id' => $id]) : null;
+        $kreis = self::eingeladenerKreis($mensch);
+        if ($kreis === null) {
+            $id = (int)Yii::$app->getModule('nexus-mitgliedsanfrage')->willkommenKreis;
+            $kreis = $id > 0 ? Space::findOne(['id' => $id]) : null;
+        }
         if ($kreis === null || Yii::$app->request->getIsAjax()) {
             return;
         }
+        Yii::$app->user->setReturnUrl($kreis->getUrl());
         Yii::$app->response->redirect($kreis->getUrl());
+    }
+
+    /**
+     * Kreis, in den HumHub den Menschen beim Anlegen des Kontos aus einer Einladung aufgenommen hat
+     * (User::setUpApproved) -- erkennbar daran, dass es kein Standard-Kreis fuer alle ist und die
+     * Mitgliedschaft gerade erst entstanden ist.
+     */
+    private static function eingeladenerKreis(User $mensch): ?Space
+    {
+        $id = Yii::$app->db->createCommand(
+            'SELECT m.space_id FROM space_membership m JOIN space s ON s.id = m.space_id
+             WHERE m.user_id = :u AND m.status = :mitglied AND s.auto_add_new_members = 0
+               AND m.created_at >= :seit ORDER BY m.created_at DESC LIMIT 1',
+            [':u' => $mensch->id, ':mitglied' => Membership::STATUS_MEMBER, ':seit' => date('Y-m-d H:i:s', time() - self::NEU_SEKUNDEN)]
+        )->queryScalar();
+        return $id ? Space::findOne(['id' => (int)$id]) : null;
+    }
+
+    /**
+     * Einladungslink eines Kreises fuer Gaeste auf unsere Einladungsseite umlenken (dort zuerst die
+     * E-Mail-Adresse, siehe EinladungController). Angemeldete behandelt HumHub selbst.
+     */
+    public static function onEinladungslink($event): void
+    {
+        try {
+            if ($event->action->id !== 'by-link' || !Yii::$app->user->isGuest) {
+                return;
+            }
+            $anfrage = Yii::$app->request;
+            if (!$anfrage->get('token') || !$anfrage->get('spaceId')) {
+                return;
+            }
+            $event->isValid = false;
+            Yii::$app->response->redirect(['/nexus-mitgliedsanfrage/einladung/index',
+                'token' => (string)$anfrage->get('token'), 'spaceId' => (int)$anfrage->get('spaceId')]);
+        } catch (Throwable $e) {
+            Yii::error('nexus-mitgliedsanfrage (Einladungslink): ' . $e->getMessage(), 'nexus-mitgliedsanfrage');
+        }
     }
 
     /** @param array<string, string> $antworten */
