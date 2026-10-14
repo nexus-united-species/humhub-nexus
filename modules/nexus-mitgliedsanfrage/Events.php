@@ -115,7 +115,7 @@ class Events
     {
         $id = Yii::$app->db->createCommand(
             'SELECT m.space_id FROM space_membership m JOIN space s ON s.id = m.space_id
-             WHERE m.user_id = :u AND m.status = :mitglied AND s.auto_add_new_members = 0
+             WHERE m.user_id = :u AND m.status = :mitglied AND COALESCE(s.auto_add_new_members, 0) = 0
                AND m.created_at >= :seit ORDER BY m.created_at DESC LIMIT 1',
             [':u' => $mensch->id, ':mitglied' => Membership::STATUS_MEMBER, ':seit' => date('Y-m-d H:i:s', time() - self::NEU_SEKUNDEN)]
         )->queryScalar();
