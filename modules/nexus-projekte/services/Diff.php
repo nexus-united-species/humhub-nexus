@@ -40,11 +40,15 @@ class Diff
         return $html . self::gleich(array_slice($a, count($a) - $hinten));
     }
 
-    /** @return string[] Woerter und Leerraum abwechselnd -- Zeilenumbrueche bleiben erhalten */
+    /**
+     * Woerter, Leerraum und Satzzeichen als eigene Teile -- so bleibt bei "frei." -> "frei und mehr."
+     * das "frei" stehen und nur das Neue wird markiert. Zeilenumbrueche bleiben erhalten.
+     * @return string[]
+     */
     private static function woerter(string $text): array
     {
         $text = str_replace("\r\n", "\n", $text);
-        return $text === '' ? [] : preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        return $text === '' ? [] : preg_split('/(\s+|\p{P})/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
     }
 
     private static function lcs(array $a, array $b): string
