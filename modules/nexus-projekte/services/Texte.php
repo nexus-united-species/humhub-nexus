@@ -248,7 +248,9 @@ class Texte
 
     public static function t(string $schluessel): string
     {
-        return self::TEXTE[self::sprache()][$schluessel] ?? self::TEXTE['en'][$schluessel] ?? $schluessel;
+        $sprache = self::sprache();
+        return self::TEXTE[$sprache][$schluessel] ?? TexteVorschlag::TEXTE[$sprache][$schluessel]
+            ?? self::TEXTE['en'][$schluessel] ?? TexteVorschlag::TEXTE['en'][$schluessel] ?? $schluessel;
     }
 
     public static function datum(?string $datum, string $format = 'medium'): string

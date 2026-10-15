@@ -17,6 +17,26 @@
 - **Reminders** as private messages: one day before a due date, once when a card is overdue (only to the responsible person and the lead, never publicly), and one day before a feedback round ends to project members who have not answered.
 - Works on phones: buttons instead of drag and drop.
 
+### Proposals and decisions
+
+For anything a group has to decide on – changes to a founding document, layout drafts, a budget – any space member can add a **proposal** to a project:
+
+- **Summary** (3–5 sentences) and **reason**.
+- **Text changes** for smaller edits: location, current wording, new wording. Shown word by word (deleted red, new green) – the decision is about exactly this wording.
+- **Files** for larger revisions (e.g. a Word file with tracked changes), images or PDFs. Each upload is a new **version**; older versions stay visible. Files are stored in the space's file section under "Projekte/<project>/<card>" (needs the HumHub *Files* module in that space).
+
+Each project chooses **how proposals are decided** (project settings):
+
+| Rule | Options | Accepted when |
+|---|---|---|
+| Feedback (default) | Looks good / I have a change | the lead decides |
+| Consent | Agree / Agree with concerns / Serious objection / Abstain | nobody has a serious objection (and at least one agrees) |
+| Majority | Yes / No / Abstain | more yes than no |
+
+Concerns and objections need a short explanation. A round lasts the project's number of days (default 14). **If the proposal changes during a round, a new round starts** and everyone who already responded is asked again – a response always belongs to the version that was seen. The lead closes the round (accept, reject or back to revision); with consent and majority the lead cannot accept against the result. When the round ends, the lead gets one reminder.
+
+Optionally, accepted proposals are **submitted to another body** (e.g. a DAO, setting "Accepted proposals are submitted to"): each accepted proposal has a printable **resolution document** (also as a Word file) and tracks *submitted / adopted / rejected* and *implemented in* (e.g. "Blueprint V14"). The **Decisions** page lists everything decided per project.
+
 ### Who can do what
 
 | | |
@@ -60,3 +80,5 @@ Optional settings in `protected/config/common.php`:
 - **Erinnerungen** als private Nachricht: einen Tag vor der Frist, einmal bei Überschreitung (nur an Verantwortliche und Leitung, nie öffentlich), einen Tag vor Ende einer Abstimmung an Beteiligte ohne Rückmeldung.
 
 **Einrichten:** Modul einschalten, dann im Kreis unter Einstellungen → Module „Projekte“ aktivieren. Einstellungen siehe oben (`projektAnlegen`, `erinnern`, `abstimmungTage`). Private Nachrichten über `nexus-arbeitszeit`, sonst entfallen nur die Nachrichten.
+
+**Vorschläge und Entscheidungen:** Jedes Kreismitglied kann in einem Projekt einen Vorschlag einbringen – mit Zusammenfassung, Begründung, Textänderungen (Stelle / bisher / neu, wortgenau rot-grün) und Dateien in Fassungen (z. B. Word mit „Änderungen nachverfolgen“, Layout-Entwürfe). Je Projekt einstellbar: einfache Rückmeldung, **Konsent** (angenommen, wenn niemand einen schwerwiegenden Einwand hat) oder Mehrheit, Dauer einer Runde (Vorgabe 14 Tage) und optional ein Gremium, dem Angenommenes vorgelegt wird (z. B. die DAO) – dafür gibt es eine Beschlussvorlage zum Drucken oder als Word-Datei. Ändert sich ein Vorschlag während der Runde, beginnt eine neue Runde. Die Seite „Beschlüsse“ zeigt alles Entschiedene mit Weitergabe und Umsetzung („umgesetzt in Bauplan V14“).

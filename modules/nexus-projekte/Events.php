@@ -107,6 +107,14 @@ class Events
                 }
                 $k->updateAttributes(['erinnert_runde' => $k->runde]);
             }
+            // Vorschlagsrunde vorbei, aber noch kein Ergebnis: die Leitung einmal bitten
+            foreach ($offen()->andWhere(['k.art' => 'vorschlag', 'k.spalte' => 'abstimmung'])->andWhere(['<', 'k.abstimmung_bis', $heute])
+                         ->andWhere(['<', 'k.erinnert_auswertung', new \yii\db\Expression('k.runde')])->all() as $k) {
+                if (self::istAn($k)) {
+                    Nachrichten::bitteAuswerten($k);
+                }
+                $k->updateAttributes(['erinnert_auswertung' => $k->runde]);
+            }
         } catch (Throwable $e) {
             Yii::error('nexus-projekte: Erinnerungen: ' . $e->getMessage(), 'nexus-projekte');
         }

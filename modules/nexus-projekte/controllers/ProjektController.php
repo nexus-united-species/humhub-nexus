@@ -12,11 +12,11 @@ use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Schritt;
 use nexus\modules\projekte\models\Stimme;
 use nexus\modules\projekte\Module;
+use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Nachrichten;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 use Yii;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -25,7 +25,9 @@ use yii\web\NotFoundHttpException;
  */
 class ProjektController extends ContentContainerController
 {
-    private const FLASH = 'nexus-projekte';
+    use KreisZugriff;
+
+    public const FLASH = 'nexus-projekte';
 
     /** @var Module */
     public $module;
@@ -114,6 +116,9 @@ class ProjektController extends ContentContainerController
         $projekt->ziel = trim((string)$r->post('ziel')) ?: null;
         $projekt->frist = trim((string)$r->post('frist')) ?: null;
         $projekt->status = $r->post('status') === 'abgeschlossen' ? 'abgeschlossen' : 'aktiv';
+        $projekt->regel = Entscheidung::regel((string)$r->post('regel'));
+        $projekt->frist_tage = (int)$r->post('frist_tage', 14);
+        $projekt->weitergabe = trim((string)$r->post('weitergabe')) ?: null;
         if (!$projekt->save()) {
             return $this->render('formular', ['kreis' => $kreis, 'projekt' => $projekt, 'fehler' => implode(' ', $projekt->getErrorSummary(true))]);
         }
@@ -146,6 +151,9 @@ class ProjektController extends ContentContainerController
     {
         $projekt = $this->projekt($p);
         $karte = $k > 0 ? $this->karte($projekt, $k) : new Karte(['projekt_id' => $projekt->id, 'spalte' => 'offen']);
+        if ($karte->istVorschlag()) {
+            return $this->redirect($this->kreis()->createUrl('/nexus-projekte/vorschlag/formular', ['p' => $projekt->id, 'k' => $karte->id]));
+        }
         $this->pruefe($karte->isNewRecord ? Rechte::darfLeiten($projekt, $this->ich()) : Rechte::darfKarteBearbeiten($karte, $this->ich()));
         return $this->render('karte', [
             'kreis' => $this->kreis(),
@@ -162,6 +170,9 @@ class ProjektController extends ContentContainerController
         $ich = $this->ich();
         $karte = $k > 0 ? $this->karte($projekt, $k) : new Karte(['projekt_id' => $projekt->id, 'spalte' => 'offen', 'created_by' => $ich->id]);
         $karte->populateRelation('projekt', $projekt);
+        if ($karte->istVorschlag()) {
+            throw new NotFoundHttpException();
+        }
         $this->pruefe($karte->isNewRecord ? Rechte::darfLeiten($projekt, $ich) : Rechte::darfKarteBearbeiten($karte, $ich));
         $r = Yii::$app->request;
         $vorher = ['verantwortlich' => (int)$karte->verantwortlich_id, 'helfer' => $karte->isNewRecord ? [] : array_map(fn($u) => (int)$u->id, $karte->helfer())];
@@ -228,11 +239,16 @@ class ProjektController extends ContentContainerController
             throw new NotFoundHttpException();
         }
         $this->pruefe(Rechte::darfVerschieben($karte, $ziel, $this->ich()));
+        if ($karte->spalte === 'fertig' && $karte->istVorschlag()) {
+            // Wieder geoeffnet: das alte Ergebnis gilt nicht mehr
+            $karte->ergebnis = $karte->ergebnis_text = $karte->ergebnis_am = null;
+            $karte->weitergabe_status = $karte->weitergabe_am = $karte->umgesetzt = $karte->umgesetzt_am = null;
+        }
         $karte->spalte = $ziel;
         if ($ziel === 'abstimmung') {
             $bis = trim((string)Yii::$app->request->post('abstimmung_bis'));
             $karte->abstimmung_bis = preg_match('/^\d{4}-\d{2}-\d{2}$/', $bis) && $bis >= date('Y-m-d')
-                ? $bis : date('Y-m-d', strtotime('+' . (int)$this->module->abstimmungTage . ' days'));
+                ? $bis : date('Y-m-d', strtotime('+' . Entscheidung::rundenTage($karte) . ' days'));
             $karte->runde++;
         }
         $karte->save(false);
@@ -262,104 +278,32 @@ class ProjektController extends ContentContainerController
         $karte = $this->karteImKreis($k);
         $ich = $this->ich();
         $this->pruefe(Rechte::darfAbstimmen($karte, $ich));
-        $art = Yii::$app->request->post('art') === 'aenderung' ? 'aenderung' : 'ok';
+        $regel = Entscheidung::regelFuer($karte);
+        $art = (string)Yii::$app->request->post('art');
+        if (!Entscheidung::istGueltig($regel, $art)) {
+            throw new NotFoundHttpException();
+        }
         $text = trim((string)Yii::$app->request->post('text'));
-        if ($art === 'aenderung' && mb_strlen($text) < Stimme::MIN_ZEICHEN) {
+        if (Entscheidung::brauchtBegruendung($regel, $art) && mb_strlen($text) < Stimme::MIN_ZEICHEN) {
             Yii::$app->session->setFlash(self::FLASH, Texte::t('zu_kurz'));
             return $this->redirect($karte->url());
         }
         $stimme = Stimme::findOne(['karte_id' => $karte->id, 'runde' => $karte->runde, 'user_id' => $ich->id])
             ?? new Stimme(['karte_id' => $karte->id, 'runde' => $karte->runde, 'user_id' => $ich->id]);
+        $vorher = $stimme->isNewRecord ? null : [$stimme->art, $stimme->text];
         $stimme->art = $art;
-        $stimme->text = $art === 'aenderung' ? mb_substr($text, 0, Stimme::MAX_ZEICHEN) : null;
+        // Auch bei Zustimmung darf man ein Wort dazuschreiben
+        $stimme->text = $text !== '' ? mb_substr($text, 0, Stimme::MAX_ZEICHEN) : null;
         $stimme->created_at = date('Y-m-d H:i:s');
         $stimme->save(false);
-        if ($art === 'aenderung') {
-            Nachrichten::aenderungswunsch($karte, $stimme, $ich);
+        if (Entscheidung::brauchtBegruendung($regel, $art) && $vorher !== [$stimme->art, $stimme->text]) {
+            Nachrichten::rueckmeldungMitText($karte, $stimme, $ich);
         }
         Yii::$app->session->setFlash(self::FLASH, Texte::t('stimme_danke'));
         return $this->redirect($karte->url());
     }
 
     // ── Hilfen ─────────────────────────────────────────────────────────────
-
-    private function kreis(): Space
-    {
-        return $this->contentContainer;
-    }
-
-    private function ich(): User
-    {
-        return Yii::$app->user->getIdentity();
-    }
-
-    private function pruefe(bool $erlaubt): void
-    {
-        if (!$erlaubt) {
-            throw new ForbiddenHttpException(Texte::t('nur_mitglieder'));
-        }
-    }
-
-    private function projekt(int $id): Projekt
-    {
-        $projekt = Projekt::findOne(['id' => $id, 'space_id' => $this->kreis()->id]);
-        if ($projekt === null) {
-            throw new NotFoundHttpException();
-        }
-        $projekt->populateRelation('kreis', $this->kreis());
-        return $projekt;
-    }
-
-    private function karte(Projekt $projekt, int $id): Karte
-    {
-        $karte = Karte::findOne(['id' => $id, 'projekt_id' => $projekt->id]);
-        if ($karte === null) {
-            throw new NotFoundHttpException();
-        }
-        $karte->populateRelation('projekt', $projekt);
-        return $karte;
-    }
-
-    private function karteImKreis(int $id): Karte
-    {
-        $karte = Karte::findOne(['id' => $id]);
-        if ($karte === null) {
-            throw new NotFoundHttpException();
-        }
-        return $this->karte($this->projekt((int)$karte->projekt_id), $id);
-    }
-
-    /**
-     * Personen aus der Personenauswahl (GUIDs) -- nur Mitglieder dieses Kreises.
-     * @return User[]
-     */
-    private function personen(array $guids): array
-    {
-        $guids = array_values(array_filter(array_map('strval', $guids)));
-        if ($guids === []) {
-            return [];
-        }
-        $kreis = $this->kreis();
-        return array_values(array_filter(
-            User::find()->where(['guid' => $guids, 'status' => User::STATUS_ENABLED])->all(),
-            fn(User $u) => $kreis->isMember($u->id) || $u->isSystemAdmin()
-        ));
-    }
-
-    /** "Titel | https://..." oder nur die Adresse, eine je Zeile */
-    private function linksAus(string $text): array
-    {
-        $liste = [];
-        foreach (preg_split('/\R/', $text) as $zeile) {
-            $teile = array_map('trim', explode('|', $zeile, 2));
-            if (count($teile) === 2) {
-                $liste[] = ['titel' => $teile[0], 'url' => $teile[1]];
-            } elseif ($teile[0] !== '') {
-                $liste[] = ['titel' => '', 'url' => $teile[0]];
-            }
-        }
-        return $liste;
-    }
 
     /** Teilschritte aus dem Textfeld: bekannte behalten ihren Haken, neue kommen dazu, fehlende fallen weg */
     private function speichereSchritte(Karte $karte, string $text): void
@@ -413,15 +357,14 @@ class ProjektController extends ContentContainerController
 
     /**
      * @param Karte[] $karten
-     * @return array<int, array{ok: int, aenderung: int}>
+     * @return array<int, array<string, int>> Kachel => art => Anzahl in der laufenden Runde
      */
     private function stimmenZahl(array $karten): array
     {
         $zahl = [];
         foreach ($karten as $k) {
             if ($k->spalte === 'abstimmung') {
-                $arten = Stimme::find()->select(['n' => 'COUNT(*)', 'art'])->where(['karte_id' => $k->id, 'runde' => $k->runde])->groupBy('art')->indexBy('art')->column();
-                $zahl[$k->id] = ['ok' => (int)($arten['ok'] ?? 0), 'aenderung' => (int)($arten['aenderung'] ?? 0)];
+                $zahl[$k->id] = Entscheidung::zahlen($k);
             }
         }
         return $zahl;

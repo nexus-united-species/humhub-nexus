@@ -43,3 +43,27 @@
 .nx-pj .nx-pj-felder label, .nx-pj label.nx-pj-label { display: block; font-weight: 600; font-size: .88rem; margin-bottom: .2rem; }
 .nx-pj .nx-pj-ganz { grid-column: 1 / -1; }
 .nx-pj .nx-pj-avatar { width: 22px; height: 22px; border-radius: 50%; vertical-align: -6px; margin-right: .25rem; }
+/* Vorschlaege */
+.nx-pj .nx-pj-hinweis { background: var(--nx-pj-flaeche); border-left: 3px solid var(--bs-primary); border-radius: 6px; padding: .5rem .8rem; margin: .5rem 0 1rem; font-size: .92rem; }
+.nx-pj .nx-pj-abschnitt { font-size: 1.05rem; font-weight: 600; margin: 1.2rem 0 .3rem; }
+.nx-pj .nx-pj-aenderung-feld { position: relative; border: 1px solid var(--nx-pj-rand); border-radius: 8px; padding: .6rem .75rem; margin: 0 0 .6rem; }
+.nx-pj .nx-pj-aenderung-feld label { display: block; font-weight: 600; font-size: .85rem; margin: .3rem 0 .15rem; }
+.nx-pj .nx-pj-aenderung-feld .nx-pj-entfernen { position: absolute; top: .35rem; right: .35rem; }
+.nx-pj .nx-pj-zweispaltig { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .6rem; }
+.nx-pj .nx-pj-vorschlag { margin-top: .6rem; }
+.nx-pj .nx-pj-diff { border: 1px solid var(--nx-pj-rand); border-radius: 8px; padding: .5rem .7rem; margin: .4rem 0; }
+.nx-pj .nx-pj-diff-text { margin-top: .3rem; line-height: 1.55; }
+.nx-pj del { color: var(--bs-danger-text-emphasis, #842029); background: var(--bs-danger-bg-subtle, #f8d7da); text-decoration: line-through; }
+.nx-pj ins { color: var(--bs-success-text-emphasis, #0a3622); background: var(--bs-success-bg-subtle, #d1e7dd); text-decoration: none; border-bottom: 1px solid currentColor; }
+.nx-pj .nx-pj-roh { white-space: pre-wrap; font-size: .9rem; }
+.nx-pj .nx-pj-diff details { margin-top: .4rem; }
+.nx-pj .nx-pj-dateien { display: flex; flex-wrap: wrap; gap: .5rem; margin: .3rem 0 .6rem; align-items: flex-start; }
+.nx-pj .nx-pj-dateien > a { border: 1px solid var(--nx-pj-rand); border-radius: 6px; padding: .2rem .6rem; font-size: .88rem; text-decoration: none; }
+.nx-pj .nx-pj-dateien a.nx-pj-bild { display: flex; flex-direction: column; gap: .2rem; padding: .3rem; max-width: 220px; }
+.nx-pj .nx-pj-bild img { max-width: 100%; max-height: 160px; object-fit: contain; border-radius: 4px; }
+.nx-pj .nx-pj-bild span { font-size: .8rem; word-break: break-all; }
+.nx-pj .nx-pj-fassung { margin-top: .3rem; }
+.nx-pj .nx-pj-ergebnis { border: 1px solid var(--nx-pj-rand); border-radius: 8px; padding: .6rem .8rem; margin-top: .6rem; }
+.nx-pj .nx-pj-auswerten { border-top: 1px solid var(--nx-pj-rand); margin-top: .8rem; padding-top: .6rem; }
+.nx-pj .nx-pj-zeile { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .5rem; }
+.nx-pj .nx-pj-zeile .form-control { width: auto; min-width: 12rem; flex: 1 1 12rem; }

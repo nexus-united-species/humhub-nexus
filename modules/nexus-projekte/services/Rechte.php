@@ -46,6 +46,10 @@ class Rechte
 
     public static function darfVerschieben(Karte $karte, string $ziel, ?User $mensch): bool
     {
+        // Ein Vorschlag wird nicht einfach "fertig" geschoben, sondern entschieden (Ergebnis wird festgehalten)
+        if ($karte->istVorschlag() && $ziel === 'fertig') {
+            return false;
+        }
         if (self::darfLeiten($karte->projekt, $mensch)) {
             return true;
         }
@@ -67,5 +71,28 @@ class Rechte
     public static function darfAbstimmen(Karte $karte, ?User $mensch): bool
     {
         return $karte->spalte === 'abstimmung' && self::istMitglied($karte->projekt->kreis, $mensch);
+    }
+
+    /** Vorschlaege bringt jedes Kreismitglied ein -- es wird damit verantwortlich fuer den eigenen Vorschlag */
+    public static function darfVorschlagen(Projekt $projekt, ?User $mensch): bool
+    {
+        return $projekt->status === 'aktiv' && self::istMitglied($projekt->kreis, $mensch);
+    }
+
+    /** Bearbeiten (auch neue Fassung) bis zur Entscheidung: wer ihn eingebracht hat und die Leitung */
+    public static function darfVorschlagBearbeiten(Karte $karte, ?User $mensch): bool
+    {
+        return $karte->istVorschlag() && $karte->spalte !== 'fertig' && self::darfKarteBearbeiten($karte, $mensch);
+    }
+
+    /** Runde auswerten und Ergebnis festhalten, Weitergabe und Umsetzung vermerken: die Leitung */
+    public static function darfEntscheiden(Karte $karte, ?User $mensch): bool
+    {
+        return $karte->istVorschlag() && self::darfLeiten($karte->projekt, $mensch);
+    }
+
+    public static function darfZurueckziehen(Karte $karte, ?User $mensch): bool
+    {
+        return $karte->istVorschlag() && $karte->spalte !== 'fertig' && self::darfKarteBearbeiten($karte, $mensch);
     }
 }

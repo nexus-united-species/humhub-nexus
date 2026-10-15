@@ -14,6 +14,7 @@
 
 use humhub\helpers\Html;
 use nexus\modules\projekte\models\Karte;
+use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 
@@ -22,6 +23,7 @@ $prozent = $karten === [] ? 0 : round(100 * $fertig / count($karten));
 $darfLeiten = Rechte::darfLeiten($projekt, $ich);
 $istMitglied = Rechte::istMitglied($kreis, $ich);
 $machtMit = in_array((int)$ich->id, $projekt->mitmacherIds(), true);
+$hatVorschlaege = array_filter($karten, fn($k) => $k->istVorschlag()) !== [];
 $symbole = ['offen' => 'circle-o', 'arbeit' => 'pencil', 'abstimmung' => 'thumbs-o-up', 'fertig' => 'check-circle'];
 $this->title = $projekt->titel;
 ?>
@@ -45,6 +47,12 @@ $this->title = $projekt->titel;
                         <a class="btn btn-primary btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/karte', ['p' => $projekt->id])) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('neue_karte')) ?></a>
                         <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/formular', ['p' => $projekt->id])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>
                     <?php endif; ?>
+                    <?php if (Rechte::darfVorschlagen($projekt, $ich)) : ?>
+                        <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/vorschlag/formular', ['p' => $projekt->id])) ?>" title="<?= Html::encode(Texte::t('vorschlag_hinweis')) ?>"><i class="fa fa-lightbulb-o"></i> <?= Html::encode(Texte::t('neuer_vorschlag')) ?></a>
+                    <?php endif; ?>
+                    <?php if ($hatVorschlaege) : ?>
+                        <a class="btn btn-light btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/vorschlag/beschluesse', ['p' => $projekt->id])) ?>"><i class="fa fa-gavel"></i> <?= Html::encode(Texte::t('beschluesse')) ?></a>
+                    <?php endif; ?>
                     <?php if ($istMitglied && !$projekt->istLeitung((int)$ich->id)) : ?>
                         <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/mitmachen', ['p' => $projekt->id]), 'post', ['title' => Texte::t('mitmacher_hinweis')]) ?>
                             <?= Html::hiddenInput('an', $machtMit ? '0' : '1') ?>
@@ -65,7 +73,7 @@ $this->title = $projekt->titel;
                     <?php foreach ($inSpalte as $k) : ?>
                         <?php $schritte = $k->schritte; $erledigt = count(array_filter($schritte, fn($s) => $s->erledigt)); ?>
                         <a class="nx-pj-karte<?= $gewaehlt && $gewaehlt->id === $k->id ? ' nx-pj-gewaehlt' : '' ?>" href="<?= Html::encode($k->url()) ?>">
-                            <strong><?= Html::encode($k->titel) ?></strong>
+                            <strong><?php if ($k->istVorschlag()) : ?><i class="fa fa-lightbulb-o" title="<?= Html::encode(Texte::t('vorschlag')) ?>"></i> <?php endif; ?><?= Html::encode($k->titel) ?></strong>
                             <span class="nx-pj-meta">
                                 <?php if ($k->verantwortlich) : ?>
                                     <span><i class="fa fa-user"></i> <?= Html::encode($k->verantwortlich->displayName) ?></span>
@@ -78,8 +86,14 @@ $this->title = $projekt->titel;
                                 <?php endif; ?>
                                 <?php if ($schritte !== []) : ?><span><i class="fa fa-check-square-o"></i> <?= $erledigt ?>/<?= count($schritte) ?></span><?php endif; ?>
                                 <?php if (isset($stimmenZahl[$k->id])) : ?>
-                                    <span class="nx-pj-gruen"><i class="fa fa-thumbs-o-up"></i> <?= (int)$stimmenZahl[$k->id]['ok'] ?></span>
-                                    <?php if ($stimmenZahl[$k->id]['aenderung'] > 0) : ?><span class="nx-pj-gelb"><i class="fa fa-pencil"></i> <?= (int)$stimmenZahl[$k->id]['aenderung'] ?></span><?php endif; ?>
+                                    <?php foreach (Entscheidung::optionen(Entscheidung::regelFuer($k)) as $art => [$text, $symbol, $farbe]) : ?>
+                                        <?php if ($stimmenZahl[$k->id][$art] > 0 || Entscheidung::istPositiv($art)) : ?>
+                                            <span class="<?= $farbe ?>" title="<?= Html::encode(Texte::t($text)) ?>"><i class="fa fa-<?= $symbol ?>"></i> <?= (int)$stimmenZahl[$k->id][$art] ?></span>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                                <?php if ($k->ergebnis) : ?>
+                                    <span class="<?= ['angenommen' => 'nx-pj-gruen', 'abgelehnt' => 'nx-pj-rot'][$k->ergebnis] ?? '' ?>"><?= Html::encode(Texte::t('ergebnis_' . $k->ergebnis)) ?></span>
                                 <?php endif; ?>
                             </span>
                         </a>

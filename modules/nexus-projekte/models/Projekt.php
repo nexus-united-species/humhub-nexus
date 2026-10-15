@@ -5,6 +5,7 @@ namespace nexus\modules\projekte\models;
 use humhub\components\ActiveRecord;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
+use nexus\modules\projekte\services\Entscheidung;
 
 /**
  * @property int $id
@@ -16,6 +17,9 @@ use humhub\modules\user\models\User;
  * @property string $created_at
  * @property int|null $created_by
  * @property string $updated_at
+ * @property string $regel       einfach | konsent | mehrheit -- wie ueber Vorschlaege entschieden wird
+ * @property int $frist_tage     so lange laeuft eine Vorschlagsrunde
+ * @property string|null $weitergabe  Gremium, dem angenommene Vorschlaege vorgelegt werden (z. B. "DAO")
  *
  * @property-read Space $kreis
  * @property-read Karte[] $karten
@@ -26,6 +30,7 @@ class Projekt extends ActiveRecord
     public const MITMACHER_TABELLE = 'nexus_projekt_mitmacher';
     public const LEITUNG_TABELLE = 'nexus_projekt_leitung';
     public const MAX_LEITUNG = 5;
+    public const MAX_FRIST_TAGE = 60;
 
     public static function tableName()
     {
@@ -40,6 +45,9 @@ class Projekt extends ActiveRecord
             ['ziel', 'string', 'max' => 5000],
             ['frist', 'date', 'format' => 'php:Y-m-d'],
             ['status', 'in', 'range' => self::STATUS],
+            ['regel', 'in', 'range' => Entscheidung::REGELN],
+            ['frist_tage', 'integer', 'min' => 1, 'max' => self::MAX_FRIST_TAGE],
+            ['weitergabe', 'string', 'max' => 100],
         ];
     }
 

@@ -22,11 +22,23 @@ use humhub\modules\user\models\User;
  * @property string|null $erinnert_frist
  * @property string|null $erinnert_ueberfaellig
  * @property int $erinnert_runde
+ * @property int $erinnert_auswertung  Runde, fuer die die Leitung ans Auswerten erinnert wurde
  * @property string $created_at
  * @property int|null $created_by
  * @property string $updated_at
+ * @property string $art              aufgabe | vorschlag
+ * @property string|null $zusammenfassung
+ * @property string|null $begruendung
+ * @property string|null $ergebnis     angenommen | abgelehnt | zurueckgezogen
+ * @property string|null $ergebnis_text
+ * @property string|null $ergebnis_am
+ * @property string|null $weitergabe_status  vorgelegt | beschlossen | abgelehnt
+ * @property string|null $weitergabe_am
+ * @property string|null $umgesetzt
+ * @property string|null $umgesetzt_am
  *
  * @property-read Projekt $projekt
+ * @property-read Aenderung[] $aenderungen
  * @property-read User|null $verantwortlich
  * @property-read Schritt[] $schritte
  */
@@ -35,6 +47,9 @@ class Karte extends ActiveRecord
     public const SPALTEN = ['offen', 'arbeit', 'abstimmung', 'fertig'];
     public const HELFER_TABELLE = 'nexus_projekt_helfer';
     public const MAX_LINKS = 8;
+    public const ARTEN = ['aufgabe', 'vorschlag'];
+    public const ERGEBNISSE = ['angenommen', 'abgelehnt', 'zurueckgezogen'];
+    public const WEITERGABE = ['vorgelegt', 'beschlossen', 'abgelehnt'];
 
     public static function tableName()
     {
@@ -50,6 +65,13 @@ class Karte extends ActiveRecord
             ['spalte', 'in', 'range' => self::SPALTEN],
             [['frist', 'abstimmung_bis'], 'date', 'format' => 'php:Y-m-d'],
             ['verantwortlich_id', 'integer'],
+            ['art', 'in', 'range' => self::ARTEN],
+            [['zusammenfassung', 'begruendung'], 'string', 'max' => 10000],
+            ['zusammenfassung', 'required', 'when' => fn(self $k) => $k->istVorschlag()],
+            ['ergebnis', 'in', 'range' => self::ERGEBNISSE],
+            ['weitergabe_status', 'in', 'range' => self::WEITERGABE],
+            ['umgesetzt', 'string', 'max' => 190],
+            [['weitergabe_am', 'umgesetzt_am'], 'date', 'format' => 'php:Y-m-d'],
         ];
     }
 
@@ -76,6 +98,16 @@ class Karte extends ActiveRecord
     public function getSchritte()
     {
         return $this->hasMany(Schritt::class, ['karte_id' => 'id'])->orderBy(['sortierung' => SORT_ASC, 'id' => SORT_ASC]);
+    }
+
+    public function getAenderungen()
+    {
+        return $this->hasMany(Aenderung::class, ['karte_id' => 'id'])->orderBy(['sortierung' => SORT_ASC, 'id' => SORT_ASC]);
+    }
+
+    public function istVorschlag(): bool
+    {
+        return $this->art === 'vorschlag';
     }
 
     /** @return User[] */

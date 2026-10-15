@@ -2,6 +2,8 @@
 
 /**
  * Die aufgeklappte Kachel unter der Tafel: wer, bis wann, Unterlagen, Teilschritte, Abstimmung, Knoepfe.
+ * Vorschlaege zeigen zusaetzlich ihren Inhalt (_vorschlag.php) und werden nach der Regel des Projekts
+ * entschieden (services/Entscheidung.php).
  *
  * @var $kreis humhub\modules\space\models\Space
  * @var $karte nexus\modules\projekte\models\Karte
@@ -10,20 +12,25 @@
 
 use humhub\helpers\Html;
 use humhub\modules\user\models\User;
+use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 
 $url = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/projekt/' . $aktion, ['k' => $karte->id] + $p);
+$vUrl = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/vorschlag/' . $aktion, ['k' => $karte->id] + $p);
+$istVorschlag = $karte->istVorschlag();
+$regel = Entscheidung::regelFuer($karte);
+$optionen = Entscheidung::optionen($regel);
 $helfer = $karte->helfer();
 $stimmen = $karte->spalte === 'abstimmung' ? $karte->stimmen() : [];
 $meine = null;
+$nachArt = array_fill_keys(array_keys($optionen), []);
 foreach ($stimmen as $s) {
     if ((int)$s->user_id === (int)$ich->id) {
         $meine = $s;
     }
+    $nachArt[$s->art][] = $s;
 }
-$zustimmung = array_filter($stimmen, fn($s) => $s->art === 'ok');
-$aenderungen = array_filter($stimmen, fn($s) => $s->art === 'aenderung');
 $fehlen = [];
 if ($karte->spalte === 'abstimmung') {
     $ids = array_diff($karte->projekt->beteiligteIds(), array_map(fn($s) => (int)$s->user_id, $stimmen), [(int)$karte->verantwortlich_id], $karte->projekt->leitungIds());
@@ -37,14 +44,19 @@ $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 
         . '<button type="submit" class="btn btn-sm ' . $klasse . '"><i class="fa fa-' . $symbol . '"></i> ' . Html::encode(Texte::t($text)) . '</button>'
         . Html::endForm();
 };
+$name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 ?>
 <div class="nx-pj-detail" id="karte">
     <div style="display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap">
         <div>
-            <h2><?= Html::encode($karte->titel) ?></h2>
+            <h2><?php if ($istVorschlag) : ?><i class="fa fa-lightbulb-o"></i> <?php endif; ?><?= Html::encode($karte->titel) ?></h2>
             <div class="nx-pj-leise">
                 <?php if ($karte->verantwortlich) : ?>
-                    <?= Html::encode(Texte::t('verantwortlich')) ?>: <strong><?= Html::encode($karte->verantwortlich->displayName) ?></strong>
+                    <?php if ($istVorschlag) : ?>
+                        <?= Html::encode(sprintf(Texte::t('eingebracht_von'), $karte->verantwortlich->displayName)) ?>
+                    <?php else : ?>
+                        <?= Html::encode(Texte::t('verantwortlich')) ?>: <strong><?= Html::encode($karte->verantwortlich->displayName) ?></strong>
+                    <?php endif; ?>
                 <?php else : ?>
                     <?= Html::encode(Texte::t('niemand')) ?>
                 <?php endif; ?>
@@ -57,6 +69,10 @@ $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 
 
     <?php if ($karte->beschreibung) : ?>
         <div style="white-space:pre-wrap;margin-top:.6rem"><?= Html::encode($karte->beschreibung) ?></div>
+    <?php endif; ?>
+
+    <?php if ($istVorschlag) : ?>
+        <?= $this->render('_vorschlag', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich]) ?>
     <?php endif; ?>
 
     <?php if ($karte->linkListe() !== []) : ?>
@@ -90,41 +106,74 @@ $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 
             <?php if ($karte->abstimmung_bis) : ?>
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?> <?= Html::encode(Texte::datum($karte->abstimmung_bis, 'php:D d.m.Y')) ?></div>
             <?php endif; ?>
-            <div class="nx-pj-gruen"><i class="fa fa-thumbs-o-up"></i> <?= Html::encode(Texte::t('passt')) ?>:
-                <?= Html::encode($zustimmung === [] ? '–' : implode(', ', array_map(fn($s) => $s->autor ? $s->autor->displayName : '?', $zustimmung))) ?></div>
-            <?php foreach ($aenderungen as $s) : ?>
-                <div class="nx-pj-gelb" style="margin-top:.35rem"><i class="fa fa-pencil"></i> <?= Html::encode($s->autor ? $s->autor->displayName : '?') ?>:</div>
-                <blockquote><?= Html::encode((string)$s->text) ?></blockquote>
+            <?php if ($regel !== 'einfach') : ?>
+                <div class="nx-pj-leise" style="margin:.2rem 0 .4rem"><?= Html::encode(Texte::t('erklaerung_' . $regel)) ?></div>
+            <?php endif; ?>
+            <?php foreach ($optionen as $art => [$text, $symbol, $farbe, $mitText]) : ?>
+                <?php if ($nachArt[$art] === [] && $mitText) { continue; } ?>
+                <div class="<?= $farbe ?>" style="margin-top:.3rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
+                    <?= Html::encode($nachArt[$art] === [] ? '–' : implode(', ', array_map($name, $nachArt[$art]))) ?></div>
+                <?php foreach ($nachArt[$art] as $s) : ?>
+                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote><?php endif; ?>
+                <?php endforeach; ?>
             <?php endforeach; ?>
             <?php if ($fehlen !== []) : ?>
                 <div class="nx-pj-leise" style="margin-top:.35rem"><i class="fa fa-clock-o"></i> <?= Html::encode(Texte::t('fehlt_noch')) ?>: <?= Html::encode(implode(', ', array_map(fn($u) => $u->displayName, $fehlen))) ?></div>
             <?php endif; ?>
 
             <?php if (Rechte::darfAbstimmen($karte, $ich)) : ?>
-                <?php if ($meine !== null) : ?>
-                    <div style="margin-top:.5rem"><strong><?= Html::encode(sprintf(Texte::t('deine_stimme'), Texte::t($meine->art === 'ok' ? 'passt' : 'aenderung'))) ?></strong></div>
+                <?php if ($meine !== null && isset($optionen[$meine->art])) : ?>
+                    <div style="margin-top:.5rem"><strong><?= Html::encode(sprintf(Texte::t('deine_stimme'), Texte::t($optionen[$meine->art][0]))) ?></strong></div>
                 <?php endif; ?>
                 <div class="nx-pj-knoepfe">
-                    <?= Html::beginForm($url('stimme'), 'post') ?>
-                        <?= Html::hiddenInput('art', 'ok') ?>
-                        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-thumbs-o-up"></i> <?= Html::encode(Texte::t('passt')) ?></button>
-                    <?= Html::endForm() ?>
-                    <button type="button" class="btn btn-sm btn-default" data-nx-pj-oeffne="nx-pj-aenderung"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('aenderung')) ?></button>
+                    <?php foreach ($optionen as $art => [$text, $symbol, $farbe, $mitText]) : ?>
+                        <?php if ($mitText) : ?>
+                            <button type="button" class="btn btn-sm btn-default" data-nx-pj-oeffne="nx-pj-stimme-<?= $art ?>"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?></button>
+                        <?php else : ?>
+                            <?= Html::beginForm($url('stimme'), 'post') ?>
+                                <?= Html::hiddenInput('art', $art) ?>
+                                <button type="submit" class="btn btn-sm <?= Entscheidung::istPositiv($art) ? 'btn-success' : 'btn-default' ?>"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?></button>
+                            <?= Html::endForm() ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
-                <div id="nx-pj-aenderung" hidden style="margin-top:.6rem">
-                    <?= Html::beginForm($url('stimme'), 'post') ?>
-                        <?= Html::hiddenInput('art', 'aenderung') ?>
-                        <label class="nx-pj-label" for="nx-pj-aenderung-text"><?= Html::encode(Texte::t('aenderung_text')) ?></label>
-                        <textarea id="nx-pj-aenderung-text" class="form-control" name="text" rows="3" required minlength="5" maxlength="3000"><?= Html::encode($meine && $meine->art === 'aenderung' ? (string)$meine->text : '') ?></textarea>
-                        <div class="nx-pj-knoepfe"><button type="submit" class="btn btn-primary btn-sm"><?= Html::encode(Texte::t('absenden')) ?></button></div>
-                    <?= Html::endForm() ?>
+                <?php foreach ($optionen as $art => [$text, $symbol, $farbe, $mitText]) : ?>
+                    <?php if (!$mitText) { continue; } ?>
+                    <div id="nx-pj-stimme-<?= $art ?>" hidden style="margin-top:.6rem">
+                        <?= Html::beginForm($url('stimme'), 'post') ?>
+                            <?= Html::hiddenInput('art', $art) ?>
+                            <label class="nx-pj-label" for="nx-pj-stimme-text-<?= $art ?>"><?= Html::encode(Texte::t($text)) ?> – <?= Html::encode(Texte::t($regel === 'einfach' ? 'aenderung_text' : 'stellung_text')) ?></label>
+                            <textarea id="nx-pj-stimme-text-<?= $art ?>" class="form-control" name="text" rows="3" required minlength="5" maxlength="3000"><?= Html::encode($meine && $meine->art === $art ? (string)$meine->text : '') ?></textarea>
+                            <div class="nx-pj-knoepfe"><button type="submit" class="btn btn-primary btn-sm"><?= Html::encode(Texte::t('absenden')) ?></button></div>
+                        <?= Html::endForm() ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
+            <?php if (Rechte::darfEntscheiden($karte, $ich)) : ?>
+                <?php $auswertung = Entscheidung::auswertung($karte); ?>
+                <div class="nx-pj-auswerten">
+                    <div class="nx-pj-label"><?= Html::encode(Texte::t('runde_auswerten')) ?></div>
+                    <div class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('stand_jetzt'), Texte::t('ergebnis_' . $auswertung['ergebnis']) . ' – ' . $auswertung['text'])) ?></div>
+                    <?php if ($auswertung['ergebnis'] !== 'angenommen' && $regel === 'konsent') : ?>
+                        <div class="nx-pj-leise nx-pj-gelb"><?= Html::encode(Texte::t('einwand_blockiert')) ?></div>
+                    <?php endif; ?>
+                    <div class="nx-pj-knoepfe">
+                        <?php foreach (['annehmen' => ['check', 'btn-success'], 'ablehnen' => ['times', 'btn-default'], 'ueberarbeiten' => ['undo', 'btn-light']] as $wahl => [$symbol, $klasse]) : ?>
+                            <?php if ($wahl === 'annehmen' && $regel !== 'einfach' && $auswertung['ergebnis'] !== 'angenommen') { continue; } ?>
+                            <?= Html::beginForm($vUrl('auswerten'), 'post') ?>
+                                <?= Html::hiddenInput('entscheidung', $wahl) ?>
+                                <button type="submit" class="btn btn-sm <?= $klasse ?>"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($wahl)) ?></button>
+                            <?= Html::endForm() ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
     <?php endif; ?>
 
     <div class="nx-pj-knoepfe">
-        <?php if (Rechte::darfUebernehmen($karte, $ich)) : ?>
+        <?php if (Rechte::darfUebernehmen($karte, $ich) && !$istVorschlag) : ?>
             <?= Html::beginForm($url('uebernehmen'), 'post') ?>
                 <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-hand-paper-o"></i> <?= Html::encode(Texte::t('uebernehmen')) ?></button>
             <?= Html::endForm() ?>
@@ -134,12 +183,12 @@ $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 
                 <?= Html::beginForm($url('verschieben'), 'post', ['style' => 'display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap']) ?>
                     <?= Html::hiddenInput('ziel', 'abstimmung') ?>
                     <label class="nx-pj-leise" for="nx-pj-bis" style="margin:0"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?></label>
-                    <input id="nx-pj-bis" type="date" name="abstimmung_bis" class="form-control input-sm" style="width:auto" value="<?= date('Y-m-d', strtotime('+7 days')) ?>" min="<?= date('Y-m-d') ?>">
+                    <input id="nx-pj-bis" type="date" name="abstimmung_bis" class="form-control input-sm" style="width:auto" value="<?= date('Y-m-d', strtotime('+' . Entscheidung::rundenTage($karte) . ' days')) ?>" min="<?= date('Y-m-d') ?>">
                     <button type="submit" class="btn btn-sm btn-default" title="<?= Html::encode(Texte::t('abstimmung_hinweis')) ?>"><i class="fa fa-thumbs-o-up"></i> <?= Html::encode(Texte::t('zur_abstimmung')) ?></button>
                 <?= Html::endForm() ?>
             <?php endif; ?>
         <?php endif; ?>
-        <?php if ($karte->spalte === 'abstimmung') : ?>
+        <?php if ($karte->spalte === 'abstimmung' && !$istVorschlag) : ?>
             <?= $knopf('arbeit', 'in_arbeit', 'undo') ?>
         <?php endif; ?>
         <?php if ($karte->spalte !== 'fertig') : ?>
@@ -147,8 +196,8 @@ $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 
         <?php else : ?>
             <?= $knopf('arbeit', 'wieder_oeffnen', 'undo') ?>
         <?php endif; ?>
-        <?php if (Rechte::darfKarteBearbeiten($karte, $ich)) : ?>
-            <a class="btn btn-sm btn-light" href="<?= Html::encode($url('karte', ['p' => $karte->projekt_id])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>
+        <?php if ($istVorschlag ? Rechte::darfVorschlagBearbeiten($karte, $ich) : Rechte::darfKarteBearbeiten($karte, $ich)) : ?>
+            <a class="btn btn-sm btn-light" href="<?= Html::encode($istVorschlag ? $kreis->createUrl('/nexus-projekte/vorschlag/formular', ['p' => $karte->projekt_id, 'k' => $karte->id]) : $url('karte', ['p' => $karte->projekt_id])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t($istVorschlag ? 'vorschlag_bearbeiten' : 'bearbeiten')) ?></a>
         <?php endif; ?>
     </div>
 </div>
