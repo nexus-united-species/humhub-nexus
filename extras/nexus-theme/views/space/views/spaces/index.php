@@ -46,17 +46,19 @@ $mitGruppen = SpaceDirectoryFilters::getValue('sort') === 'sortOrder';
 $letzteGruppe = null;
 ?>
 <style>
-    .nexus-kreis-gruppe {
+    /* .row.cards > … statt nur der Klasse: Bootstraps ".row > *" setzt sonst den Innenabstand auf 0
+       (gx-0), und der erste Buchstabe wird am linken Rand abgeschnitten. */
+    .row.cards > .nexus-kreis-gruppe {
         width: 100%;
-        margin: 1.6rem 0 .4rem;
-        padding: 0 .75rem .4rem;
+        margin: 1.6rem 0 .6rem;
+        padding: 0 1.25rem .45rem;
         font-size: 1.05rem;
         font-weight: 700;
         letter-spacing: .06em;
         text-transform: uppercase;
-        border-bottom: 2px solid #D4AF37;
+        border-bottom: 4px solid #D4AF37;
     }
-    .nexus-kreis-gruppe:first-child { margin-top: .4rem; }
+    .row.cards > .nexus-kreis-gruppe:first-child { margin-top: .4rem; }
 </style>
 <div class="panel panel-default">
 
