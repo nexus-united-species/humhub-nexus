@@ -28,8 +28,8 @@ CardsAsset::register($this);
 $gruppen = [
     0 => 'Ankommen & Orientieren',
     10 => 'Arbeitskreise',
-    110 => 'Themen',
     200 => 'Vor Ort',
+    300 => 'Themen',
     900 => 'Intern',
 ];
 
