@@ -30,6 +30,7 @@ $gruppen = [
     10 => 'Arbeitskreise',
     110 => 'Themen',
     200 => 'Vor Ort',
+    900 => 'Intern',
 ];
 
 $gruppeVon = static function (int $sortOrder) use ($gruppen): string {
