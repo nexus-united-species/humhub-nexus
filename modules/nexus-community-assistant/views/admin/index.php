@@ -14,6 +14,11 @@ use yii\helpers\Url;
 $this->title = 'Nova – N.E.X.U.S. KI-Assistent';
 
 $format = fn(?\DateTimeImmutable $d) => $d ? $d->format('d.m.Y H:i') : 'noch nie gelaufen';
+
+// Sicherheitsabfrage vor dem Loeschen. Nicht als onclick="..." im HTML: die Sicherheitsregel
+// des Portals (CSP mit nonce) blockiert solchen Code still -- die Abfrage wurde dann
+// uebersprungen und sofort geloescht. registerJs bekommt den nonce von HumHub.
+$this->registerJs("document.querySelectorAll('[data-bestaetigen]').forEach(function (k) { k.addEventListener('click', function (e) { if (!window.confirm(k.getAttribute('data-bestaetigen'))) { e.preventDefault(); } }); });");
 ?>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -66,7 +71,7 @@ $format = fn(?\DateTimeImmutable $d) => $d ? $d->format('d.m.Y H:i') : 'noch nie
                         <a href="<?= Url::to(['edit', 'id' => $meeting->id]) ?>" class="btn btn-xs btn-default">Bearbeiten</a>
                         <?= Html::beginForm(['delete', 'id' => $meeting->id], 'post', ['style' => 'display:inline']) ?>
                         <button type="submit" class="btn btn-xs btn-danger"
-                                onclick="return confirm('Meeting wirklich loeschen?');">Loeschen</button>
+                                data-bestaetigen="Meeting wirklich loeschen?">Loeschen</button>
                         <?= Html::endForm() ?>
                     </td>
                 </tr>

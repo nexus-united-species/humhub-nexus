@@ -12,6 +12,10 @@ $this->title = $meeting->isNewRecord ? 'Neues Meeting' : 'Meeting bearbeiten';
 
 $wochentage = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag', 5 => 'Freitag', 6 => 'Samstag', 7 => 'Sonntag'];
 $typ = $meeting->istEinmalig() ? 'einmalig' : 'wiederkehrend';
+
+// Felder fuer "wiederkehrend" / "einmalig" umschalten. Nicht als onclick="..." im HTML: die
+// Sicherheitsregel des Portals (CSP mit nonce) blockiert das still. registerJs bekommt den nonce.
+$this->registerJs("document.querySelectorAll('input[name=typ]').forEach(function (r) { r.addEventListener('change', function () { var wiederkehrend = document.querySelector('input[name=typ]:checked').value === 'wiederkehrend'; document.getElementById('wiederkehrend-felder').style.display = wiederkehrend ? 'block' : 'none'; document.getElementById('einmalig-felder').style.display = wiederkehrend ? 'none' : 'block'; }); });");
 ?>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -33,13 +37,11 @@ $typ = $meeting->istEinmalig() ? 'einmalig' : 'wiederkehrend';
         <div class="form-group">
             <label>Wiederholung</label><br>
             <label class="radio-inline">
-                <input type="radio" name="typ" value="wiederkehrend" <?= $typ === 'wiederkehrend' ? 'checked' : '' ?>
-                       onclick="document.getElementById('wiederkehrend-felder').style.display='block'; document.getElementById('einmalig-felder').style.display='none';">
+                <input type="radio" name="typ" value="wiederkehrend" <?= $typ === 'wiederkehrend' ? 'checked' : '' ?>>
                 Wiederkehrend (woechentlich)
             </label>
             <label class="radio-inline">
-                <input type="radio" name="typ" value="einmalig" <?= $typ === 'einmalig' ? 'checked' : '' ?>
-                       onclick="document.getElementById('wiederkehrend-felder').style.display='none'; document.getElementById('einmalig-felder').style.display='block';">
+                <input type="radio" name="typ" value="einmalig" <?= $typ === 'einmalig' ? 'checked' : '' ?>>
                 Einmalig
             </label>
         </div>
