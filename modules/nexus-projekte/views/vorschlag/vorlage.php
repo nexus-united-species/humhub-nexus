@@ -63,7 +63,9 @@ if ($karte->runde > 1) {
 </head>
 <body>
 <?php if (!$word) : ?>
-    <div class="knopf"><button type="button" onclick="window.print()"><?= Html::encode(Texte::t('drucken')) ?></button></div>
+    <div class="knopf"><button type="button" id="nexus-drucken"><?= Html::encode(Texte::t('drucken')) ?></button></div>
+    <?php /* Eigenstaendige Seite ohne Portal-Rahmen: der nonce muss direkt ans Skript, onclick="..." blockiert die CSP */ ?>
+    <script <?= Html::nonce() ?>>document.getElementById('nexus-drucken').addEventListener('click', function () { window.print(); });</script>
 <?php endif; ?>
 <div class="leise">N.E.X.U.S. · <?= Html::encode($kreis->displayName) ?></div>
 <h1><?= Html::encode(Texte::t('beschlussvorlage')) ?>: <?= Html::encode($karte->titel) ?></h1>
