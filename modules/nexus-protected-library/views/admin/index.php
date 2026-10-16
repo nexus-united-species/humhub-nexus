@@ -8,6 +8,11 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'N.E.X.U.S. Unterstuetzer-Bibliothek';
+
+// Sicherheitsabfrage vor dem Loeschen. Nicht als onclick="..." im HTML: die Sicherheitsregel
+// des Portals (CSP mit nonce) blockiert solchen Code still -- die Abfrage wurde dann
+// uebersprungen und sofort geloescht. registerJs bekommt den nonce von HumHub.
+$this->registerJs("document.querySelectorAll('[data-bestaetigen]').forEach(function (k) { k.addEventListener('click', function (e) { if (!window.confirm(k.getAttribute('data-bestaetigen'))) { e.preventDefault(); } }); });");
 ?>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -48,7 +53,7 @@ $this->title = 'N.E.X.U.S. Unterstuetzer-Bibliothek';
 
                         <?= Html::beginForm(['delete', 'id' => $buch->id], 'post', ['style' => 'display:inline']) ?>
                         <button type="submit" class="btn btn-xs btn-danger"
-                                onclick="return confirm('Buch inkl. aller Kapitel wirklich loeschen?');">Loeschen</button>
+                                data-bestaetigen="Buch inkl. aller Kapitel wirklich loeschen?">Loeschen</button>
                         <?= Html::endForm() ?>
                     </td>
                 </tr>
