@@ -20,6 +20,11 @@ $zahl = fn($h) => rtrim(rtrim(number_format((float)$h, 2, ',', '.'), '0'), ',') 
 $monatName = fn(string $m) => $m === 'alle' ? 'alle Monate' : date('m/Y', strtotime($m . '-01'));
 $ok = Yii::$app->session->getFlash('nexus-az-ok');
 $summeMonat = array_sum(array_column($jePerson, 'summe'));
+// Monat wechselt sofort beim Auswaehlen. Nicht als onchange="..." im HTML: die
+// Sicherheitsregel des Portals (CSP mit nonce) blockiert solchen Code still -- die Auswahl
+// tat dann gar nichts. registerJs bekommt den nonce von HumHub. Der Knopf "Anzeigen" bleibt
+// als Rueckfall.
+$this->registerJs("document.getElementById('naz-monat')?.addEventListener('change', function () { this.form.submit(); });");
 ?>
 <style>
     .naz { max-width: 900px; margin: 0 auto; }
@@ -64,12 +69,13 @@ $summeMonat = array_sum(array_column($jePerson, 'summe'));
         <h2 style="font-size:19px;margin-top:28px">Übersicht freigegebener Stunden</h2>
         <form method="get" action="<?= Url::to(['/nexus-arbeitszeit/freigabe/index']) ?>" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
             <label for="naz-monat" style="margin:0">Zeitraum:</label>
-            <select id="naz-monat" name="monat" onchange="this.form.submit()">
+            <select id="naz-monat" name="monat">
                 <?php foreach ($monate as $m): ?>
                     <option value="<?= Html::encode($m) ?>" <?= $m === $monat ? 'selected' : '' ?>><?= Html::encode($monatName($m)) ?></option>
                 <?php endforeach; ?>
                 <option value="alle" <?= $monat === 'alle' ? 'selected' : '' ?>>alle Monate</option>
             </select>
+            <button type="submit" class="btn btn-default">Anzeigen</button>
             <a class="btn btn-default" href="<?= Url::to(['/nexus-arbeitszeit/freigabe/export', 'monat' => $monat]) ?>">⬇ Als Excel-Datei herunterladen</a>
         </form>
         <p class="naz-klein">Zeitraum <?= Html::encode($monatName($monat)) ?>: insgesamt <b><?= $zahl($summeMonat) ?> Std.</b> Die Excel-Datei enthält alle Einträge des Zeitraums, auch offene und Rücksprachen.</p>
