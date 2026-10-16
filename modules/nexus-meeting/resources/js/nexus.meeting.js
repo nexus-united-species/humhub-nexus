@@ -19,15 +19,17 @@
     var TAKT_MS = 60000;
     var HANDY_PX = 600;
     var SPEICHER = 'nexus-meeting-ausgeblendet';
+    var SPEICHER_ORT = 'nexus-meeting-ort';   // wo das kleine Fenster zuletzt stand (nur dieser Browser)
+    var RAND_PX = 8;                          // so nah darf das Fenster an den Bildschirmrand
 
     var TEXTE = {
-        de: { live: 'Jetzt live', beitreten: 'Beitreten', ausblenden: 'Ausblenden', gross: 'Groß', klein: 'Klein', vollbild: 'Vollbild', vollbildAus: 'Vollbild beenden',
+        de: { live: 'Jetzt live', beitreten: 'Beitreten', ausblenden: 'Ausblenden', gross: 'Groß', klein: 'Klein', vollbild: 'Vollbild', vollbildAus: 'Vollbild beenden', ziehen: 'Zum Verschieben hier festhalten und ziehen',
               schliessen: 'Verlassen', schliessenFrage: 'Das Treffen verlassen?', laedt: 'Treffen wird geladen …',
               fehler: 'Das Treffen ließ sich nicht im Fenster öffnen. Es öffnet sich jetzt auf einer eigenen Seite.' },
-        en: { live: 'Live now', beitreten: 'Join', ausblenden: 'Hide', gross: 'Large', klein: 'Small', vollbild: 'Full screen', vollbildAus: 'Exit full screen',
+        en: { live: 'Live now', beitreten: 'Join', ausblenden: 'Hide', gross: 'Large', klein: 'Small', vollbild: 'Full screen', vollbildAus: 'Exit full screen', ziehen: 'Hold here and drag to move',
               schliessen: 'Leave', schliessenFrage: 'Leave the meeting?', laedt: 'Loading meeting …',
               fehler: 'The meeting could not be opened in the window. It will now open on its own page.' },
-        es: { live: 'En directo', beitreten: 'Unirse', ausblenden: 'Ocultar', gross: 'Grande', klein: 'Pequeño', vollbild: 'Pantalla completa', vollbildAus: 'Salir de pantalla completa',
+        es: { live: 'En directo', beitreten: 'Unirse', ausblenden: 'Ocultar', gross: 'Grande', klein: 'Pequeño', vollbild: 'Pantalla completa', vollbildAus: 'Salir de pantalla completa', ziehen: 'Mantén pulsado aquí y arrastra para mover',
               schliessen: 'Salir', schliessenFrage: '¿Salir de la reunión?', laedt: 'Cargando la reunión …',
               fehler: 'No se pudo abrir la reunión en la ventana. Se abrirá ahora en su propia página.' }
     };
@@ -147,6 +149,7 @@
         box.append(kopf, buehne);
         document.body.appendChild(box);
         offen = { box: box, api: null, id: id, umschalten: umschalten };
+        verschiebbar(box, kopf, buehne);
         groesse(handy() ? 'voll' : 'klein');
         zeigeHinweis();
 
@@ -203,6 +206,71 @@
         });
     }
 
+    // ── Kleines Fenster verschieben (Josh, 16.10.2026: "lässt sich nicht verschieben, so kann man
+    // nicht auf der Plattform nebenbei arbeiten"). Gezogen wird an der Kopfzeile, mit Maus oder
+    // Finger. Nur im kleinen Zustand -- gross/voll fuellen ohnehin alles.
+    function leseOrt() {
+        try { return JSON.parse(localStorage.getItem(SPEICHER_ORT) || 'null'); } catch (e) { return null; }
+    }
+    function merkeOrt(ort) {
+        try { localStorage.setItem(SPEICHER_ORT, JSON.stringify(ort)); } catch (e) { /* egal */ }
+    }
+
+    // Haelt das Fenster im sichtbaren Bereich (auch nach dem Verkleinern des Browserfensters).
+    function setzeOrt(box, links, oben) {
+        var breite = box.offsetWidth, hoehe = box.offsetHeight;
+        links = Math.min(Math.max(RAND_PX, links), Math.max(RAND_PX, window.innerWidth - breite - RAND_PX));
+        oben = Math.min(Math.max(RAND_PX, oben), Math.max(RAND_PX, window.innerHeight - hoehe - RAND_PX));
+        box.style.left = links + 'px';
+        box.style.top = oben + 'px';
+        box.style.right = 'auto';
+        box.style.bottom = 'auto';
+    }
+
+    // Ohne gemerkten Ort gilt die Ecke aus dem Stylesheet (unten rechts).
+    function ortAnwenden(box) {
+        var ort = leseOrt();
+        if (ort && box.classList.contains('ist-klein')) { setzeOrt(box, ort.links, ort.oben); }
+        else { box.style.left = box.style.top = box.style.right = box.style.bottom = ''; }
+    }
+
+    function verschiebbar(box, kopf, buehne) {
+        kopf.classList.add('nexus-meeting-ziehbar');
+        kopf.title = T.ziehen;
+        var zug = null;
+        kopf.addEventListener('pointerdown', function (e) {
+            if (!box.classList.contains('ist-klein') || e.button !== 0 || e.target.closest('button')) { return; }
+            var r = box.getBoundingClientRect();
+            zug = { dx: e.clientX - r.left, dy: e.clientY - r.top, id: e.pointerId };
+            kopf.setPointerCapture(e.pointerId);
+            // Sonst "verschluckt" das Video (iframe) die Mausbewegung, sobald man darueber zieht.
+            buehne.style.pointerEvents = 'none';
+            box.classList.add('wird-gezogen');
+            e.preventDefault();
+        });
+        kopf.addEventListener('pointermove', function (e) {
+            if (!zug || e.pointerId !== zug.id) { return; }
+            setzeOrt(box, e.clientX - zug.dx, e.clientY - zug.dy);
+        });
+        function loslassen(e) {
+            if (!zug || e.pointerId !== zug.id) { return; }
+            zug = null;
+            buehne.style.pointerEvents = '';
+            box.classList.remove('wird-gezogen');
+            var r = box.getBoundingClientRect();
+            merkeOrt({ links: Math.round(r.left), oben: Math.round(r.top) });
+        }
+        kopf.addEventListener('pointerup', loslassen);
+        kopf.addEventListener('pointercancel', loslassen);
+    }
+
+    window.addEventListener('resize', function () {
+        if (offen && offen.box.classList.contains('ist-klein') && leseOrt()) {
+            var r = offen.box.getBoundingClientRect();
+            setzeOrt(offen.box, r.left, r.top);
+        }
+    });
+
     // klein = Ecke (PC) bzw. Bildchen (Handy) -- gross = ganzes Browserfenster (PC) -- voll = ganzer Bildschirm (Handy)
     // Daneben der Knopf Vollbild: echter Vollbildmodus ohne Browser-Leisten (requestFullscreen).
     function groesse(art) {
@@ -210,6 +278,7 @@
         var box = offen.box;
         box.classList.remove('ist-klein', 'ist-gross', 'ist-voll');
         box.classList.add('ist-' + art);
+        ortAnwenden(box);
         offen.umschalten.textContent = art === 'klein' ? '⤢' : '–';
         var titel = art === 'klein' ? T.gross : T.klein;
         offen.umschalten.title = titel;

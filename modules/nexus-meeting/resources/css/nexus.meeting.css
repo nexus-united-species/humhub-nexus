@@ -44,6 +44,9 @@
     overflow: hidden;
 }
 .nexus-meeting-kopf { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 12px; background: #0B1F3A; color: #fff; }
+/* Kopfzeile zum Verschieben (nur im kleinen Fenster) -- touch-action, damit der Finger nicht die Seite scrollt */
+.nexus-meeting-fenster.ist-klein .nexus-meeting-ziehbar { cursor: move; touch-action: none; user-select: none; }
+.nexus-meeting-fenster.wird-gezogen { opacity: .92; box-shadow: 0 18px 48px rgba(0, 0, 0, .55); }
 .nexus-meeting-name { flex: 1 1 auto; min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nexus-meeting-knopf {
     flex: 0 0 auto; min-width: 34px; height: 30px; border: 0; border-radius: 6px;
