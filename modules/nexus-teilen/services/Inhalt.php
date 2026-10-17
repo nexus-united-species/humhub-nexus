@@ -71,14 +71,53 @@ class Inhalt
         return $user !== null && $user->isSystemAdmin();
     }
 
+    /** Nach diesen Woertern steht im Deutschen der Dativ: "von einem Mitglied", nicht "von ein Mitglied". */
+    private const DATIV_WOERTER = [
+        'von', 'mit', 'bei', 'nach', 'aus', 'zu', 'seit', 'gegenüber', 'dank', 'außer', 'samt', 'nebst', 'entgegen',
+    ];
+
+    /** "vom/zum/beim @Name" wird zu "von/zu/bei einem Mitglied" -- "vom einem" waere falsch. */
+    private const VERSCHMOLZEN = ['vom' => 'von', 'zum' => 'zu', 'beim' => 'bei'];
+
     /**
      * Erwaehnungen ("@Name", im Text als [Name](mention:guid "/u/...")) werden fuer die
      * Oeffentlichkeit zu "ein Mitglied" -- wer erwaehnt wurde, hat der Veroeffentlichung nicht
      * zugestimmt. Laeuft NACH der Uebersetzung, damit auch uebersetzte Texte erfasst sind.
+     *
+     * Mit $einemMitglied wird nach Dativ-Woertern diese Form eingesetzt (Deutsch; vorher stand im
+     * Schaufenster "von ein Mitglied"). Am Satzanfang wird der erste Buchstabe gross.
      */
-    public static function anonymisieren(string $markdown, string $einMitglied): string
+    public static function anonymisieren(string $markdown, string $einMitglied, ?string $einemMitglied = null): string
     {
-        return (string)preg_replace('/@?\[[^\]]*\]\(mention:[^)]*\)/u', $einMitglied, $markdown);
+        if ($einemMitglied !== null) {
+            $markdown = (string)preg_replace_callback(
+                '/\b(vom|zum|beim)(\s+)(?=@?\[[^\]]*\]\(mention:)/iu',
+                function (array $t): string {
+                    $neu = self::VERSCHMOLZEN[mb_strtolower($t[1])];
+                    return (ctype_upper($t[1][0]) ? ucfirst($neu) : $neu) . $t[2];
+                },
+                $markdown
+            );
+        }
+        return (string)preg_replace_callback(
+            '/@?\[[^\]]*\]\(mention:[^)]*\)/u',
+            function (array $treffer) use ($markdown, $einMitglied, $einemMitglied): string {
+                $davor = substr($markdown, 0, $treffer[0][1]);
+                $ersatz = $einMitglied;
+                if ($einemMitglied !== null && preg_match('/(\p{L}+)\s*$/u', $davor, $wort)
+                    && in_array(mb_strtolower($wort[1]), self::DATIV_WOERTER, true)) {
+                    $ersatz = $einemMitglied;
+                }
+                if (preg_match('/(^|[.!?]\s+|\n\s*)$/u', $davor)) {
+                    $ersatz = mb_strtoupper(mb_substr($ersatz, 0, 1)) . mb_substr($ersatz, 1);
+                }
+                return $ersatz;
+            },
+            $markdown,
+            -1,
+            $anzahl,
+            PREG_OFFSET_CAPTURE
+        );
     }
 
     /**

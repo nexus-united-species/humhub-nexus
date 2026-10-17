@@ -42,7 +42,7 @@ class TeilenController extends Controller
         $freigabe = Freigabe::fuer($id);
         // Geht der Link nach draussen (oeffentlich), dann auch der Text ohne erwaehnte Namen.
         if ($freigabe !== null) {
-            $fassung['text'] = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied'));
+            $fassung['text'] = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied'), Texte::get('einem_mitglied'));
         }
         $kurz = Inhalt::kurztext($fassung['text'], self::KURZTEXT_ZEICHEN);
         $text = $fassung['titel'] !== '' ? $fassung['titel'] . "\n\n" . $kurz : $kurz;
@@ -107,7 +107,7 @@ class TeilenController extends Controller
         $record = $this->schaufensterfaehig($id);
         $sprache = Texte::sprache();
         $fassung = Inhalt::fassung($record, null);
-        $text = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied'));
+        $text = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied'), Texte::get('einem_mitglied'));
         $html = LesenController::namenEntlinken(RichTextToHtmlConverter::process($text, ['record' => $record]));
         $namen = Inhalt::namenImText(Inhalt::kurztext($text, 100000) . ' ' . $fassung['titel']);
         foreach ($namen as $name) {

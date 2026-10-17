@@ -44,7 +44,7 @@ class Schaufenster
     private static function karte(Freigabe $freigabe, ContentActiveRecord $record, string $sprache): array
     {
         $fassung = Inhalt::fassung($record, $sprache);
-        $text = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied', $sprache));
+        $text = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied', $sprache), Texte::get('einem_mitglied', $sprache));
         [$titel, $kurz] = self::titelUndText($fassung['titel'], $text);
         $bild = self::bild($freigabe, $record, $text);
         $video = false;

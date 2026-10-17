@@ -47,6 +47,7 @@ class Texte
             'kontakt' => 'Kontakt:',
             // Schaufenster
             'ein_mitglied' => 'ein Mitglied',
+            'einem_mitglied' => 'einem Mitglied',
             'sf_knopf_an' => 'Ins Schaufenster',
             'sf_knopf_drin' => 'Im Schaufenster',
             'sf_knopf_titel' => 'Öffentliche Seite „Aus der N.E.X.U.S.-Gemeinschaft“ (nur Admins sehen diesen Knopf)',
@@ -101,6 +102,7 @@ class Texte
             'weg_text' => 'The link has been withdrawn or the content deleted.',
             'kontakt' => 'Contact:',
             'ein_mitglied' => 'a member',
+            'einem_mitglied' => 'a member',
             'sf_knopf_an' => 'To showcase',
             'sf_knopf_drin' => 'In showcase',
             'sf_knopf_titel' => 'Public page “From the N.E.X.U.S. community” (only admins see this button)',
@@ -155,6 +157,7 @@ class Texte
             'weg_text' => 'El enlace ha sido retirado o el contenido eliminado.',
             'kontakt' => 'Contacto:',
             'ein_mitglied' => 'un miembro',
+            'einem_mitglied' => 'un miembro',
             'sf_knopf_an' => 'Al escaparate',
             'sf_knopf_drin' => 'En el escaparate',
             'sf_knopf_titel' => 'Página pública «De la comunidad N.E.X.U.S.» (solo los administradores ven este botón)',

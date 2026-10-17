@@ -51,7 +51,7 @@ class LesenController extends Controller
         }
 
         $fassung = Inhalt::fassung($record, $seitenSprache);
-        $text = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied', $seitenSprache));
+        $text = Inhalt::anonymisieren($fassung['text'], Texte::get('ein_mitglied', $seitenSprache), Texte::get('einem_mitglied', $seitenSprache));
         $html = self::oeffentlichesHtml($text, $record, $freigabe);
         $anhaenge = $this->anhaenge($record, $freigabe);
         $bild = $this->erstesBild($html, $anhaenge);
