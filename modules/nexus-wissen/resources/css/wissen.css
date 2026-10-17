@@ -8,6 +8,7 @@
 .nx-ws .nx-ws-thema { display: block; border: 1px solid var(--nx-ws-rand); border-radius: 8px; padding: .75rem .9rem; text-decoration: none; color: inherit; }
 .nx-ws .nx-ws-thema:hover, .nx-ws .nx-ws-thema:focus { border-color: var(--bs-primary); }
 .nx-ws .nx-ws-thema i { margin-right: .4rem; }
+.nx-ws .nx-ws-thema-leer { border-style: dashed; opacity: .6; }
 .nx-ws .nx-ws-worte { display: flex; flex-wrap: wrap; gap: .4rem; }
 .nx-ws .nx-ws-wort { display: inline-block; padding: .15rem .6rem; border-radius: 999px; background: var(--bs-tertiary-bg, #f1f3f5); color: inherit; font-size: .88rem; text-decoration: none; }
 .nx-ws .nx-ws-wort:hover { background: var(--bs-secondary-bg, #e9ecef); }

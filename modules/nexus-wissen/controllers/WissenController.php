@@ -96,7 +96,11 @@ class WissenController extends ContentContainerController
             'liste' => $liste,
             'ueberschrift' => $ueberschrift,
             'anzahl' => count($bestand['artikel']),
-            'themen' => array_intersect_key($s->themen(array_keys($jeThema)), array_filter($jeThema)),
+            // Mitglieder sehen nur Themen mit Artikeln. Die Redaktion sieht alle eingerichteten Themen,
+            // auch leere -- sonst sieht sie beim Aufbau einer neuen Sammlung ihr eigenes Geruest nicht.
+            'themen' => $darfBearbeiten
+                ? $s->themen(array_keys($jeThema))
+                : array_intersect_key($s->themen(array_keys($jeThema)), array_filter($jeThema)),
             'jeThema' => $jeThema,
             'schlagworte' => Suche::haeufigeSchlagworte($s->kennung),
             'darfBearbeiten' => $darfBearbeiten,

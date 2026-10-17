@@ -82,10 +82,17 @@ $this->title = $sammlung->name();
                 <h2 style="font-size:1.15rem"><?= Html::encode(Texte::t('themen')) ?></h2>
                 <div class="nx-ws-themen">
                     <?php foreach ($themen as $code => $thema) : ?>
-                        <a class="nx-ws-thema" href="<?= Html::encode($sammlung->url('index', ['thema' => $code])) ?>">
-                            <i class="fa fa-<?= Html::encode($thema['symbol']) ?>"></i><?= Html::encode($thema['name']) ?>
-                            <div class="nx-ws-leise"><?= Html::encode(sprintf(Texte::t('artikel_im_thema'), $jeThema[$code] ?? 0)) ?></div>
-                        </a>
+                        <?php if (($jeThema[$code] ?? 0) === 0) : ?>
+                            <div class="nx-ws-thema nx-ws-thema-leer">
+                                <i class="fa fa-<?= Html::encode($thema['symbol']) ?>"></i><?= Html::encode($thema['name']) ?>
+                                <div class="nx-ws-leise"><?= Html::encode(Texte::t('thema_leer')) ?></div>
+                            </div>
+                        <?php else : ?>
+                            <a class="nx-ws-thema" href="<?= Html::encode($sammlung->url('index', ['thema' => $code])) ?>">
+                                <i class="fa fa-<?= Html::encode($thema['symbol']) ?>"></i><?= Html::encode($thema['name']) ?>
+                                <div class="nx-ws-leise"><?= Html::encode(sprintf(Texte::t('artikel_im_thema'), $jeThema[$code])) ?></div>
+                            </a>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
