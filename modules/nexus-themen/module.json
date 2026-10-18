@@ -1,0 +1,8 @@
+{
+    "id": "nexus-themen",
+    "name": "N.E.X.U.S. Topic Bar",
+    "description": "Makes HumHub's topics usable like Telegram topics: a bar of topics above the stream of every space that has topics (one click filters the stream) and a visible topic choice when posting, with a default topic.",
+    "keywords": ["topics", "stream", "filter", "spaces", "nexus"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}
