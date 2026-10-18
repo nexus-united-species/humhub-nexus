@@ -33,10 +33,40 @@
               schliessen: 'Salir', schliessenFrage: '¿Salir de la reunión?', laedt: 'Cargando la reunión …',
               fehler: 'No se pudo abrir la reunión en la ventana. Se abrirá ahora en su propia página.' }
     };
+    // Offene Tuer (Josh, 18.10.2026): "Menschen sehen, wenn ich am Rechner bin, und koennen einfach reinkommen"
+    var TUER_TEXTE = {
+        de: { offeneTuer: 'Offene Tür', istDa: '%s ist gerade da', kommRein: 'komm einfach rein und quatsch mit', klopfAn: 'klopf an – du wirst hereingelassen',
+              reinkommen: 'Reinkommen', anklopfen: 'Anklopfen', gespraechMit: 'Gespräch mit %s', meineOffen: 'Deine Tür ist offen', rein: 'Rein', tuerZu: 'Tür zu',
+              frageTitel: 'Offene Tür', frageText: 'Alle Mitglieder sehen dann auf jeder Seite, dass du da bist, und kommen mit einem Klick zu dir ins Gespräch. Die Tür schließt sich von selbst, wenn du den Browser zumachst, spätestens nach %d Stunden.',
+              direkt: 'Alle kommen direkt herein', warteraum: 'Ich lasse jeden einzeln herein (Warteraum)', oeffnen: 'Tür öffnen', abbrechen: 'Abbrechen',
+              zuFrage: 'Die Tür schließen? Dein Gesprächsfenster schließt sich dann auch.', verlassen: 'Gespräch verlassen? Deine Tür wird dann geschlossen.',
+              abgelaufen: 'Deine offene Tür hat sich nach %d Stunden von selbst geschlossen.', fehlerTuer: 'Die Tür ließ sich gerade nicht öffnen. Bitte versuch es noch einmal.',
+              warteraumAn: 'Warteraum ist an – wer anklopft, erscheint bei dir zum Hereinlassen.' },
+        en: { offeneTuer: 'Open door', istDa: '%s is here right now', kommRein: 'just come in and have a chat', klopfAn: 'knock – you will be let in',
+              reinkommen: 'Come in', anklopfen: 'Knock', gespraechMit: 'Chat with %s', meineOffen: 'Your door is open', rein: 'Go in', tuerZu: 'Close door',
+              frageTitel: 'Open door', frageText: 'All members will then see on every page that you are here and can join you with one click. The door closes by itself when you close the browser, after %d hours at the latest.',
+              direkt: 'Everyone comes straight in', warteraum: 'I let people in one by one (waiting room)', oeffnen: 'Open door', abbrechen: 'Cancel',
+              zuFrage: 'Close the door? Your chat window will close too.', verlassen: 'Leave the chat? Your door will then be closed.',
+              abgelaufen: 'Your open door closed by itself after %d hours.', fehlerTuer: 'The door could not be opened just now. Please try again.',
+              warteraumAn: 'Waiting room is on – whoever knocks appears for you to let in.' },
+        es: { offeneTuer: 'Puerta abierta', istDa: '%s está aquí ahora', kommRein: 'entra y charla un rato', klopfAn: 'llama a la puerta – te dejarán entrar',
+              reinkommen: 'Entrar', anklopfen: 'Llamar', gespraechMit: 'Charla con %s', meineOffen: 'Tu puerta está abierta', rein: 'Entrar', tuerZu: 'Cerrar puerta',
+              frageTitel: 'Puerta abierta', frageText: 'Todos los miembros verán en cada página que estás aquí y podrán unirse con un clic. La puerta se cierra sola al cerrar el navegador, como muy tarde tras %d horas.',
+              direkt: 'Todos entran directamente', warteraum: 'Dejo entrar a cada persona (sala de espera)', oeffnen: 'Abrir puerta', abbrechen: 'Cancelar',
+              zuFrage: '¿Cerrar la puerta? Tu ventana de charla también se cerrará.', verlassen: '¿Salir de la charla? Tu puerta se cerrará.',
+              abgelaufen: 'Tu puerta abierta se cerró sola tras %d horas.', fehlerTuer: 'No se pudo abrir la puerta ahora. Inténtalo de nuevo.',
+              warteraumAn: 'La sala de espera está activa: quien llame aparecerá para que le dejes entrar.' }
+    };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;
+    var TT = TUER_TEXTE[sprache] || TUER_TEXTE.en;
+    var MEINE_TUER_ID = 'tuer-mein';
+    var LEBENSZEICHEN_MS = 60000;
+    var lebenszeichenUhr = null;
 
-    var stand = { fenster: true, domain: '', praefix: '', name: '', meetings: [] };
+    var stand = { fenster: true, domain: '', praefix: '', name: '', meetings: [], tueren: [], meineTuer: null, darfTuer: false, tuerStunden: 4 };
+
+    function fmt(text, wert) { return text.replace('%s', wert).replace('%d', wert); }
     var hinweis = null;
     var offen = null;           // { box, api, id }
     var apiLaden = null;        // Promise fuer kMeets external_api.js
@@ -80,10 +110,51 @@
         var sichtbar = stand.meetings.filter(function (m) {
             return weg.indexOf(m.id) === -1 && !(offen && offen.id === m.id);
         });
+        var tueren = (stand.tueren || []).filter(function (t) {
+            return weg.indexOf(t.id) === -1 && !(offen && offen.id === t.id);
+        });
+        var meineZeigen = !!stand.meineTuer && !(offen && offen.id === MEINE_TUER_ID);
         if (hinweis) { hinweis.remove(); hinweis = null; }
-        if (!sichtbar.length) { return; }
+        if (!sichtbar.length && !tueren.length && !meineZeigen) { return; }
         hinweis = el('div', 'nexus-meeting-hinweis');
         hinweis.setAttribute('role', 'status');
+        if (meineZeigen) {
+            // Tuer offen, aber das eigene Fenster nicht (z. B. nach dem Neuladen der Seite)
+            var meine = el('div', 'nexus-meeting-zeile nexus-tuer-zeile');
+            var mt = el('div', 'nexus-meeting-text');
+            var mp = el('span', 'nexus-meeting-punkt nexus-tuer-punkt');
+            mp.setAttribute('aria-hidden', 'true');
+            mt.append(mp, el('strong', '', TT.meineOffen));
+            var rein = el('button', 'btn btn-sm nexus-meeting-los', TT.rein);
+            rein.type = 'button';
+            rein.addEventListener('click', meinenRaumBetreten);
+            var zu = el('button', 'btn btn-sm btn-light nexus-tuer-zu', TT.tuerZu);
+            zu.type = 'button';
+            zu.addEventListener('click', function () { if (window.confirm(TT.zuFrage)) { tuerSchliessen(); } });
+            meine.append(mt, rein, zu);
+            hinweis.appendChild(meine);
+        }
+        tueren.slice(0, 3).forEach(function (t) {
+            var zeile = el('div', 'nexus-meeting-zeile nexus-tuer-zeile');
+            var text = el('div', 'nexus-meeting-text');
+            var punkt = el('span', 'nexus-meeting-punkt nexus-tuer-punkt');
+            punkt.setAttribute('aria-hidden', 'true');
+            text.append(punkt, el('strong', '', '☕ ' + fmt(TT.istDa, t.name)), el('span', 'nexus-meeting-titel', ' – ' + (t.warteraum ? TT.klopfAn : TT.kommRein)));
+            text.title = fmt(TT.istDa, t.name);
+            var los = el('button', 'btn btn-sm nexus-meeting-los', t.warteraum ? TT.anklopfen : TT.reinkommen);
+            los.type = 'button';
+            los.addEventListener('click', function () {
+                if (!stand.fenster || !stand.domain) { return; }
+                oeffneFenster(t.raum, fmt(TT.gespraechMit, t.name), t.id, null);
+            });
+            var x = el('button', 'nexus-meeting-x', '×');
+            x.type = 'button';
+            x.title = T.ausblenden;
+            x.setAttribute('aria-label', T.ausblenden + ': ' + t.name);
+            x.addEventListener('click', function () { ausblenden(t.id); zeigeHinweis(); });
+            zeile.append(text, los, x);
+            hinweis.appendChild(zeile);
+        });
         sichtbar.slice(0, 3).forEach(function (m) {
             var zeile = el('div', 'nexus-meeting-zeile');
             var text = el('div', 'nexus-meeting-text');
@@ -118,7 +189,12 @@
         oeffneFenster(m.raum, m.titel, m.id, m.link);
     }
 
-    function oeffneFenster(raum, titel, id, rueckfall) {
+    /**
+     * optionen (fuer die offene Tuer): beimBeitritt(api) nach dem Start, beimSchliessen() nach dem
+     * Schliessen, schliessenFrage statt der normalen Rueckfrage.
+     */
+    function oeffneFenster(raum, titel, id, rueckfall, optionen) {
+        optionen = optionen || {};
         if (offen) {
             if (offen.id === id) { groesse(handy() ? 'voll' : 'klein'); return; }
             schliesseFenster();
@@ -148,7 +224,7 @@
         buehne.appendChild(el('div', 'nexus-meeting-laedt', T.laedt));
         box.append(kopf, buehne);
         document.body.appendChild(box);
-        offen = { box: box, api: null, id: id, umschalten: umschalten };
+        offen = { box: box, api: null, id: id, umschalten: umschalten, beimSchliessen: optionen.beimSchliessen || null };
         verschiebbar(box, kopf, buehne);
         groesse(handy() ? 'voll' : 'klein');
         zeigeHinweis();
@@ -171,7 +247,7 @@
             vollbild.setAttribute('aria-label', vollbild.title);
         });
         raus.addEventListener('click', function () {
-            if (window.confirm(T.schliessenFrage)) { schliesseFenster(); }
+            if (window.confirm(optionen.schliessenFrage || T.schliessenFrage)) { schliesseFenster(); }
         });
 
         kmeetProgramm().then(function () {
@@ -188,6 +264,7 @@
                 interfaceConfigOverwrite: { RECENT_LIST_ENABLED: false, DISPLAY_WELCOME_PAGE_CONTENT: false }
             });
             offen.api.addEventListeners({ readyToClose: schliesseFenster });
+            if (optionen.beimBeitritt) { optionen.beimBeitritt(offen.api); }
             // Auch kMeets eigener Vollbild-Knopf soll funktionieren: das braucht die Erlaubnis am iframe.
             try {
                 var rahmen = offen.api.getIFrame();
@@ -290,7 +367,9 @@
         if (document.fullscreenElement === offen.box) { document.exitFullscreen().catch(function () {}); }
         try { if (offen.api) { offen.api.dispose(); } } catch (e) { /* schon weg */ }
         offen.box.remove();
+        var danach = offen.beimSchliessen;
         offen = null;
+        if (danach) { danach(); }
         zeigeHinweis();
     }
 
@@ -314,6 +393,144 @@
         }
     }, true);
 
+    // ── Offene Tuer ───────────────────────────────────────────────────
+    function senden(pfad, daten) {
+        var form = new FormData();
+        Object.keys(daten || {}).forEach(function (k) { form.append(k, daten[k]); });
+        var token = document.querySelector('meta[name="csrf-token"]');
+        var param = document.querySelector('meta[name="csrf-param"]');
+        if (token && param) { form.append(param.getAttribute('content'), token.getAttribute('content')); }
+        return fetch(pfad, { method: 'POST', body: form, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); });
+    }
+
+    function meldung(text, art) {
+        if (window.humhub && humhub.modules && humhub.modules.ui && humhub.modules.ui.status) {
+            humhub.modules.ui.status[art || 'info'](text);
+        } else {
+            window.alert(text);
+        }
+    }
+
+    // Jede Minute "ich bin noch da" -- auch wenn der Tab im Hintergrund liegt (sonst ginge die Tuer zu,
+    // waehrend man in einem anderen Programm arbeitet). Nur solange das eigene Gespraechsfenster offen ist.
+    function lebenszeichenStarten() {
+        if (lebenszeichenUhr) { return; }
+        lebenszeichenUhr = setInterval(function () {
+            if (!offen || offen.id !== MEINE_TUER_ID) { lebenszeichenStoppen(); return; }
+            senden('/nexus-meeting/tuer/lebenszeichen').then(function (antwort) {
+                if (antwort && antwort.offen === false) {
+                    stand.meineTuer = null;
+                    lebenszeichenStoppen();
+                    menueAnzeigen();
+                    meldung(fmt(TT.abgelaufen, stand.tuerStunden || 4), 'warn');
+                }
+            }).catch(function () { /* naechste Minute neu */ });
+        }, LEBENSZEICHEN_MS);
+    }
+    function lebenszeichenStoppen() {
+        if (lebenszeichenUhr) { clearInterval(lebenszeichenUhr); lebenszeichenUhr = null; }
+    }
+
+    function meinenRaumBetreten() {
+        var tuer = stand.meineTuer;
+        if (!tuer || !stand.domain) { return; }
+        oeffneFenster(tuer.raum, TT.offeneTuer, MEINE_TUER_ID, null, {
+            schliessenFrage: TT.verlassen,
+            beimSchliessen: function () { if (stand.meineTuer) { tuerSchliessen(); } },
+            beimBeitritt: function (api) {
+                if (!tuer.warteraum) { return; }
+                // Warteraum einschalten geht erst als Moderator -- das wird man als Erster im Raum
+                var erledigt = false;
+                api.addEventListener('participantRoleChanged', function (e) {
+                    if (erledigt || !e || e.role !== 'moderator') { return; }
+                    erledigt = true;
+                    try { api.executeCommand('toggleLobby', true); meldung(TT.warteraumAn); } catch (x) { /* ohne Warteraum weiter */ }
+                });
+            }
+        });
+        lebenszeichenStarten();
+    }
+
+    function tuerOeffnen(warteraum) {
+        senden('/nexus-meeting/tuer/oeffnen', { warteraum: warteraum ? '1' : '0' }).then(function (antwort) {
+            stand.meineTuer = { raum: antwort.raum, warteraum: !!antwort.warteraum };
+            menueAnzeigen();
+            meinenRaumBetreten();
+        }).catch(function () { meldung(TT.fehlerTuer, 'error'); });
+    }
+
+    function tuerSchliessen() {
+        stand.meineTuer = null;
+        lebenszeichenStoppen();
+        menueAnzeigen();
+        senden('/nexus-meeting/tuer/schliessen').catch(function () { /* laeuft ohne Lebenszeichen ohnehin ab */ });
+        if (offen && offen.id === MEINE_TUER_ID) { schliesseFenster(); }
+        zeigeHinweis();
+    }
+
+    function tuerFragen() {
+        var alt = document.querySelector('.nexus-tuer-dialog');
+        if (alt) { alt.remove(); }
+        var huelle = el('div', 'nexus-tuer-dialog');
+        var karte = el('div', 'nexus-tuer-karte');
+        karte.setAttribute('role', 'dialog');
+        karte.setAttribute('aria-modal', 'true');
+        karte.setAttribute('aria-label', TT.frageTitel);
+        karte.appendChild(el('h3', '', '☕ ' + TT.frageTitel));
+        karte.appendChild(el('p', 'nexus-tuer-erklaerung', fmt(TT.frageText, stand.tuerStunden || 4)));
+        [['0', TT.direkt], ['1', TT.warteraum]].forEach(function (wahl, i) {
+            var zeile = el('label', 'nexus-tuer-wahl');
+            var knopf = document.createElement('input');
+            knopf.type = 'radio';
+            knopf.name = 'nexus-tuer-warteraum';
+            knopf.value = wahl[0];
+            knopf.checked = i === 0;
+            zeile.append(knopf, document.createTextNode(' ' + wahl[1]));
+            karte.appendChild(zeile);
+        });
+        var knoepfe = el('div', 'nexus-tuer-knoepfe');
+        var ja = el('button', 'btn btn-primary', TT.oeffnen);
+        ja.type = 'button';
+        var nein = el('button', 'btn btn-light', TT.abbrechen);
+        nein.type = 'button';
+        knoepfe.append(ja, nein);
+        karte.appendChild(knoepfe);
+        huelle.appendChild(karte);
+        document.body.appendChild(huelle);
+        ja.focus();
+        function zu() { huelle.remove(); document.removeEventListener('keydown', taste); }
+        function taste(e) { if (e.key === 'Escape') { zu(); } }
+        document.addEventListener('keydown', taste);
+        nein.addEventListener('click', zu);
+        huelle.addEventListener('click', function (e) { if (e.target === huelle) { zu(); } });
+        ja.addEventListener('click', function () {
+            var gewaehlt = karte.querySelector('input[name="nexus-tuer-warteraum"]:checked');
+            zu();
+            tuerOeffnen(gewaehlt && gewaehlt.value === '1');
+        });
+    }
+
+    // Der Eintrag oben in der Leiste zeigt, ob die Tuer offen ist (gruener Punkt)
+    function menueAnzeigen() {
+        document.querySelectorAll('[data-nexus-tuer]').forEach(function (a) {
+            a.classList.toggle('nexus-tuer-ist-offen', !!stand.meineTuer);
+            a.title = stand.meineTuer ? TT.meineOffen + ' – ' + TT.tuerZu : TT.offeneTuer;
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest ? e.target.closest('[data-nexus-tuer]') : null;
+        if (!a) { return; }
+        e.preventDefault();
+        e.stopPropagation();
+        if (stand.meineTuer) {
+            if (window.confirm(TT.zuFrage)) { tuerSchliessen(); }
+        } else {
+            tuerFragen();
+        }
+    }, true);
+
     // ── Abfrage ─────────────────────────────────────────────────────
     function abfragen() {
         if (document.hidden) { return; }
@@ -321,6 +538,8 @@
             .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
             .then(function (daten) {
                 stand = daten;
+                menueAnzeigen();
+                if (stand.meineTuer && offen && offen.id === MEINE_TUER_ID) { lebenszeichenStarten(); }
                 zeigeHinweis();
             })
             .catch(function () { /* naechster Versuch im naechsten Takt */ });

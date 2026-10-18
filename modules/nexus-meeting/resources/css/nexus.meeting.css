@@ -73,3 +73,28 @@
     .nexus-meeting-fenster.ist-klein .nexus-meeting-name { display: none; }
     .nexus-meeting-fenster.ist-voll .nexus-meeting-kopf { padding-top: calc(4px + env(safe-area-inset-top)); }
 }
+
+/* Offene Tuer: goldener, ruhig pulsierender Punkt statt rotem "live" */
+.nexus-tuer-zeile .nexus-meeting-text { white-space: normal; }
+.nexus-tuer-punkt { background: #D4AF37; }
+.nexus-tuer-zu { flex: 0 0 auto; }
+/* Eintrag oben in der Leiste: gruener Punkt, solange die eigene Tuer offen ist */
+[data-nexus-tuer] { position: relative; }
+[data-nexus-tuer].nexus-tuer-ist-offen::after {
+    content: ''; position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; border-radius: 50%;
+    background: #2fb344; box-shadow: 0 0 0 2px #fff;
+}
+/* Frage "Warteraum ja/nein" */
+.nexus-tuer-dialog {
+    position: fixed; inset: 0; z-index: 2100; background: rgba(11, 31, 58, .55);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.nexus-tuer-karte {
+    background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #212529);
+    border-radius: 12px; border-top: 4px solid #D4AF37; box-shadow: 0 12px 32px rgba(0, 0, 0, .35);
+    width: min(440px, 100%); padding: 18px 20px;
+}
+.nexus-tuer-karte h3 { margin: 0 0 .5rem; font-size: 1.2rem; }
+.nexus-tuer-erklaerung { font-size: .92rem; color: var(--bs-secondary-color, #6c757d); }
+.nexus-tuer-wahl { display: flex; gap: .5rem; align-items: center; margin: .45rem 0; font-weight: 600; cursor: pointer; }
+.nexus-tuer-knoepfe { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem; }

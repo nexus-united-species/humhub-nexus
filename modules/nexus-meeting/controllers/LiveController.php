@@ -11,6 +11,7 @@ use humhub\modules\calendar\Module as CalendarModule;
 use humhub\modules\calendar\models\CalendarEntry;
 use humhub\modules\calendar\models\CalendarEntryQuery;
 use humhub\modules\space\models\Space;
+use nexus\modules\meeting\models\Tuer;
 use nexus\modules\meeting\Module;
 use Throwable;
 use Yii;
@@ -44,6 +45,42 @@ class LiveController extends Controller
             'praefix' => $einstellung ? (string)$einstellung->roomPrefix : '',
             'name' => (string)Yii::$app->user->getIdentity()->displayName,
             'meetings' => $this->laufende(),
+        ] + $this->tueren($modul);
+    }
+
+    /**
+     * Offene Tueren: alle anderen sehen sie, die eigene kommt getrennt (fuer "Deine Tuer ist offen").
+     * Faellt die Tabelle aus (z. B. vor der Migration), laufen die Meeting-Hinweise trotzdem weiter.
+     */
+    private function tueren(Module $modul): array
+    {
+        $ich = (int)Yii::$app->user->id;
+        $andere = [];
+        $meine = null;
+        try {
+            foreach (Tuer::offene() as $t) {
+                if ($t->user === null) {
+                    continue;
+                }
+                if ((int)$t->user_id === $ich) {
+                    $meine = ['raum' => $t->raum, 'warteraum' => (bool)$t->warteraum];
+                    continue;
+                }
+                $andere[] = [
+                    'id' => 'tuer-' . $t->user_id . '-' . $t->raum,
+                    'name' => (string)$t->user->displayName,
+                    'raum' => $t->raum,
+                    'warteraum' => (bool)$t->warteraum,
+                ];
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-meeting: offene Tueren nicht lesbar: ' . $e->getMessage(), 'nexus-meeting');
+        }
+        return [
+            'tueren' => $andere,
+            'meineTuer' => $meine,
+            'darfTuer' => $modul->darfTuerOeffnen(Yii::$app->user->getIdentity()),
+            'tuerStunden' => Tuer::MAX_STUNDEN,
         ];
     }
 
