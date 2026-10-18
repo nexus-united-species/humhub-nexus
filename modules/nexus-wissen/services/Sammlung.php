@@ -4,10 +4,12 @@ namespace nexus\modules\wissen\services;
 
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
+use nexus\modules\wissen\models\Thema;
 use nexus\modules\wissen\Module;
 
 /**
- * Eine Wissenssammlung mit ihren Einstellungen aus common.php.
+ * Eine Wissenssammlung: aus den Einstellungen (common.php) oder im Portal angelegt
+ * (Tabelle nexus_wissen_sammlung, siehe istEigen()).
  *
  * Schluessel (Texte wahlweise als String oder als ['de' => ..., 'en' => ..., 'es' => ...]):
  *   kreis          Space-ID (Pflicht)
@@ -17,14 +19,13 @@ use nexus\modules\wissen\Module;
  *   emoji          vor Nachrichten und Kreis-Beitraegen          (Vorgabe: "📖")
  *   suchbeispiel   Platzhalter im Suchfeld
  *   hinweis        Kasten unter jedem Artikel (z. B. "ersetzt keinen aerztlichen Rat"), sonst keiner
- *   themen         [Code => Name] oder [Code => ['de' => ..., 'symbol' => 'leaf']] -- Reihenfolge und
- *                  Namen der Themen. Themen aus dem Import ohne Eintrag erscheinen trotzdem, mit
- *                  einem aus dem Code gebildeten Namen ("02_Heilpflanzen" -> "Heilpflanzen").
+ *   themen         [Code => Name] oder [Code => ['de' => ..., 'symbol' => 'leaf']] -- nur die
+ *                  Startwerte: beim ersten Aufruf in die Datenbank uebernommen, danach pflegt die
+ *                  Redaktion die Kategorien im Portal (services/Themen.php).
  *   importPfad     Ordner, aus dem "php yii wissen/import <kennung>" liest
  *   importStatus   nur Manifest-Eintraege mit diesem "status" uebernehmen (sonst alle)
  *   kiBeschreibung was die Sammlung ist -- fuer die KI-Schlagworte ("ein Kochbuch mit ...")
  *   kiAnweisung    komplette eigene Anweisung fuer die KI-Schlagworte (ersetzt die Vorgabe)
- *   kreisAdmins    true: auch die Admins des Kreises duerfen bearbeiten (Vorgabe: nur Systemadmins)
  *   menuePosition  sortOrder im Kreis-Menue (Vorgabe 105, direkt unter "Stream")
  */
 class Sammlung
@@ -37,7 +38,14 @@ class Sammlung
         public readonly string $kennung,
         private readonly array $e,
         private readonly Module $modul,
+        private readonly bool $eigen = false,
     ) {
+    }
+
+    /** true: im Portal angelegt -- Name, Beschreibung, Symbol und Hinweis sind dort aenderbar. */
+    public function istEigen(): bool
+    {
+        return $this->eigen;
     }
 
     /** Kennungen landen in Adressen und Einstellungs-Namen: nur Kleinbuchstaben, Ziffern, Bindestrich. */
@@ -115,26 +123,28 @@ class Sammlung
     }
 
     /**
-     * Themen in der eingestellten Reihenfolge, danach die uebrigen aus dem Bestand (nach Code sortiert).
-     * @param string[] $imBestand Themen-Codes, die Artikel tatsaechlich haben
-     * @return array<string, array{name: string, symbol: string}>
+     * Die Kategorien in ihrer Reihenfolge (aus der Datenbank, siehe Themen).
+     * @param string[] $imBestand nicht mehr noetig -- Themen der Artikel kommen von selbst dazu
+     * @return array<string, array{name: string, symbol: string, id: int}>
      */
     public function themen(array $imBestand = []): array
     {
         $liste = [];
-        foreach ((array)($this->e['themen'] ?? []) as $code => $wert) {
-            $liste[(string)$code] = [
-                'name' => Texte::waehle(is_array($wert) ? array_diff_key($wert, ['symbol' => 1]) : $wert) ?: self::nameAusCode((string)$code),
-                'symbol' => is_array($wert) && preg_match('/^[a-z0-9-]+$/', (string)($wert['symbol'] ?? '')) ? $wert['symbol'] : self::VORGABE_SYMBOL,
-            ];
-        }
-        sort($imBestand, SORT_NATURAL);  // "01_..." vor "02_..." -- Ordnernamen bestimmen die Reihenfolge
-        foreach ($imBestand as $code) {
-            if ($code !== '' && !isset($liste[$code])) {
-                $liste[$code] = ['name' => self::nameAusCode($code), 'symbol' => self::VORGABE_SYMBOL];
-            }
+        foreach (Themen::alle($this, $this->e) as $t) {
+            $liste[$t->code] = ['name' => $t->anzeigeName() ?: self::nameAusCode($t->code), 'symbol' => $t->symbol ?: self::VORGABE_SYMBOL, 'id' => (int)$t->id];
         }
         return $liste;
+    }
+
+    /** @return Thema[] */
+    public function themenEintraege(): array
+    {
+        return Themen::alle($this, $this->e);
+    }
+
+    public function verschiebeThema(int $id, int $richtung): void
+    {
+        Themen::verschieben($this, $this->e, $id, $richtung);
     }
 
     public function themaName(string $code): string
@@ -161,6 +171,10 @@ class Sammlung
         $this->modul->settings->set('freigegeben.' . $this->kennung, $an ? '1' : '0');
     }
 
+    /**
+     * Redaktion einer Sammlung: Systemadmins und Besitzer/Admins ihres Kreises (Josh, 18.10.2026 --
+     * vorher nur Systemadmins). Sie schreiben Artikel, pflegen Kategorien und geben frei.
+     */
     public function darfBearbeiten(?User $mensch): bool
     {
         if ($mensch === null) {
@@ -170,7 +184,8 @@ class Sammlung
             return true;
         }
         $kreis = $this->kreis();
-        return !empty($this->e['kreisAdmins']) && $kreis !== null && $kreis->isAdmin($mensch->id);
+        // isAdmin() immer mit der ID -- ohne sie fragt HumHub nach dem gerade angemeldeten Menschen
+        return $kreis !== null && $kreis->isAdmin((int)$mensch->id);
     }
 
     public function darfLesen(?User $mensch): bool
@@ -194,10 +209,14 @@ class Sammlung
             $liste[$u->id] = $u;
         }
         $kreis = $this->kreis();
-        if (!empty($this->e['kreisAdmins']) && $kreis !== null) {
+        if ($kreis !== null) {
             foreach (User::find()->innerJoin('space_membership m', 'm.user_id = user.id')
                 ->where(['m.space_id' => $kreis->id, 'm.group_id' => Space::USERGROUP_ADMIN, 'user.status' => User::STATUS_ENABLED])->all() as $u) {
                 $liste[$u->id] = $u;
+            }
+            $besitzer = User::findOne(['id' => $kreis->created_by, 'status' => User::STATUS_ENABLED]);
+            if ($besitzer !== null) {
+                $liste[$besitzer->id] = $besitzer;
             }
         }
         return array_values($liste);
@@ -211,7 +230,9 @@ class Sammlung
         if ($kreis === null) {
             return '';
         }
-        $pfad = $kreis->createUrl('/nexus-wissen/wissen/' . $seite, ['s' => $this->kennung] + $parameter);
+        // "neu" -> Seite der Leseansicht, "redaktion/neu" -> Seite der Redaktion
+        $route = str_contains($seite, '/') ? '/nexus-wissen/' . $seite : '/nexus-wissen/wissen/' . $seite;
+        $pfad = $kreis->createUrl($route, ['s' => $this->kennung] + $parameter);
         if (!$absolut || preg_match('#^https?://#', $pfad)) {
             return $pfad;
         }

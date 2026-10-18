@@ -6,6 +6,7 @@ use nexus\modules\wissen\models\Artikel;
 use nexus\modules\wissen\Module;
 use nexus\modules\wissen\services\Importer;
 use nexus\modules\wissen\services\Sammlung;
+use nexus\modules\wissen\services\Schlagworte;
 use Throwable;
 use Yii;
 use yii\console\Controller;
@@ -37,29 +38,7 @@ class WissenController extends Controller
     /** @var bool schlagworte: auch Artikel neu verschlagworten, die schon Schlagworte haben */
     public $neu = false;
 
-    private const KI_DIENST = 'nexus\modules\communityAssistant\services\AiService';
-    private const KI_TEXT_ZEICHEN = 6000;
     private const KI_VERSUCHE = 3;
-    private const MAX_SCHLAGWORTE = 8;
-    private const MAX_SUCHWOERTER = 15;
-
-    private const ANWEISUNG = <<<'TXT'
-Du verschlagwortest Artikel eines Nachschlagewerks, damit Menschen den passenden Artikel finden --
-auch wenn sie andere Woerter benutzen als der Artikel. Das Nachschlagewerk: {beschreibung}
-
-Antworte NUR mit JSON in genau dieser Form:
-{"schlagworte": ["...", "..."], "suchwoerter": ["...", "..."]}
-
-schlagworte: 4 bis 8 kurze, allgemein verstaendliche Begriffe (1-3 Woerter) in der Sprache des
-Artikels: die wichtigsten Themen, Gegenstaende und Zielgruppen des Artikels. Verwende moeglichst
-gaengige, wiederkehrende Begriffe statt sehr spezieller, damit viele Artikel dieselben teilen.
-
-suchwoerter: 5 bis 15 Woerter, mit denen Laien nach diesem Thema suchen wuerden und die NICHT schon
-im Titel stehen: Alltagswoerter, andere Bezeichnungen und Synonyme, Fachbegriffe und ihre
-gebraeuchlichen Entsprechungen, typische Fragen oder Probleme, bei denen der Artikel hilft.
-
-Erfinde nichts. Nur Begriffe, die zum Inhalt des Artikels passen.
-TXT;
 
     public function options($actionID)
     {
@@ -118,14 +97,11 @@ TXT;
         if ($s === null) {
             return ExitCode::DATAERR;
         }
-        if (!class_exists(self::KI_DIENST)) {
+        if (!Schlagworte::verfuegbar()) {
             $this->stderr("Fuer KI-Schlagworte wird das Modul nexus-community-assistant (mit nexus-translate) gebraucht.\n");
             return ExitCode::UNAVAILABLE;
         }
         $anzahlProbe = !$this->istProbe() ? 0 : ($this->probe === true ? 3 : max(1, (int)$this->probe));
-        $dienst = self::KI_DIENST;
-        $ki = new $dienst();
-        $anweisung = $s->kiAnweisung() ?: str_replace('{beschreibung}', $s->kiBeschreibung() ?: $s->name('de'), self::ANWEISUNG);
 
         $abfrage = Artikel::inSammlung($s->kennung)->orderBy('id');
         if (!$this->neu) {
@@ -142,14 +118,14 @@ TXT;
         $fertig = 0;
         $fehler = 0;
         foreach ($alle as $artikel) {
-            $daten = $this->frageKi($ki, $anweisung, "Titel: {$artikel->titel}\n\n" . mb_substr($artikel->inhalt, 0, self::KI_TEXT_ZEICHEN));
+            $daten = Schlagworte::erzeugen($s, $artikel, self::KI_VERSUCHE, fn($zeile) => $this->stdout($zeile . "\n"));
             if ($daten === null) {
                 $fehler++;
                 $this->stdout("FEHLER  {$artikel->titel}\n");
                 continue;
             }
-            $schlag = array_slice(array_map('strval', $daten['schlagworte']), 0, self::MAX_SCHLAGWORTE);
-            $such = array_slice(array_map('strval', (array)($daten['suchwoerter'] ?? [])), 0, self::MAX_SUCHWOERTER);
+            $schlag = $daten['schlagworte'];
+            $such = $daten['suchwoerter'];
             if ($anzahlProbe) {
                 $this->stdout("\n{$artikel->titel}\n  Schlagworte: " . implode(', ', $schlag) . "\n  Suchwoerter: " . implode(', ', $such) . "\n");
                 continue;
@@ -164,26 +140,6 @@ TXT;
         Yii::$app->cache->flush();
         $this->stdout("fertig: $fertig, fehlgeschlagen: $fehler\n");
         return $fehler > 0 ? ExitCode::UNSPECIFIED_ERROR : ExitCode::OK;
-    }
-
-    /** @return array{schlagworte: array, suchwoerter?: array}|null */
-    private function frageKi($ki, string $anweisung, string $text): ?array
-    {
-        for ($versuch = 1; $versuch <= self::KI_VERSUCHE; $versuch++) {
-            try {
-                $antwort = $ki->frage($text, $anweisung, 0.2);
-                if (preg_match('/\{.*\}/s', (string)$antwort, $m)) {
-                    $daten = json_decode($m[0], true);
-                    if (is_array($daten) && !empty($daten['schlagworte']) && is_array($daten['schlagworte'])) {
-                        return $daten;
-                    }
-                }
-            } catch (Throwable $e) {
-                $this->stdout("  Versuch $versuch fehlgeschlagen: " . mb_substr($e->getMessage(), 0, 120) . "\n");
-                sleep(3 * $versuch);
-            }
-        }
-        return null;
     }
 
     private function istProbe(): bool

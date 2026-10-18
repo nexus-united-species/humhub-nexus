@@ -15,6 +15,7 @@ use nexus\modules\wissen\Module;
 use nexus\modules\wissen\services\Darstellung;
 use nexus\modules\wissen\services\Nachrichten;
 use nexus\modules\wissen\services\Sammlung;
+use nexus\modules\wissen\services\Schlagworte;
 use nexus\modules\wissen\services\Suche;
 use nexus\modules\wissen\services\Texte;
 use Yii;
@@ -26,17 +27,19 @@ use yii\web\NotFoundHttpException;
  *
  * Lesen: alle angemeldeten Menschen (nach der Freigabe), vorher nur die Bearbeitenden.
  * Vorschlagen und "Im Kreis darueber sprechen": Mitglieder des Kreises.
- * Bearbeiten, Versionen wiederherstellen, Vorschlaege erledigen, Freigabe: die Bearbeitenden.
+ * Bearbeiten, Versionen wiederherstellen, Vorschlaege erledigen, Freigabe: die Redaktion
+ * (Systemadmins, Besitzer und Admins des Kreises). Neue Artikel, Hochladen, Kategorien und
+ * Einstellungen: RedaktionController.
  */
 class WissenController extends ContentContainerController
 {
-    private const FLASH = 'nexus-wissen';
-    private const FLASH_FEHLER = 'nexus-wissen-fehler';
+    protected const FLASH = 'nexus-wissen';
+    protected const FLASH_FEHLER = 'nexus-wissen-fehler';
 
     /** @var Module */
     public $module;
 
-    private Sammlung $sammlung;
+    protected Sammlung $sammlung;
 
     protected function getAccessRules()
     {
@@ -66,9 +69,13 @@ class WissenController extends ContentContainerController
 
     // ── Lesen ──────────────────────────────────────────────────────────────
 
-    public function actionIndex(string $q = '', string $thema = '', string $wort = '')
+    public function actionIndex(string $q = '', string $thema = '', string $wort = '', int $entwuerfe = 0)
     {
         $s = $this->sammlung;
+        $darfBearbeiten = $s->darfBearbeiten($this->ich());
+        $entwurfListe = $darfBearbeiten
+            ? Artikel::inSammlung($s->kennung)->andWhere(['entwurf' => 1])->select(['id', 'slug', 'titel', 'thema', 'inhalt'])->orderBy(['updated_at' => SORT_DESC])->asArray()->all()
+            : [];
         $bestand = Suche::bestand($s->kennung);
         $jeThema = [];
         foreach ($bestand['artikel'] as $a) {
@@ -85,11 +92,13 @@ class WissenController extends ContentContainerController
             $ids = array_flip(Suche::mitSchlagwort($s->kennung, $wort));
             $liste = array_values(array_filter($bestand['artikel'], fn($a) => isset($ids[$a['id']])));
             $ueberschrift = '#' . $wort;
+        } elseif ($entwuerfe && $darfBearbeiten) {
+            $liste = array_map(fn($a) => $a + ['anriss' => Darstellung::anriss((string)$a['inhalt'])], $entwurfListe);
+            $ueberschrift = Texte::t('entwuerfe');
         } elseif (array_keys($jeThema) === ['']) {
             // Sammlung ohne Themen: gleich alle Artikel zeigen
             $liste = array_values($bestand['artikel']);
         }
-        $darfBearbeiten = $s->darfBearbeiten($this->ich());
         return $this->render('index', [
             'sammlung' => $s,
             'q' => $q,
@@ -105,6 +114,8 @@ class WissenController extends ContentContainerController
             'schlagworte' => Suche::haeufigeSchlagworte($s->kennung),
             'darfBearbeiten' => $darfBearbeiten,
             'offeneVorschlaege' => $darfBearbeiten ? (int)$this->vorschlaegeAbfrage('offen')->count() : 0,
+            'anzahlEntwuerfe' => count($entwurfListe),
+            'meldung' => Yii::$app->session->getFlash(self::FLASH),
         ]);
     }
 
@@ -179,7 +190,9 @@ class WissenController extends ContentContainerController
         return $this->render('bearbeiten', [
             'sammlung' => $this->sammlung,
             'artikel' => $artikel,
-            'themen' => $this->sammlung->themen(Artikel::inSammlung($this->sammlung->kennung)->select('thema')->distinct()->column()),
+            'neu' => false,
+            'bilder' => 0,
+            'themen' => $this->sammlung->themen(),
             'schlagworte' => implode(', ', $artikel->woerter('schlagwort')),
             'suchwoerter' => implode(', ', $artikel->woerter('suchwort')),
             'fehler' => Yii::$app->session->getFlash(self::FLASH_FEHLER),
@@ -207,7 +220,7 @@ class WissenController extends ContentContainerController
         $artikel->setzeWoerter('schlagwort', explode(',', (string)$r->post('schlagworte')));
         $artikel->setzeWoerter('suchwort', explode(',', (string)$r->post('suchwoerter')));
         Version::speichern($artikel, trim((string)$r->post('grund')) ?: 'Bearbeitung im Portal', $this->ich()->id);
-        Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert'));
+        Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert') . $this->schlagworteErgaenzen($artikel));
         return $this->redirect($artikel->url($this->sammlung));
     }
 
@@ -281,29 +294,50 @@ class WissenController extends ContentContainerController
 
     // ── Hilfen ─────────────────────────────────────────────────────────────
 
-    private function ich(): ?User
+    protected function ich(): ?User
     {
         $ich = Yii::$app->user->getIdentity();
         return $ich instanceof User ? $ich : null;
     }
 
-    private function nurBearbeitende(): void
+    protected function nurBearbeitende(): void
     {
         if (!$this->sammlung->darfBearbeiten($this->ich())) {
             throw new ForbiddenHttpException();
         }
     }
 
-    private function artikel(string $slug): Artikel
+    protected function artikel(string $slug): Artikel
     {
         $artikel = Artikel::findOne(['sammlung' => $this->sammlung->kennung, 'slug' => $slug]);
-        if ($artikel === null) {
+        // Entwuerfe kennt nur die Redaktion -- fuer alle anderen gibt es sie nicht
+        if ($artikel === null || ($artikel->entwurf && !$this->sammlung->darfBearbeiten($this->ich()))) {
             throw new NotFoundHttpException();
         }
         return $artikel;
     }
 
-    private function vorschlaegeAbfrage(string $status): \yii\db\ActiveQuery
+    /**
+     * Hat ein Artikel keine Schlagworte, fragt die KI -- wie beim Import ueber die Konsole. Gibt einen
+     * Zusatz fuer die Meldung zurueck ("" wenn nichts zu tun war).
+     */
+    protected function schlagworteErgaenzen(Artikel $artikel): string
+    {
+        if ($artikel->woerter('schlagwort') !== [] || !Schlagworte::verfuegbar()) {
+            return '';
+        }
+        $daten = Schlagworte::erzeugen($this->sammlung, $artikel);
+        if ($daten === null) {
+            return ' ' . Texte::t('schlagworte_fehlen');
+        }
+        $artikel->setzeWoerter('schlagwort', $daten['schlagworte']);
+        if ($artikel->woerter('suchwort') === []) {
+            $artikel->setzeWoerter('suchwort', $daten['suchwoerter']);
+        }
+        return ' ' . Texte::t('schlagworte_ki');
+    }
+
+    protected function vorschlaegeAbfrage(string $status): \yii\db\ActiveQuery
     {
         return Vorschlag::find()->innerJoinWith('artikel a', false)
             ->where(['a.sammlung' => $this->sammlung->kennung, Vorschlag::tableName() . '.status' => $status]);

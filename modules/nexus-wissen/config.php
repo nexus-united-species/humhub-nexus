@@ -1,6 +1,7 @@
 <?php
 
 use humhub\commands\CronController;
+use humhub\modules\space\widgets\HeaderControlsMenu;
 use humhub\modules\space\widgets\Menu;
 
 return [
@@ -10,7 +11,9 @@ return [
     'events' => [
         // Menuepunkt je Sammlung in ihrem Kreis
         ['class' => Menu::class, 'event' => Menu::EVENT_INIT, 'callback' => ['nexus\modules\wissen\Events', 'onKreisMenue']],
-        // Taeglich: faellige Wiedervorlagen an die Bearbeitenden
+        // "Wissensbereich anlegen" im Menue oben rechts (Besitzer und Admins des Kreises)
+        ['class' => HeaderControlsMenu::class, 'event' => HeaderControlsMenu::EVENT_INIT, 'callback' => ['nexus\modules\wissen\Events', 'onKreisVerwaltung']],
+        // Taeglich: faellige Wiedervorlagen an die Redaktion
         ['class' => CronController::class, 'event' => CronController::EVENT_ON_DAILY_RUN, 'callback' => ['nexus\modules\wissen\Events', 'onTaeglich']],
     ],
     // php yii wissen/liste | wissen/import <sammlung> | wissen/schlagworte <sammlung>

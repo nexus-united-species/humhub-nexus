@@ -3,8 +3,10 @@
 namespace nexus\modules\wissen;
 
 use humhub\modules\ui\menu\MenuLink;
+use nexus\modules\wissen\controllers\EinrichtenController;
 use nexus\modules\wissen\models\Artikel;
 use nexus\modules\wissen\services\Nachrichten;
+use nexus\modules\wissen\services\Texte;
 use Throwable;
 use Yii;
 
@@ -37,6 +39,32 @@ class Events
             }
         } catch (Throwable $e) {
             Yii::error('nexus-wissen: Menue-Eintrag fehlgeschlagen: ' . $e->getMessage(), 'nexus-wissen');
+        }
+    }
+
+    /**
+     * Menue oben rechts im Kreis (Zahnrad): "Wissensbereich anlegen" fuer Besitzer und Admins des
+     * Kreises -- nur solange der Kreis noch keinen hat, damit es nicht doppelt geschieht.
+     */
+    public static function onKreisVerwaltung($event): void
+    {
+        try {
+            $modul = Module::instanz();
+            $kreis = $event->sender->space ?? null;
+            if ($modul === null || $kreis === null || Yii::$app->user->isGuest) {
+                return;
+            }
+            if (!EinrichtenController::darfAnlegen(Yii::$app->user->getIdentity(), $kreis) || $modul->sammlungenIn($kreis) !== []) {
+                return;
+            }
+            $event->sender->addEntry(new MenuLink([
+                'label' => Texte::t('einrichten'),
+                'url' => $kreis->createUrl('/nexus-wissen/einrichten/index'),
+                'icon' => 'book',
+                'sortOrder' => 450,
+            ]));
+        } catch (Throwable $e) {
+            Yii::error('nexus-wissen: Eintrag "Wissensbereich anlegen" fehlgeschlagen: ' . $e->getMessage(), 'nexus-wissen');
         }
     }
 

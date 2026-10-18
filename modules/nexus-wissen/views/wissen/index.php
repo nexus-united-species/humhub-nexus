@@ -13,6 +13,8 @@
  * @var $schlagworte array<string, int>
  * @var $darfBearbeiten bool
  * @var $offeneVorschlaege int
+ * @var $anzahlEntwuerfe int
+ * @var $meldung string|null
  */
 
 use humhub\helpers\Html;
@@ -40,7 +42,16 @@ $this->title = $sammlung->name();
                 <?= Html::endForm() ?>
                 <a href="<?= Html::encode($sammlung->url('vorschlaege')) ?>"><i class="fa fa-inbox"></i> <?= Html::encode(Texte::t('vorschlaege')) ?> (<?= (int)$offeneVorschlaege ?>)</a>
             </div>
+            <div class="nx-ws-admin">
+                <a class="btn btn-sm btn-primary" href="<?= Html::encode($sammlung->url('redaktion/neu')) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('neuer_artikel')) ?></a>
+                <a href="<?= Html::encode($sammlung->url('redaktion/themen')) ?>"><i class="fa fa-th-large"></i> <?= Html::encode(Texte::t('kategorien')) ?></a>
+                <a href="<?= Html::encode($sammlung->url('index', ['entwuerfe' => 1])) ?>"><i class="fa fa-pencil-square-o"></i> <?= Html::encode(Texte::t('entwuerfe')) ?> (<?= (int)$anzahlEntwuerfe ?>)</a>
+                <?php if ($sammlung->istEigen()) : ?>
+                    <a href="<?= Html::encode($sammlung->url('redaktion/einstellungen')) ?>"><i class="fa fa-cog"></i> <?= Html::encode(Texte::t('einstellungen')) ?></a>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
+        <?php if ($meldung) : ?><div class="nx-ws-meldung"><?= Html::encode($meldung) ?></div><?php endif; ?>
 
         <?php if ($anzahl === 0) : ?>
             <p><?= Html::encode(Texte::t('leer')) ?></p>
@@ -72,7 +83,7 @@ $this->title = $sammlung->name();
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
-            <?php if ($themen !== []) : ?>
+            <?php if ($themen !== [] || $ueberschrift !== null) : ?>
                 <p style="margin-top:1rem"><a href="<?= Html::encode($sammlung->url()) ?>">← <?= Html::encode($sammlung->name()) ?></a></p>
             <?php endif; ?>
         <?php endif; ?>

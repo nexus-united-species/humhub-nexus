@@ -40,3 +40,9 @@
 .nx-ws .nx-ws-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; margin-bottom: .75rem; }
 .nx-ws .nx-ws-felder label { display: block; font-weight: 600; font-size: .88rem; }
 .nx-ws .nx-ws-felder input, .nx-ws .nx-ws-felder select { width: 100%; }
+.nx-ws .nx-ws-entwurf { border-left: 4px solid var(--bs-info, #0dcaf0); background: var(--bs-info-bg-subtle, #e7f6fb); border-radius: 0 8px 8px 0; padding: .6rem .8rem; margin: .75rem 0; display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.nx-ws .nx-ws-entwurf span { flex: 1 1 18rem; }
+.nx-ws .nx-ws-kat-zeile { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.nx-ws .nx-ws-kat-zeile input[name="name"] { flex: 1 1 14rem; width: auto; }
+.nx-ws .nx-ws-kat-symbol { flex: 0 0 9rem; width: auto; }
+.nx-ws .nx-ws-kat-zahl { flex: 0 0 auto; min-width: 5.5rem; }

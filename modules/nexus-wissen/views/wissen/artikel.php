@@ -34,6 +34,18 @@ $this->title = $artikel->titel;
             <div class="nx-ws-meldung"><?= Html::encode($meldung) ?></div>
         <?php endif; ?>
 
+        <?php if ($darfBearbeiten && $artikel->entwurf) : ?>
+            <div class="nx-ws-entwurf">
+                <span><i class="fa fa-pencil-square-o"></i> <?= Html::encode(Texte::t('entwurf_hinweis')) ?></span>
+                <?= Html::beginForm($sammlung->url('redaktion/veroeffentlichen', ['a' => $artikel->slug]), 'post', ['style' => 'display:inline']) ?>
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> <?= Html::encode(Texte::t('veroeffentlichen')) ?></button>
+                <?= Html::endForm() ?>
+                <?= Html::beginForm($sammlung->url('redaktion/verwerfen', ['a' => $artikel->slug]), 'post', ['style' => 'display:inline']) ?>
+                    <button type="submit" class="btn btn-sm btn-light" data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('verwerfen_frage')) ?>"><i class="fa fa-trash"></i> <?= Html::encode(Texte::t('verwerfen')) ?></button>
+                <?= Html::endForm() ?>
+            </div>
+        <?php endif; ?>
+
         <?php if ($darfBearbeiten) : ?>
             <div class="nx-ws-admin">
                 <a href="<?= Html::encode($sammlung->url('bearbeiten', ['a' => $artikel->slug])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>

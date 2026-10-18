@@ -170,7 +170,7 @@ class Darstellung
     {
         return Yii::$app->cache->getOrSet(['nexus-wissen-kurztitel', self::stand($sammlung)], function () use ($sammlung) {
             $liste = [];
-            foreach (Artikel::inSammlung($sammlung)->select(['id', 'kurztitel', 'slug'])->asArray()->all() as $z) {
+            foreach (Artikel::sichtbarIn($sammlung)->select(['id', 'kurztitel', 'slug'])->asArray()->all() as $z) {
                 $liste[(int)$z['id']] = [(string)$z['kurztitel'], (string)$z['slug']];
             }
             return $liste;
@@ -181,7 +181,7 @@ class Darstellung
     private static function dateiZuSlug(string $sammlung): array
     {
         return Yii::$app->cache->getOrSet(['nexus-wissen-dateien', self::stand($sammlung)], function () use ($sammlung) {
-            return Artikel::inSammlung($sammlung)->select(['slug', 'datei'])->indexBy('datei')->column();
+            return Artikel::sichtbarIn($sammlung)->select(['slug', 'datei'])->indexBy('datei')->column();
         }, 86400);
     }
 

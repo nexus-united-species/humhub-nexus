@@ -1,9 +1,17 @@
-/* Wissenssammlungen: Formulare "ergaenzen / aendern / im Kreis sprechen" auf- und zuklappen.
-   Ueber Delegation am Dokument, weil das Portal Seiten ohne Neuladen wechselt (PJAX). */
+/* Wissenssammlungen: Formulare "ergaenzen / aendern / im Kreis sprechen" auf- und zuklappen und
+   Rueckfragen vor dem Loeschen (data-nx-ws-bestaetigen="Frage").
+   Ueber Delegation am Dokument, weil das Portal Seiten ohne Neuladen wechselt (PJAX). Kein
+   onclick= im HTML: die Sicherheitsregel des Portals (CSP mit nonce) verwirft so etwas still. */
 (function () {
     if (window.nexusWissenGeladen) { return; }
     window.nexusWissenGeladen = true;
     document.addEventListener('click', function (e) {
+        var frage = e.target.closest('[data-nx-ws-bestaetigen]');
+        if (frage && !window.confirm(frage.getAttribute('data-nx-ws-bestaetigen'))) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
         var knopf = e.target.closest('[data-nx-ws-oeffne]');
         if (knopf) {
             e.preventDefault();

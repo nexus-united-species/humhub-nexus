@@ -4,6 +4,7 @@ namespace nexus\modules\wissen\models;
 
 use humhub\components\ActiveRecord;
 use nexus\modules\wissen\services\Sammlung;
+use nexus\modules\wissen\services\Slug;
 
 /**
  * @property int $id
@@ -24,6 +25,8 @@ use nexus\modules\wissen\services\Sammlung;
  * @property string $created_at
  * @property string $updated_at
  * @property int|null $updated_by
+ * @property int $entwurf       1: im Portal neu geschrieben, noch nicht veroeffentlicht -- nur die Redaktion sieht ihn
+ * @property int|null $created_by
  */
 class Artikel extends ActiveRecord
 {
@@ -55,9 +58,35 @@ class Artikel extends ActiveRecord
         return parent::beforeSave($insert);
     }
 
+    /** Schluessel von Artikeln, die im Portal geschrieben oder hochgeladen wurden (nicht aus dem Import-Ordner). */
+    public const PORTAL_PRAEFIX = 'portal/';
+
+    public static function ausDemPortal(string $schluessel): bool
+    {
+        return str_starts_with($schluessel, self::PORTAL_PRAEFIX);
+    }
+
     public static function inSammlung(string $kennung): \yii\db\ActiveQuery
     {
         return static::find()->where(['sammlung' => $kennung]);
+    }
+
+    /** Was Leserinnen und Leser sehen: ohne Entwuerfe. */
+    public static function sichtbarIn(string $kennung): \yii\db\ActiveQuery
+    {
+        return static::inSammlung($kennung)->andWhere(['entwurf' => 0]);
+    }
+
+    /** Freie Adresse fuer einen neuen Artikel ("kamille", sonst "kamille-g0066a" oder "kamille-2"). */
+    public static function freierSlug(string $sammlung, string $titel, string $kennung = '', string $ersatz = ''): string
+    {
+        $basis = Slug::aus(self::kurztitelAus($titel), 100) ?: Slug::aus($ersatz, 100) ?: 'artikel';
+        $slug = $basis;
+        $k = strtolower($kennung);
+        for ($i = 2; static::inSammlung($sammlung)->andWhere(['slug' => $slug])->exists(); $i++) {
+            $slug = $basis . '-' . ($k !== '' && $i === 2 ? $k : $i);
+        }
+        return $slug;
     }
 
     public static function kurztitelAus(string $titel): string

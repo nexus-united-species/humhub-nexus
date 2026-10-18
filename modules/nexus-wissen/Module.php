@@ -3,19 +3,28 @@
 namespace nexus\modules\wissen;
 
 use humhub\modules\space\models\Space;
+use nexus\modules\wissen\models\SammlungEintrag;
 use nexus\modules\wissen\services\Sammlung;
+use nexus\modules\wissen\services\Slug;
+use Throwable;
 
 /**
  * Wissenssammlungen: Nachschlagewerke "wie Wikipedia", jeweils in einem Kreis (Space).
  * Eine Sammlung ist z. B. ein Gesundheitswissen in einem Kreis -- weitere Kreise koennen eigene haben.
  *
+ * Woher eine Sammlung kommt:
+ * - aus den Einstellungen (common.php) -- mit Import-Ordner, KI-Beschreibung usw.
+ * - oder im Portal angelegt von Besitzern und Admins des Kreises (Kreis-Menue oben rechts ->
+ *   "Wissensbereich anlegen"), gespeichert in nexus_wissen_sammlung.
+ *
  * Rollen je Sammlung:
  * - Lesen: alle angemeldeten Menschen, die den Kreis oeffnen koennen -- erst nach der Freigabe
- *   (Knopf auf der Startseite der Sammlung). Vorher sehen sie nur die Bearbeitenden.
+ *   (Knopf auf der Startseite der Sammlung). Vorher sehen sie nur die Redaktion.
  * - Vorschlagen ("Ich moechte etwas ergaenzen / aendern") und "Im Kreis darueber sprechen":
  *   Mitglieder des Kreises.
- * - Bearbeiten: Systemadmins (mit 'kreisAdmins' => true auch die Admins des Kreises). Jede Aenderung
- *   wird als Version gespeichert.
+ * - Redaktion: Systemadmins sowie Besitzer und Admins des Kreises. Sie schreiben Artikel (zuerst als
+ *   Entwurf), laden Dateien hoch, pflegen die Kategorien und geben frei. Jede Aenderung wird als
+ *   Version gespeichert.
  *
  * Bewusst KEIN offenes Wiki: Die Texte sind redaktionell geprueft; jede freie Aenderung wuerde diese
  * Pruefung aushebeln. Dafuer gibt es die Vorschlaege.
@@ -51,26 +60,62 @@ class Module extends \humhub\components\Module
 
     public function sammlung(string $kennung): ?Sammlung
     {
+        if (!Sammlung::gueltigeKennung($kennung)) {
+            return null;
+        }
         $einstellungen = $this->sammlungen[$kennung] ?? null;
-        return is_array($einstellungen) && Sammlung::gueltigeKennung($kennung) ? new Sammlung($kennung, $einstellungen, $this) : null;
+        if (is_array($einstellungen)) {
+            return new Sammlung($kennung, $einstellungen, $this);
+        }
+        $eintrag = $this->eigene(['kennung' => $kennung])[0] ?? null;
+        return $eintrag !== null ? new Sammlung($kennung, $eintrag->einstellungen(), $this, true) : null;
     }
 
-    /** @return Sammlung[] */
+    /** @return Sammlung[] erst die aus den Einstellungen, dann die im Portal angelegten */
     public function alleSammlungen(): array
     {
         $liste = [];
         foreach (array_keys((array)$this->sammlungen) as $kennung) {
             $s = $this->sammlung((string)$kennung);
             if ($s !== null) {
-                $liste[] = $s;
+                $liste[$s->kennung] = $s;
             }
         }
-        return $liste;
+        foreach ($this->eigene() as $eintrag) {
+            if (!isset($liste[$eintrag->kennung]) && Sammlung::gueltigeKennung($eintrag->kennung)) {
+                $liste[$eintrag->kennung] = new Sammlung($eintrag->kennung, $eintrag->einstellungen(), $this, true);
+            }
+        }
+        return array_values($liste);
     }
 
     /** @return Sammlung[] die Sammlungen, die in diesem Kreis haengen */
     public function sammlungenIn(Space $kreis): array
     {
         return array_values(array_filter($this->alleSammlungen(), fn(Sammlung $s) => $s->kreisId() === (int)$kreis->id));
+    }
+
+    /** Eine Kennung, die weder in den Einstellungen noch in der Datenbank vergeben ist. */
+    public function freieKennung(string $wunsch): string
+    {
+        $basis = Slug::aus($wunsch, 50) ?: 'wissen';
+        if (!Sammlung::gueltigeKennung($basis)) {
+            $basis = 'wissen-' . $basis;
+        }
+        $kennung = $basis;
+        for ($i = 2; isset($this->sammlungen[$kennung]) || SammlungEintrag::find()->where(['kennung' => $kennung])->exists(); $i++) {
+            $kennung = $basis . '-' . $i;
+        }
+        return $kennung;
+    }
+
+    /** @return SammlungEintrag[] -- leer, solange die Tabelle noch fehlt (vor der Migration) */
+    private function eigene(array $bedingung = []): array
+    {
+        try {
+            return SammlungEintrag::find()->where($bedingung)->orderBy('id')->all();
+        } catch (Throwable $e) {
+            return [];
+        }
     }
 }

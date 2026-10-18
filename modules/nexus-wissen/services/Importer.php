@@ -98,7 +98,7 @@ class Importer
             }
             $kennung = trim((string)($meta['kennung'] ?? '')) ?: self::kennungAus(basename($eintrag['schluessel']));
             if ($artikel->isNewRecord) {
-                $artikel->slug = self::freierSlug($sammlung->kennung, $titel, (string)$kennung, $eintrag['schluessel']);
+                $artikel->slug = Artikel::freierSlug($sammlung->kennung, $titel, (string)$kennung, $eintrag['schluessel']);
             }
             $artikel->setAttributes([
                 'kennung' => $kennung !== '' ? mb_substr($kennung, 0, 40) : null,
@@ -123,7 +123,8 @@ class Importer
         }
 
         foreach (Artikel::inSammlung($sammlung->kennung)->select(['schluessel', 'titel'])->asArray()->all() as $z) {
-            if (!isset($gesehen[$z['schluessel']])) {
+            // Im Portal geschriebene Artikel haben keine Datei -- sie fehlen im Ordner nicht
+            if (!isset($gesehen[$z['schluessel']]) && !Artikel::ausDemPortal($z['schluessel'])) {
                 $bericht['verwaist'][] = $z['titel'] . ' (' . $z['schluessel'] . ')';
             }
         }
@@ -239,16 +240,5 @@ class Importer
     {
         $wert = trim((string)$wert);
         return preg_match('/^\d{4}-\d{2}-\d{2}$/', $wert) ? $wert : null;
-    }
-
-    private static function freierSlug(string $sammlung, string $titel, string $kennung, string $schluessel): string
-    {
-        $basis = Slug::aus(Artikel::kurztitelAus($titel), 100) ?: Slug::aus($schluessel, 100) ?: 'artikel';
-        $slug = $basis;
-        $k = strtolower($kennung);
-        for ($i = 2; Artikel::inSammlung($sammlung)->andWhere(['slug' => $slug])->exists(); $i++) {
-            $slug = $basis . '-' . ($k !== '' && $i === 2 ? $k : $i);
-        }
-        return $slug;
     }
 }

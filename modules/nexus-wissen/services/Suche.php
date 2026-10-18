@@ -69,7 +69,7 @@ class Suche
         // Volltext: Datenbank vergleicht ohne Akzente (utf8mb4_unicode_ci), also auch "Ubelkeit"
         foreach ($woerter as $i => $w) {
             $roh = self::rohwort($frage, $w, $staemme[$i]);
-            foreach (Artikel::inSammlung($sammlung->kennung)->select('id')->andWhere(['like', 'inhalt', $roh])->column() as $id) {
+            foreach (Artikel::sichtbarIn($sammlung->kennung)->select('id')->andWhere(['like', 'inhalt', $roh])->column() as $id) {
                 $punkte[(int)$id] = ($punkte[(int)$id] ?? 0) + 2;
                 $getroffen[(int)$id][$i] = true;
             }
@@ -119,7 +119,7 @@ class Suche
     {
         return Yii::$app->cache->getOrSet(['nexus-wissen-bestand', Darstellung::stand($sammlung), self::wortStand($sammlung)], function () use ($sammlung) {
             $artikel = [];
-            foreach (Artikel::inSammlung($sammlung)->select(['id', 'slug', 'titel', 'kurztitel', 'thema', 'inhalt'])->orderBy('titel')->asArray()->all() as $z) {
+            foreach (Artikel::sichtbarIn($sammlung)->select(['id', 'slug', 'titel', 'kurztitel', 'thema', 'inhalt'])->orderBy('titel')->asArray()->all() as $z) {
                 $artikel[(int)$z['id']] = [
                     'id' => (int)$z['id'],
                     'slug' => $z['slug'],
@@ -147,7 +147,7 @@ class Suche
     private static function worte(string $sammlung): \yii\db\Query
     {
         return (new \yii\db\Query())->from(Artikel::WORT_TABELLE . ' w')
-            ->innerJoin(Artikel::tableName() . ' a', 'a.id = w.artikel_id')->where(['a.sammlung' => $sammlung]);
+            ->innerJoin(Artikel::tableName() . ' a', 'a.id = w.artikel_id')->where(['a.sammlung' => $sammlung, 'a.entwurf' => 0]);
     }
 
     /** @return array<string, int> Schlagwort => Anzahl Artikel (die haeufigsten) */
