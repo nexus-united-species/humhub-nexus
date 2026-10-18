@@ -126,7 +126,7 @@ class RedaktionController extends WissenController
      * Querverweisen), Versionen und Vorschlaege bleiben. Danach laesst er sich wieder veroeffentlichen
      * oder als Entwurf loeschen -- Loeschen also immer in zwei bewussten Schritten (Josh, 18.10.2026).
      */
-    public function actionZumEntwurf(string $a)
+    public function actionZumEntwurf(string $a, int $loeschen = 0)
     {
         $artikel = $this->artikel($a);
         if (!$artikel->entwurf) {
@@ -134,7 +134,8 @@ class RedaktionController extends WissenController
             $artikel->updated_by = $this->ich()->id;
             $artikel->save(false);
             Version::speichern($artikel, 'Zurück zum Entwurf', $this->ich()->id);
-            Yii::$app->session->setFlash(self::FLASH, Texte::t('zum_entwurf_ok'));
+            // Ueber den Knopf "Löschen" gekommen: sagen, wo der zweite Schritt ist
+            Yii::$app->session->setFlash(self::FLASH, Texte::t($loeschen ? 'loeschen_schritt2' : 'zum_entwurf_ok'));
         }
         return $this->redirect($artikel->url($this->sammlung));
     }
@@ -175,7 +176,8 @@ class RedaktionController extends WissenController
 
     public function actionThemen()
     {
-        $anzahl = Artikel::inSammlung($this->sammlung->kennung)->select(['thema', 'n' => 'COUNT(*)'])->groupBy('thema')->indexBy('thema')->column();
+        // column() nimmt die ERSTE Spalte -- die Anzahl muss vorn stehen (sonst stand "02_Linux" als "2 Artikel" da)
+        $anzahl = Artikel::inSammlung($this->sammlung->kennung)->select(['n' => 'COUNT(*)', 'thema'])->groupBy('thema')->indexBy('thema')->column();
         return $this->render('themen', [
             'sammlung' => $this->sammlung,
             'themen' => $this->sammlung->themenEintraege(),

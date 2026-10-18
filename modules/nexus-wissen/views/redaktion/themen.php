@@ -52,6 +52,11 @@ $letzte = count($themen) - 1;
                         <?php if ($n === 0) : ?>
                             <button type="submit" name="aktion" value="loeschen" class="btn btn-sm btn-danger" formnovalidate
                                     data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('loeschen_frage')) ?>"><?= Html::encode(Texte::t('loeschen')) ?></button>
+                        <?php else : ?>
+                            <?php /* Immer sichtbar, sonst wirkt der Knopf willkuerlich (Rueckmeldung aus dem Team) -- nur gesperrt */ ?>
+                            <span title="<?= Html::encode(Texte::t('loeschen_gesperrt')) ?>">
+                                <button type="button" class="btn btn-sm btn-danger" disabled aria-disabled="true"><?= Html::encode(Texte::t('loeschen')) ?></button>
+                            </span>
                         <?php endif; ?>
                         <a class="btn btn-sm btn-default" href="<?= Html::encode($sammlung->url('redaktion/neu', ['thema' => $t->code])) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('artikel_hier_neu')) ?></a>
                     <?= Html::endForm() ?>

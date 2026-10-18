@@ -54,6 +54,10 @@ $this->title = $artikel->titel;
                     <?= Html::beginForm($sammlung->url('redaktion/zum-entwurf', ['a' => $artikel->slug]), 'post', ['style' => 'display:inline']) ?>
                         <button type="submit" class="btn btn-sm btn-light" data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('zum_entwurf_frage')) ?>"><i class="fa fa-eye-slash"></i> <?= Html::encode(Texte::t('zum_entwurf')) ?></button>
                     <?= Html::endForm() ?>
+                    <?php /* "Löschen" soll man finden (Rueckmeldung aus dem Team): Schritt 1 macht ihn zum Entwurf, Schritt 2 im blauen Kasten */ ?>
+                    <?= Html::beginForm($sammlung->url('redaktion/zum-entwurf', ['a' => $artikel->slug, 'loeschen' => 1]), 'post', ['style' => 'display:inline']) ?>
+                        <button type="submit" class="btn btn-sm btn-light" data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('loeschen_artikel_frage')) ?>"><i class="fa fa-trash"></i> <?= Html::encode(Texte::t('loeschen')) ?></button>
+                    <?= Html::endForm() ?>
                 <?php endif; ?>
                 <?php if ($artikel->kennung) : ?><span class="nx-ws-leise"><?= Html::encode($artikel->kennung) ?></span><?php endif; ?>
             </div>

@@ -116,6 +116,9 @@ class Texte
             'zum_entwurf' => 'Zurück zum Entwurf',
             'zum_entwurf_frage' => 'Diesen Artikel zurück zum Entwurf machen? Die Mitglieder sehen ihn dann nicht mehr. Du kannst ihn jederzeit wieder veröffentlichen – oder danach als Entwurf löschen.',
             'zum_entwurf_ok' => 'Der Artikel ist wieder ein Entwurf ✓ – die Mitglieder sehen ihn nicht mehr.',
+            'loeschen_gesperrt' => 'Löschen geht nur bei leeren Kategorien. Verschiebe zuerst alle Artikel (auch Entwürfe) in eine andere Kategorie.',
+            'loeschen_artikel_frage' => 'Diesen Artikel löschen? Zuerst wird er für die Mitglieder unsichtbar (Entwurf). Danach löschst du ihn im blauen Kasten mit „Entwurf löschen“ endgültig.',
+            'loeschen_schritt2' => 'Der Artikel ist jetzt unsichtbar ✓. Um ihn endgültig zu löschen, klicke im blauen Kasten auf „Entwurf löschen“.',
         ],
         'en' => [
             'wissen' => 'Knowledge',
@@ -222,6 +225,9 @@ class Texte
             'zum_entwurf' => 'Back to draft',
             'zum_entwurf_frage' => 'Turn this article back into a draft? Members will no longer see it. You can publish it again at any time – or delete it as a draft afterwards.',
             'zum_entwurf_ok' => 'The article is a draft again ✓ – members no longer see it.',
+            'loeschen_gesperrt' => 'Only empty categories can be deleted. Move all articles (drafts too) to another category first.',
+            'loeschen_artikel_frage' => 'Delete this article? First it becomes invisible to members (draft). Then you delete it for good with “Delete draft” in the blue box.',
+            'loeschen_schritt2' => 'The article is now invisible ✓. To delete it for good, click “Delete draft” in the blue box.',
         ],
         'es' => [
             'wissen' => 'Saber',
@@ -328,6 +334,9 @@ class Texte
             'zum_entwurf' => 'Volver a borrador',
             'zum_entwurf_frage' => '¿Convertir este artículo de nuevo en borrador? Los miembros ya no lo verán. Puedes volver a publicarlo cuando quieras, o eliminarlo después como borrador.',
             'zum_entwurf_ok' => 'El artículo vuelve a ser un borrador ✓; los miembros ya no lo ven.',
+            'loeschen_gesperrt' => 'Solo se pueden eliminar categorías vacías. Mueve antes todos los artículos (también borradores) a otra categoría.',
+            'loeschen_artikel_frage' => '¿Eliminar este artículo? Primero dejará de verse para los miembros (borrador). Después lo eliminas definitivamente con «Eliminar borrador» en el recuadro azul.',
+            'loeschen_schritt2' => 'El artículo ya no es visible ✓. Para eliminarlo definitivamente, pulsa «Eliminar borrador» en el recuadro azul.',
         ],
     ];
 
