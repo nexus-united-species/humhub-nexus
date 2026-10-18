@@ -17,8 +17,9 @@ use ZipArchive;
  *   (Absaetze oder Woerter in Schreibmaschinenschrift wie Consolas/Courier).
  *   Ueberschriften und Listen werden auch erkannt, wenn sie aus eigenen Formatvorlagen kommen
  *   (Gliederungsebene, "basiert auf", Nummerierung in der Formatvorlage).
- *   Bilder kann der Text nicht tragen: An ihrer Stelle steht ein Hinweis zum Pruefen -- bei Word-
- *   Dateien standen schon App-Namen nur als Bild drin und fehlten nach der Umwandlung unbemerkt.
+ *   Bilder (PNG, JPEG, GIF, WebP) werden in die Sammlung uebernommen (services/Bilder.php). Was nicht
+ *   geht (EMF-Zeichnungen, Diagramme), bekommt einen Hinweis zum Pruefen -- bei Word-Dateien standen
+ *   schon App-Namen nur als Bild drin und fehlten nach der Umwandlung unbemerkt.
  * PDF bewusst nicht: Scans liefern keinen Text, und Seitenumbrueche zerreissen Saetze.
  */
 class Hochladen
@@ -32,7 +33,7 @@ class Hochladen
     private const A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
     private const WP = 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing';
     private const V = 'urn:schemas-microsoft-com:vml';
-    public const BILD_HINWEIS = '> ⚠️ **Hier war ein Bild.** Bilder werden nicht übernommen – bitte prüfen, ob dort wichtiger Text (z. B. ein Name) stand, und ihn hier eintragen.';
+    public const BILD_HINWEIS = '> ⚠️ **Hier war ein Bild, das nicht übernommen werden konnte** (z. B. eine Zeichnung oder ein Diagramm aus Word). Bitte prüfen: Fehlt etwas Wichtiges, das Bild über den Bild-Knopf neu einfügen – oder den Inhalt hier als Text eintragen.';
     /** Schriften fuer Befehle und Programmcode -- so gesetzter Text wird zu Markdown-Code */
     private const CODE_SCHRIFTEN = ['courier', 'consolas', 'lucida console', 'source code', 'dejavu sans mono', 'liberation mono',
         'menlo', 'monaco', 'cascadia', 'fira code', 'fira mono', 'jetbrains mono', 'ubuntu mono', 'roboto mono', 'noto mono', 'andale mono'];
