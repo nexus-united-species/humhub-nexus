@@ -29,7 +29,7 @@ class RedaktionController extends WissenController
     {
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
-            [ControllerAccess::RULE_POST => ['hochladen', 'anlegen', 'veroeffentlichen', 'verwerfen', 'thema', 'sammlung-loeschen', 'bild-hochladen']],
+            [ControllerAccess::RULE_POST => ['hochladen', 'anlegen', 'veroeffentlichen', 'verwerfen', 'thema', 'sammlung-loeschen', 'bild-hochladen', 'zum-entwurf']],
         ];
     }
 
@@ -121,7 +121,25 @@ class RedaktionController extends WissenController
         return $this->redirect($artikel->url($this->sammlung));
     }
 
-    /** Nur Entwuerfe -- Veroeffentlichtes wird nicht geloescht (Vorschlaege und Versionen haengen daran). */
+    /**
+     * Veroeffentlichten Artikel zurueckziehen: fuer Mitglieder sofort unsichtbar (auch in Suche und
+     * Querverweisen), Versionen und Vorschlaege bleiben. Danach laesst er sich wieder veroeffentlichen
+     * oder als Entwurf loeschen -- Loeschen also immer in zwei bewussten Schritten (Josh, 18.10.2026).
+     */
+    public function actionZumEntwurf(string $a)
+    {
+        $artikel = $this->artikel($a);
+        if (!$artikel->entwurf) {
+            $artikel->entwurf = 1;
+            $artikel->updated_by = $this->ich()->id;
+            $artikel->save(false);
+            Version::speichern($artikel, 'Zurück zum Entwurf', $this->ich()->id);
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('zum_entwurf_ok'));
+        }
+        return $this->redirect($artikel->url($this->sammlung));
+    }
+
+    /** Nur Entwuerfe -- ein veroeffentlichter Artikel muss erst zurueck zum Entwurf (zwei bewusste Schritte). */
     public function actionVerwerfen(string $a)
     {
         $artikel = $this->artikel($a);

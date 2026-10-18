@@ -50,6 +50,11 @@ $this->title = $artikel->titel;
             <div class="nx-ws-admin">
                 <a href="<?= Html::encode($sammlung->url('bearbeiten', ['a' => $artikel->slug])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>
                 <a href="<?= Html::encode($sammlung->url('versionen', ['a' => $artikel->slug])) ?>"><i class="fa fa-history"></i> <?= Html::encode(Texte::t('versionen')) ?></a>
+                <?php if (!$artikel->entwurf) : ?>
+                    <?= Html::beginForm($sammlung->url('redaktion/zum-entwurf', ['a' => $artikel->slug]), 'post', ['style' => 'display:inline']) ?>
+                        <button type="submit" class="btn btn-sm btn-light" data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('zum_entwurf_frage')) ?>"><i class="fa fa-eye-slash"></i> <?= Html::encode(Texte::t('zum_entwurf')) ?></button>
+                    <?= Html::endForm() ?>
+                <?php endif; ?>
                 <?php if ($artikel->kennung) : ?><span class="nx-ws-leise"><?= Html::encode($artikel->kennung) ?></span><?php endif; ?>
             </div>
         <?php endif; ?>
