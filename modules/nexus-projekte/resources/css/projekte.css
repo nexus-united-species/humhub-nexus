@@ -67,3 +67,12 @@
 .nx-pj .nx-pj-auswerten { border-top: 1px solid var(--nx-pj-rand); margin-top: .8rem; padding-top: .6rem; }
 .nx-pj .nx-pj-zeile { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .5rem; }
 .nx-pj .nx-pj-zeile .form-control { width: auto; min-width: 12rem; flex: 1 1 12rem; }
+
+/* Knoepfe "Zurueck in Arbeit", "Ich habe eine Aenderung" usw. (btn-default) sahen im Portal-Design
+   blass aus wie abgeschaltet -- Rueckmeldung eines Mitglieds mit Sehschwaeche. Jetzt klar lesbar,
+   in hell und dunkel gleich (wie "Bearbeiten"). */
+.nx-pj .btn-default {
+    background: #f1f3f5; color: #1b1f24; border: 1px solid #b8c0c8; font-weight: 600; opacity: 1;
+}
+.nx-pj .btn-default:hover, .nx-pj .btn-default:focus-visible { background: #e2e6ea; color: #1b1f24; border-color: #8a949e; }
+.nx-pj .btn-default .fa { color: inherit; }
