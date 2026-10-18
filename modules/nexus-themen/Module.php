@@ -52,7 +52,7 @@ class Module extends \humhub\components\Module
     {
         try {
             $app = Yii::$app;
-            if (!$app instanceof \humhub\components\Application || $app->controller === null
+            if (!$app->request instanceof \yii\web\Request || $app->controller === null
                 || $app->controller->getRoute() !== 'post/post/edit' || !$app->request->isPost) {
                 return;
             }
