@@ -12,6 +12,7 @@
 
 use humhub\helpers\Html;
 use humhub\modules\user\models\User;
+use nexus\modules\projekte\services\Dateien;
 use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
@@ -83,8 +84,32 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         </div>
     <?php endif; ?>
 
+    <?php
+    // Entwuerfe & Bilder: ueber Teilschritten und Abstimmung -- wer abstimmt, sieht sofort, worum es geht
+    $fassungen = !$istVorschlag && Dateien::verfuegbar() ? Dateien::fassungen($karte) : [];
+    $darfHochladen = !$istVorschlag && $karte->spalte !== 'fertig' && Rechte::darfAbhaken($karte, $ich) && Dateien::hochladbar($kreis);
+    ?>
+    <?php if ($fassungen !== [] || $darfHochladen) : ?>
+        <div class="nx-pj-entwuerfe">
+            <div class="nx-pj-label"><i class="fa fa-picture-o"></i> <?= Html::encode(Texte::t('entwuerfe')) ?></div>
+            <?php if ($fassungen !== []) : ?>
+                <?= $this->render('_dateien', ['fassungen' => $fassungen]) ?>
+            <?php else : ?>
+                <div class="nx-pj-leise"><?= Html::encode(Texte::t('entwuerfe_leer')) ?></div>
+            <?php endif; ?>
+            <?php if ($darfHochladen) : ?>
+                <?= Html::beginForm($url('dateien'), 'post', ['enctype' => 'multipart/form-data', 'class' => 'nx-pj-hochladen']) ?>
+                    <label for="nx-pj-entwurf-datei"><?= Html::encode(Texte::t($fassungen === [] ? 'entwuerfe_hochladen' : 'neue_fassung')) ?></label>
+                    <input id="nx-pj-entwurf-datei" type="file" name="dateien[]" multiple required class="form-control">
+                    <input type="text" name="fassung_hinweis" maxlength="255" class="form-control" placeholder="<?= Html::encode(Texte::t('fassung_hinweis')) ?>" aria-label="<?= Html::encode(Texte::t('fassung_hinweis')) ?>">
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-upload"></i> <?= Html::encode(Texte::t('hochladen')) ?></button>
+                <?= Html::endForm() ?>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
     <?php if ($karte->schritte !== []) : ?>
-        <div class="nx-pj-label" style="margin-top:.6rem"><?= Html::encode(Texte::t('teilschritte')) ?></div>
+        <div class="nx-pj-label" style="margin-top:.6rem"><?= Html::encode(Texte::t('teilschritte')) ?> <span class="nx-pj-leise" style="font-weight:normal">– <?= Html::encode(Texte::t('teilschritte_hinweis')) ?></span></div>
         <ul class="nx-pj-schritte">
             <?php $darfAbhaken = Rechte::darfAbhaken($karte, $ich); ?>
             <?php foreach ($karte->schritte as $s) : ?>
@@ -180,7 +205,9 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         <?php endif; ?>
         <?php if ($karte->spalte === 'arbeit' || $karte->spalte === 'offen') : ?>
             <?php if (Rechte::darfVerschieben($karte, 'abstimmung', $ich)) : ?>
-                <?= Html::beginForm($url('verschieben'), 'post', ['style' => 'display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap']) ?>
+                <?php /* Rueckfrage: ein Klick stellt die Kachel zur Abstimmung UND schreibt einen Beitrag in den Kreis */ ?>
+                <?= Html::beginForm($url('verschieben'), 'post', ['style' => 'display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap',
+                    'data-nx-pj-frage' => Texte::t($fassungen === [] && !$istVorschlag ? 'zur_abstimmung_frage_ohne' : 'zur_abstimmung_frage')]) ?>
                     <?= Html::hiddenInput('ziel', 'abstimmung') ?>
                     <label class="nx-pj-leise" for="nx-pj-bis" style="margin:0"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?></label>
                     <input id="nx-pj-bis" type="date" name="abstimmung_bis" class="form-control input-sm" style="width:auto" value="<?= date('Y-m-d', strtotime('+' . Entscheidung::rundenTage($karte) . ' days')) ?>" min="<?= date('Y-m-d') ?>">

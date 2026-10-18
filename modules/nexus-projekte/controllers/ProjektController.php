@@ -12,12 +12,14 @@ use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Schritt;
 use nexus\modules\projekte\models\Stimme;
 use nexus\modules\projekte\Module;
+use nexus\modules\projekte\services\Dateien;
 use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Nachrichten;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 use Yii;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 /**
  * Projekte eines Kreises: Uebersicht, Tafel mit Kacheln, Formulare und alle Knoepfe.
@@ -37,7 +39,7 @@ class ProjektController extends ContentContainerController
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
             [ControllerAccess::RULE_POST => ['speichern', 'loeschen', 'mitmachen', 'karte-speichern', 'karte-loeschen',
-                'uebernehmen', 'verschieben', 'schritt', 'stimme']],
+                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'dateien']],
         ];
     }
 
@@ -270,6 +272,33 @@ class ProjektController extends ContentContainerController
         $schritt->erledigt = $schritt->erledigt ? 0 : 1;
         $schritt->save(false);
         $karte->updateAttributes(['updated_at' => date('Y-m-d H:i:s')]);
+        return $this->redirect($karte->url());
+    }
+
+    /**
+     * Entwuerfe und Bilder an einer Kachel (Rueckmeldung 18.10.2026: "Wo stelle ich die Entwuerfe ein, die
+     * begutachtet werden sollen?"). Gleiche Ablage wie bei Vorschlaegen: Dateibereich des Kreises unter
+     * Projekte/<Projekt>/<Kachel>, jedes Hochladen eine neue Fassung. Wer an der Kachel beteiligt ist
+     * (verantwortlich, hilft mit, Leitung), darf hochladen.
+     */
+    public function actionDateien(int $k)
+    {
+        $karte = $this->karteImKreis($k);
+        $ich = $this->ich();
+        $this->pruefe(!$karte->istVorschlag() && $karte->spalte !== 'fertig' && Rechte::darfAbhaken($karte, $ich)
+            && Dateien::hochladbar($this->kreis()));
+        $dateien = UploadedFile::getInstancesByName('dateien');
+        if ($dateien === []) {
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('entwuerfe_keine'));
+            return $this->redirect($karte->url());
+        }
+        [$fassung, $fehler] = Dateien::hochladen($karte, $dateien, (string)Yii::$app->request->post('fassung_hinweis'), $ich);
+        $karte->updateAttributes(['updated_at' => date('Y-m-d H:i:s')]);
+        $meldung = $fassung > 0 ? sprintf(Texte::t('entwuerfe_ok'), $fassung) : '';
+        if ($fehler !== []) {
+            $meldung .= ($meldung !== '' ? ' ' : '') . sprintf(Texte::t('datei_fehler'), implode('; ', $fehler));
+        }
+        Yii::$app->session->setFlash(self::FLASH, $meldung);
         return $this->redirect($karte->url());
     }
 

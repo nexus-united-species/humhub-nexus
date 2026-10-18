@@ -76,3 +76,12 @@
 }
 .nx-pj .btn-default:hover, .nx-pj .btn-default:focus-visible { background: #e2e6ea; color: #1b1f24; border-color: #8a949e; }
 .nx-pj .btn-default .fa { color: inherit; }
+
+/* Entwuerfe & Bilder in der Kachel -- groesser als bei Vorschlaegen, damit man beim Abstimmen etwas erkennt */
+.nx-pj .nx-pj-entwuerfe { margin-top: .8rem; padding: .6rem .7rem; border: 1px dashed var(--nx-pj-rand); border-radius: 8px; }
+.nx-pj .nx-pj-entwuerfe .nx-pj-bild { max-width: 320px; }
+.nx-pj .nx-pj-entwuerfe .nx-pj-bild img { max-height: 260px; }
+.nx-pj .nx-pj-hochladen { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .4rem; }
+.nx-pj .nx-pj-hochladen label { flex: 1 0 100%; margin: 0; font-weight: 600; font-size: .9rem; }
+.nx-pj .nx-pj-hochladen input[type=file] { flex: 1 1 16rem; width: auto; }
+.nx-pj .nx-pj-hochladen input[type=text] { flex: 1 1 14rem; width: auto; }
