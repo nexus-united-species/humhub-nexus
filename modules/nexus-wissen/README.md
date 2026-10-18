@@ -19,7 +19,7 @@
 - **Editors are the system admins and the owner and admins of the space.** Only they change articles. This is deliberate: the module is meant for reviewed content, not an open wiki. Members send suggestions.
 - **Create a knowledge area yourself:** space owners and admins find "Create knowledge area" in the space's settings menu (top right) as long as the space has none. Name, icon, description and notice can be changed later under "Settings".
 - **Categories in the portal:** create, rename, choose an icon, reorder, and delete empty ones. On first use the categories of a collection from `common.php` (`themen`) are taken over; after that the portal is the only place to change them.
-- **New articles:** write them in the editor or upload a file (.docx, .md, .txt, up to 10 MB). The upload only fills the form, so you can check and correct the text first. Word images are not transferred; a notice marks the spot. Every new article starts as a **draft** that only editors see (also not in search or cross-links) until someone clicks "Publish". Keywords left empty are suggested by the AI if available.
+- **New articles:** write them in the editor or upload a file (.docx, .md, .txt, up to 10 MB). The upload only fills the form, so you can check and correct the text first. Word images are not transferred; a notice marks the spot. The editor shows a **live preview** next to the text, has buttons for headings, bold, italic, lists, links, code and tables, and the Tab key indents. Word files keep headings and lists (also from custom styles), links, tables and text in monospace fonts as code. Every new article starts as a **draft** that only editors see (also not in search or cross-links) until someone clicks "Publish". Keywords left empty are suggested by the AI if available.
 - **Version history** for every article; any version can be restored.
 - **Suggestion inbox:** accept or decline with a short reply; the member is told the result.
 - **Release switch:** a new collection is visible only to editors until an editor clicks "Release for all members".
@@ -155,7 +155,7 @@ Suggestions, decisions and review reminders are sent as private messages through
 **Für die Redaktion** (Systemadmins sowie Besitzer und Admins des Kreises):
 - Wissensbereich selbst anlegen: im Kreis oben rechts im Einstellungsmenü „Wissensbereich anlegen“ (solange der Kreis noch keinen hat).
 - Kategorien im Portal anlegen, umbenennen, sortieren, leere löschen. Die Themen aus `common.php` werden beim ersten Aufruf übernommen, danach gilt nur noch das Portal.
-- Neue Artikel schreiben oder eine Datei hochladen (.docx, .md, .txt). Jeder neue Artikel ist zuerst ein **Entwurf**, den nur die Redaktion sieht, bis jemand auf „Veröffentlichen“ klickt.
+- Neue Artikel schreiben (Editor mit Vorschau daneben, Format-Knöpfen und Tab zum Einrücken) oder eine Datei hochladen (.docx, .md, .txt). Jeder neue Artikel ist zuerst ein **Entwurf**, den nur die Redaktion sieht, bis jemand auf „Veröffentlichen“ klickt.
 - Versionsgeschichte, Vorschlagsliste mit Antwort an die Person.
 - Freigabe-Knopf: Bis zur Freigabe sieht nur die Redaktion die Sammlung.
 - Erinnerung bei fälliger Prüfung (Feld „Nächste Prüfung“).
