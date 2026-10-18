@@ -63,7 +63,8 @@ class Module extends \humhub\components\Module
             }
             $thema = Topic::findOne(['id' => $id, 'contentcontainer_id' => $beitrag->content->contentcontainer_id]);
             if ($thema !== null) {
-                Topic::attach($beitrag, [$thema]);   // ersetzt die bisherigen Themen des Beitrags
+                // Den Inhalt uebergeben, nicht den Beitrag: Post::getContent() liefert nur die Abfrage
+                Topic::attach($beitrag->content, [$thema]);   // ersetzt die bisherigen Themen des Beitrags
             }
         } catch (Throwable $e) {
             Yii::error('nexus-themen: Thema beim Bearbeiten nicht gesetzt: ' . $e->getMessage(), 'nexus-themen');
