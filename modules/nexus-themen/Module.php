@@ -42,6 +42,34 @@ class Module extends \humhub\components\Module
         }
     }
 
+    /**
+     * Thema beim Bearbeiten eines Beitrags aendern (Rueckmeldung 18.10.2026: "falsches Thema gewaehlt,
+     * kann man nachtraeglich nicht aendern"). HumHubs Bearbeiten-Formular kennt keine Themen -- unser
+     * Skript schickt "nexusThema" mit. Nur in der Bearbeiten-Seite von Beitraegen (dort prueft HumHub
+     * vorher canEdit), nur Themen desselben Kreises; leer = nichts aendern.
+     */
+    public static function onBeitragGespeichert($event): void
+    {
+        try {
+            $app = Yii::$app;
+            if (!$app instanceof \humhub\components\Application || $app->controller === null
+                || $app->controller->getRoute() !== 'post/post/edit' || !$app->request->isPost) {
+                return;
+            }
+            $id = (int)$app->request->post('nexusThema');
+            $beitrag = $event->sender;
+            if ($id <= 0 || !$beitrag instanceof \humhub\modules\post\models\Post || !$beitrag->content->canEdit()) {
+                return;
+            }
+            $thema = Topic::findOne(['id' => $id, 'contentcontainer_id' => $beitrag->content->contentcontainer_id]);
+            if ($thema !== null) {
+                Topic::attach($beitrag, [$thema]);   // ersetzt die bisherigen Themen des Beitrags
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-themen: Thema beim Bearbeiten nicht gesetzt: ' . $e->getMessage(), 'nexus-themen');
+        }
+    }
+
     /** @return Topic[] in der Reihenfolge, die die Kreis-Admins eingestellt haben */
     public function themen(ContentContainerActiveRecord $kreis): array
     {

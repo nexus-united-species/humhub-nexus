@@ -96,36 +96,82 @@
         document.querySelectorAll('[id^="postTopicContainer"]').forEach(function (versteckt) {
             var form = versteckt.closest('form');
             if (!form || form.querySelector('.nexus-themen-wahl') || stand.themen.length === 0) { return; }
-            var zeile = el('div', 'nexus-themen-wahl');
-            var id = 'nexus-themen-wahl-' + Math.random().toString(36).slice(2, 8);
-            var label = el('label', '', T.thema + ':');
-            label.setAttribute('for', id);
-            var auswahl = document.createElement('select');
-            auswahl.id = id;
-            auswahl.name = 'postTopicInput[]';   // dasselbe Feld wie HumHubs eigene Themenwahl
-            auswahl.className = 'form-select form-select-sm nexus-themen-select';
-            stand.themen.forEach(function (t) {
-                var o = document.createElement('option');
-                o.value = String(t.id);
-                o.textContent = t.name;
-                auswahl.appendChild(o);
-            });
-            zeile.append(label, auswahl);
-            versteckt.insertAdjacentElement('afterend', zeile);
+            var auswahl = auswahlBauen('postTopicInput[]', 'nexus-themen-select');   // dasselbe Feld wie HumHubs eigene Themenwahl
+            versteckt.insertAdjacentElement('afterend', auswahl.zeile);
+            // Nur die NEUE Auswahl vorbelegen. Frueher geschah das bei jedem Klick ins Formular -- dann
+            // sprang eine gewaehlte Auswahl beim Klick auf "Senden" auf "Allgemein" zurueck (Fehler 18.10.2026).
+            vorbelegen(auswahl.select, stand.aktiv || stand.vorgabe);
         });
-        auswahlVorbelegen();
     }
 
-    function auswahlVorbelegen() {
-        var wert = stand.aktiv || stand.vorgabe;
-        document.querySelectorAll('.nexus-themen-select').forEach(function (auswahl) {
-            if (!wert) { return; }
-            Array.prototype.forEach.call(auswahl.options, function (o) {
-                o.defaultSelected = o.value === String(wert);   // gilt auch nach dem Zuruecksetzen des Formulars
-                o.selected = o.value === String(wert);
-            });
+    function auswahlBauen(name, klasse) {
+        var zeile = el('div', 'nexus-themen-wahl');
+        var id = 'nexus-themen-wahl-' + Math.random().toString(36).slice(2, 8);
+        var label = el('label', '', T.thema + ':');
+        label.setAttribute('for', id);
+        var auswahl = document.createElement('select');
+        auswahl.id = id;
+        auswahl.name = name;
+        auswahl.className = 'form-select form-select-sm ' + klasse;
+        stand.themen.forEach(function (t) {
+            var o = document.createElement('option');
+            o.value = String(t.id);
+            o.textContent = t.name;
+            auswahl.appendChild(o);
+        });
+        zeile.append(label, auswahl);
+        return { zeile: zeile, select: auswahl };
+    }
+
+    function vorbelegen(auswahl, wert) {
+        if (!wert) { return; }
+        Array.prototype.forEach.call(auswahl.options, function (o) {
+            o.defaultSelected = o.value === String(wert);   // gilt auch nach dem Zuruecksetzen des Formulars
+            o.selected = o.value === String(wert);
         });
     }
+
+    // Anderes Thema oben angeklickt: die Schreibformulare ziehen mit (nicht die Bearbeiten-Formulare)
+    function auswahlVorbelegen() {
+        document.querySelectorAll('.nexus-themen-select').forEach(function (auswahl) {
+            vorbelegen(auswahl, stand.aktiv || stand.vorgabe);
+        });
+    }
+
+    // ── Thema beim Bearbeiten eines Beitrags ändern ─────────────────────
+    // HumHubs Bearbeiten-Formular kennt keine Themen. Unsere Auswahl schickt "nexusThema" mit; das Modul
+    // setzt das Thema beim Speichern (Module::onBeitragGespeichert).
+    function bearbeitenEinsetzen() {
+        if (!stand.guid || stand.themen.length === 0) { return; }
+        document.querySelectorAll('form[id^="post-edit-form_"]').forEach(function (form) {
+            if (form.querySelector('.nexus-themen-wahl')) { return; }
+            var postId = form.id.replace('post-edit-form_', '');
+            var auswahl = auswahlBauen('nexusThema', 'nexus-themen-select-bearbeiten');
+            var ziel = form.querySelector('.richtext-create-input-group');
+            if (ziel) { ziel.insertAdjacentElement('afterend', auswahl.zeile); } else { form.appendChild(auswahl.zeile); }
+            auswahl.select.disabled = true;   // erst nach dem Laden des aktuellen Themas -- sonst wuerde "Allgemein" gesetzt
+            fetch('/nexus-themen/leiste/beitrag?cguid=' + encodeURIComponent(stand.guid) + '&id=' + encodeURIComponent(postId),
+                { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+                .then(function (daten) {
+                    var wert = daten.thema || '';
+                    if (!wert) {
+                        // Beitrag ohne Thema: leere Wahl "–", damit Speichern nichts ungefragt aendert
+                        var leer = document.createElement('option');
+                        leer.value = '';
+                        leer.textContent = '–';
+                        auswahl.select.insertBefore(leer, auswahl.select.firstChild);
+                    }
+                    vorbelegen(auswahl.select, wert || '');
+                    if (!wert) { auswahl.select.value = ''; }
+                    auswahl.select.disabled = false;
+                })
+                .catch(function () { auswahl.zeile.remove(); });
+        });
+    }
+
+    new MutationObserver(function () { bearbeitenEinsetzen(); })
+        .observe(document.documentElement, { childList: true, subtree: true });
 
     // ── Laden ─────────────────────────────────────────────────────────
     function start() {
