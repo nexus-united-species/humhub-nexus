@@ -4,7 +4,7 @@
 
 ## English
 
-**Knowledge base:** Wikipedia-style reference collections inside spaces. Write or collect your articles as Markdown files, import them, and your members get a searchable, cross-linked reference: a handbook, a recipe collection, a herbal guide, a glossary, an FAQ, project documentation. Each space can have its own collection, and a space can have several.
+**Knowledge base:** Wikipedia-style reference collections inside spaces. Write articles in the portal, upload Word or text files, or import a folder of Markdown files, and your members get a searchable, cross-linked reference: a handbook, a recipe collection, a herbal guide, a glossary, an FAQ, project documentation. Each space can have its own collection, and a space can have several.
 
 ### What members see
 
@@ -16,10 +16,13 @@
 
 ### What editors get
 
-- **Only editors change articles** (system admins; optionally also the space's admins). This is deliberate: the module is meant for reviewed content, not an open wiki.
+- **Editors are the system admins and the owner and admins of the space.** Only they change articles. This is deliberate: the module is meant for reviewed content, not an open wiki. Members send suggestions.
+- **Create a knowledge area yourself:** space owners and admins find "Create knowledge area" in the space's settings menu (top right) as long as the space has none. Name, icon, description and notice can be changed later under "Settings".
+- **Categories in the portal:** create, rename, choose an icon, reorder, and delete empty ones. On first use the categories of a collection from `common.php` (`themen`) are taken over; after that the portal is the only place to change them.
+- **New articles:** write them in the editor or upload a file (.docx, .md, .txt, up to 10 MB). The upload only fills the form, so you can check and correct the text first. Word images are not transferred; a notice marks the spot. Every new article starts as a **draft** that only editors see (also not in search or cross-links) until someone clicks "Publish". Keywords left empty are suggested by the AI if available.
 - **Version history** for every article; any version can be restored.
 - **Suggestion inbox:** accept or decline with a short reply; the member is told the result.
-- **Release switch:** a new collection is visible only to editors until someone clicks "Release for all members".
+- **Release switch:** a new collection is visible only to editors until an editor clicks "Release for all members".
 - **Review reminders:** an article can have a "next review" date; the daily cron reminds the editors.
 - **Import is repeatable:** unchanged files are skipped, changed files update the article, and articles edited in the portal are **never overwritten**, only reported. Articles whose file disappeared are reported, not deleted.
 
@@ -113,10 +116,9 @@ Texts can be a string or a per-language array `['en' => …, 'de' => …, 'es' =
 | `emoji` | in front of messages and posts | 📖 |
 | `suchbeispiel` | placeholder in the search field | "Search term or keyword" |
 | `hinweis` | notice box under every article | none |
-| `themen` | order, names and icons of topics: `['01_Basics' => ['en' => 'Basics', 'symbol' => 'star']]` | from folder names |
+| `themen` | starting categories (order, names, icons): `['01_Basics' => ['en' => 'Basics', 'symbol' => 'star']]`; taken over once, afterwards edited in the portal | from folder names |
 | `importPfad` | import folder | – |
 | `importStatus` | import only manifest entries with this `status` | all |
-| `kreisAdmins` | space admins may edit as well | `false` |
 | `menuePosition` | sort order in the space menu | `105` (below "Stream") |
 | `kiBeschreibung` | what the collection is about, for AI keywords | the name |
 | `kiAnweisung` | your own complete instruction for AI keywords | built in |
@@ -150,8 +152,10 @@ Suggestions, decisions and review reminders are sent as private messages through
 - **Hinweis** unter jedem Artikel (frei wählbar, z. B. „ersetzt keinen ärztlichen Rat“).
 - **„Ich möchte etwas ergänzen / ändern“** schickt einen Vorschlag an die Redaktion. **„Im Kreis darüber sprechen“** legt einen Beitrag im Kreis an.
 
-**Für die Redaktion:**
-- Bearbeiten nur Systemadmins (mit `kreisAdmins` auch die Admins des Kreises).
+**Für die Redaktion** (Systemadmins sowie Besitzer und Admins des Kreises):
+- Wissensbereich selbst anlegen: im Kreis oben rechts im Einstellungsmenü „Wissensbereich anlegen“ (solange der Kreis noch keinen hat).
+- Kategorien im Portal anlegen, umbenennen, sortieren, leere löschen. Die Themen aus `common.php` werden beim ersten Aufruf übernommen, danach gilt nur noch das Portal.
+- Neue Artikel schreiben oder eine Datei hochladen (.docx, .md, .txt). Jeder neue Artikel ist zuerst ein **Entwurf**, den nur die Redaktion sieht, bis jemand auf „Veröffentlichen“ klickt.
 - Versionsgeschichte, Vorschlagsliste mit Antwort an die Person.
 - Freigabe-Knopf: Bis zur Freigabe sieht nur die Redaktion die Sammlung.
 - Erinnerung bei fälliger Prüfung (Feld „Nächste Prüfung“).
