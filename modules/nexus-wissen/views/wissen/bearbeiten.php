@@ -7,7 +7,8 @@
  * @var $sammlung nexus\modules\wissen\services\Sammlung
  * @var $artikel nexus\modules\wissen\models\Artikel
  * @var $neu bool
- * @var $bilder int            Bilder in einer hochgeladenen Datei (nicht uebernommen)
+ * @var $bilder int            Bilder in einer hochgeladenen Datei, die NICHT uebernommen werden konnten
+ * @var $bilderOk int|null     Bilder, die uebernommen wurden
  * @var $herkunft string|null  Name der hochgeladenen Datei
  * @var $themen array<string, array{name: string, symbol: string}>
  * @var $schlagworte string
@@ -46,7 +47,8 @@ $this->title = $neu ? Texte::t('neuer_artikel') : Texte::t('bearbeiten');
                 <?= Html::endForm() ?>
             </div>
             <?php if ($herkunft !== '') : ?>
-                <div class="nx-ws-meldung"><?= Html::encode(sprintf(Texte::t('hochladen_aus'), $herkunft)) ?></div>
+                <div class="nx-ws-meldung"><?= Html::encode(sprintf(Texte::t('hochladen_aus'), $herkunft)) ?>
+                    <?php if (($bilderOk ?? 0) > 0) : ?> <?= Html::encode(sprintf(Texte::t('bilder_ok'), $bilderOk)) ?><?php endif; ?></div>
             <?php endif; ?>
             <?php if ($bilder > 0) : ?>
                 <div class="nx-ws-hinweis"><i class="fa fa-picture-o"></i> <?= Html::encode(sprintf(Texte::t('bilder_hinweis'), $bilder)) ?></div>
@@ -76,11 +78,15 @@ $this->title = $neu ? Texte::t('neuer_artikel') : Texte::t('bearbeiten');
                     'h2' => ['header', 'fmt_h2', 'Ü2'], 'h3' => ['header', 'fmt_h3', 'Ü3'], 'fett' => ['bold', 'fmt_fett', ''],
                     'kursiv' => ['italic', 'fmt_kursiv', ''], 'liste' => ['list-ul', 'fmt_liste', ''], 'nummer' => ['list-ol', 'fmt_nummer', ''],
                     'link' => ['link', 'fmt_link', ''], 'code' => ['code', 'fmt_code', ''], 'tabelle' => ['table', 'fmt_tabelle', ''],
+                    'bild' => ['picture-o', 'fmt_bild', ''],
                 ] as $format => [$symbol, $titel, $kurz]) : ?>
                     <button type="button" class="btn btn-sm btn-light" data-nx-ws-format="<?= $format ?>" title="<?= Html::encode(Texte::t($titel)) ?>" aria-label="<?= Html::encode(Texte::t($titel)) ?>">
                         <i class="fa fa-<?= $symbol ?>"></i><?= $kurz !== '' ? ' <small>' . Html::encode(substr($kurz, -1)) . '</small>' : '' ?>
                     </button>
                 <?php endforeach; ?>
+                <input type="file" class="nx-ws-bild-datei" accept="image/png,image/jpeg,image/gif,image/webp" hidden
+                       data-nx-ws-bild-ziel="<?= Html::encode($sammlung->url('redaktion/bild-hochladen')) ?>"
+                       data-nx-ws-laedt="<?= Html::encode(Texte::t('bild_laedt')) ?>">
                 <span class="nx-ws-leise nx-ws-tab-hinweis"><?= Html::encode(Texte::t('tab_hinweis')) ?></span>
             </div>
             <div class="nx-ws-editor-rahmen">

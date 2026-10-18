@@ -32,9 +32,7 @@
         var nummer = ++vorschauNummer;
         var daten = new FormData();
         daten.append('inhalt', editor.value);
-        var token = document.querySelector('meta[name="csrf-token"]');
-        var param = document.querySelector('meta[name="csrf-param"]');
-        if (token && param) { daten.append(param.getAttribute('content'), token.getAttribute('content')); }
+        csrfDazu(daten);
         fetch(adresse, { method: 'POST', body: daten, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(function (antwort) { return antwort.ok ? antwort.json() : null; })
             .then(function (json) {
@@ -128,6 +126,11 @@
                 if (auswahl.indexOf('\n') !== -1) { umschliessen(editor, '\n```\n', '\n```\n', ''); }
                 else { umschliessen(editor, '`', '`', 'befehl'); }
                 break;
+            case 'bild': {
+                var eingabe = bildEingabe(editor);
+                if (eingabe) { eingabe.click(); }
+                break;
+            }
             case 'tabelle': {
                 var p = editor.selectionEnd;
                 var vorlage = '\n\n| Spalte 1 | Spalte 2 |\n| --- | --- |\n| Inhalt | Inhalt |\n\n';
@@ -136,6 +139,71 @@
             }
         }
     }
+
+    // ── Bilder: Knopf, Einfuegen (Strg+V) und Hineinziehen ────────────────
+    function csrfDazu(daten) {
+        var token = document.querySelector('meta[name="csrf-token"]');
+        var param = document.querySelector('meta[name="csrf-param"]');
+        if (token && param) { daten.append(param.getAttribute('content'), token.getAttribute('content')); }
+    }
+
+    function bildEingabe(editor) {
+        var leiste = document.querySelector('[aria-controls="' + editor.id + '"]');
+        return leiste ? leiste.querySelector('.nx-ws-bild-datei') : null;
+    }
+
+    function bildHochladen(editor, datei) {
+        var eingabe = bildEingabe(editor);
+        if (!eingabe || !datei || !/^image\//.test(datei.type)) { return; }
+        var stelle = editor.selectionEnd;
+        var hinweis = eingabe.parentNode.querySelector('.nx-ws-tab-hinweis');
+        var vorher = hinweis ? hinweis.textContent : '';
+        if (hinweis) { hinweis.textContent = eingabe.getAttribute('data-nx-ws-laedt'); }
+        var daten = new FormData();
+        daten.append('bild', datei, datei.name || 'bild.png');
+        csrfDazu(daten);
+        fetch(eingabe.getAttribute('data-nx-ws-bild-ziel'), { method: 'POST', body: daten, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (antwort) { return antwort.json(); })
+            .then(function (json) {
+                if (json && json.markdown) {
+                    var baustein = '\n\n' + json.markdown + '\n\n';
+                    ersetzen(editor, stelle, stelle, baustein, stelle + baustein.length, stelle + baustein.length);
+                } else if (json && json.fehler) {
+                    window.alert(json.fehler);
+                }
+            })
+            .catch(function () { window.alert('Das Bild konnte nicht hochgeladen werden.'); })
+            .then(function () { if (hinweis) { hinweis.textContent = vorher; } });
+    }
+
+    document.addEventListener('change', function (e) {
+        if (!e.target.classList || !e.target.classList.contains('nx-ws-bild-datei')) { return; }
+        var editor = document.getElementById(e.target.closest('[aria-controls]').getAttribute('aria-controls'));
+        Array.prototype.forEach.call(e.target.files || [], function (datei) { bildHochladen(editor, datei); });
+        e.target.value = '';
+    });
+
+    document.addEventListener('paste', function (e) {
+        var editor = e.target;
+        if (!editor.classList || !editor.classList.contains('nx-ws-editor') || !e.clipboardData) { return; }
+        var bilder = Array.prototype.filter.call(e.clipboardData.files || [], function (d) { return /^image\//.test(d.type); });
+        if (bilder.length === 0) { return; }   // normaler Text: Browser fuegt ihn selbst ein
+        e.preventDefault();
+        bilder.forEach(function (datei) { bildHochladen(editor, datei); });
+    });
+
+    document.addEventListener('dragover', function (e) {
+        if (e.target.classList && e.target.classList.contains('nx-ws-editor')) { e.preventDefault(); }
+    });
+
+    document.addEventListener('drop', function (e) {
+        var editor = e.target;
+        if (!editor.classList || !editor.classList.contains('nx-ws-editor') || !e.dataTransfer) { return; }
+        var bilder = Array.prototype.filter.call(e.dataTransfer.files || [], function (d) { return /^image\//.test(d.type); });
+        if (bilder.length === 0) { return; }
+        e.preventDefault();
+        bilder.forEach(function (datei) { bildHochladen(editor, datei); });
+    });
 
     // ── Ereignisse ────────────────────────────────────────────────────────
     document.addEventListener('keydown', function (e) {

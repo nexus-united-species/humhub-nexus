@@ -91,6 +91,22 @@ class Darstellung
             }
         }
 
+        // Bilder der Sammlung ("bilder/<datei>") ueber die Sammlung ausliefern -- nur fuer Berechtigte.
+        // Andere relative Bilder gibt es im Portal nicht: an ihrer Stelle bleibt die Beschreibung stehen.
+        foreach ($xp->query('//img[@src]') as $img) {
+            /** @var DOMElement $img */
+            $name = Bilder::nameAus($img->getAttribute('src'));
+            if ($name !== null) {
+                $img->setAttribute('src', $sammlung->url('bild', ['d' => $name]));
+            } elseif (!preg_match('#^https://#i', $img->getAttribute('src'))) {
+                $img->parentNode->replaceChild($doc->createTextNode($img->getAttribute('alt')), $img);
+                continue;
+            }
+            $img->setAttribute('loading', 'lazy');
+            $img->setAttribute('referrerpolicy', 'no-referrer');
+            $img->setAttribute('class', 'nx-ws-bild');
+        }
+
         if ($artikel !== null) {
             self::querverweise($doc, $xp, $artikel, $sammlung);
         }
@@ -212,6 +228,7 @@ class Darstellung
     {
         $text = preg_replace('/^#.*$/m', '', $markdown);
         foreach (preg_split('/\n\s*\n/', (string)$text) as $absatz) {
+            $absatz = trim(preg_replace('/!\[[^\]]*\]\([^)]+\)/', '', $absatz));   // Bilder
             $absatz = trim(preg_replace('/\[([^\]]+)\]\([^)]+\)/', '$1', $absatz));
             $absatz = trim(preg_replace('/[*_`>#-]+/', '', $absatz));
             if (mb_strlen($absatz) > 40) {

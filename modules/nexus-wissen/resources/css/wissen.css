@@ -58,3 +58,4 @@
 .nx-ws .nx-ws-vorschau[data-leer-zeigen]::before, .nx-ws .nx-ws-vorschau:empty::before { content: attr(data-leer); color: var(--nx-ws-leise); font-style: italic; }
 .nx-ws .nx-ws-text pre { background: var(--bs-tertiary-bg, #f6f8fa); border-radius: 6px; padding: .6rem .8rem; overflow-x: auto; font-size: .88rem; }
 .nx-ws .nx-ws-text code { font-size: .9em; }
+.nx-ws .nx-ws-text img.nx-ws-bild { max-width: 100%; height: auto; border-radius: 6px; margin: .5rem 0; display: block; }

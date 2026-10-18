@@ -12,6 +12,7 @@ use nexus\modules\wissen\models\Artikel;
 use nexus\modules\wissen\models\Version;
 use nexus\modules\wissen\models\Vorschlag;
 use nexus\modules\wissen\Module;
+use nexus\modules\wissen\services\Bilder;
 use nexus\modules\wissen\services\Darstellung;
 use nexus\modules\wissen\services\Nachrichten;
 use nexus\modules\wissen\services\Sammlung;
@@ -64,7 +65,9 @@ class WissenController extends ContentContainerController
             throw new NotFoundHttpException();
         }
         $this->sammlung = $sammlung;
-        WissenAsset::register($this->view);
+        if ($action->id !== 'bild') {
+            WissenAsset::register($this->view);
+        }
         return true;
     }
 
@@ -117,6 +120,22 @@ class WissenController extends ContentContainerController
             'offeneVorschlaege' => $darfBearbeiten ? (int)$this->vorschlaegeAbfrage('offen')->count() : 0,
             'anzahlEntwuerfe' => count($entwurfListe),
             'meldung' => Yii::$app->session->getFlash(self::FLASH),
+        ]);
+    }
+
+    /** Ein Bild der Sammlung -- nur fuer Menschen, die die Sammlung lesen duerfen (siehe beforeAction). */
+    public function actionBild(string $d)
+    {
+        $pfad = Bilder::pfad($this->sammlung, $d);
+        if ($pfad === null) {
+            throw new NotFoundHttpException();
+        }
+        $antwort = Yii::$app->response;
+        $antwort->headers->set('Cache-Control', 'private, max-age=31536000, immutable');  // Name = Pruefsumme, Inhalt aendert sich nie
+        $antwort->headers->set('X-Content-Type-Options', 'nosniff');
+        return $antwort->sendFile($pfad, $d, [
+            'mimeType' => Bilder::MIME[pathinfo($d, PATHINFO_EXTENSION)] ?? 'application/octet-stream',
+            'inline' => true,
         ]);
     }
 

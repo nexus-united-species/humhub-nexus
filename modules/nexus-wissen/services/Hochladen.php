@@ -24,10 +24,14 @@ use ZipArchive;
 class Hochladen
 {
     public const ENDUNGEN = ['md', 'txt', 'docx'];
-    public const MAX_BYTES = 10 * 1024 * 1024;
+    /** Word-Dateien mit Bildern werden schnell gross */
+    public const MAX_BYTES = 30 * 1024 * 1024;
     private const MAX_XML_BYTES = 30 * 1024 * 1024;
     private const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
     private const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+    private const A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
+    private const WP = 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing';
+    private const V = 'urn:schemas-microsoft-com:vml';
     public const BILD_HINWEIS = '> ⚠️ **Hier war ein Bild.** Bilder werden nicht übernommen – bitte prüfen, ob dort wichtiger Text (z. B. ein Name) stand, und ihn hier eintragen.';
     /** Schriften fuer Befehle und Programmcode -- so gesetzter Text wird zu Markdown-Code */
     private const CODE_SCHRIFTEN = ['courier', 'consolas', 'lucida console', 'source code', 'dejavu sans mono', 'liberation mono',
@@ -36,11 +40,14 @@ class Hochladen
     private const CODE = "\x01CODE\x01";
 
     /**
-     * @return array{titel: string, inhalt: string, schlagworte: string[], suchwoerter: string[], bilder: int}
+     * @param Sammlung|null $sammlung wohin Bilder aus Word-Dateien gespeichert werden (ohne: nur Hinweis im Text)
+     * @return array{titel: string, inhalt: string, schlagworte: string[], suchwoerter: string[], bilder: int, bilderOk: int}
+     *         bilder = nicht uebernommene Bilder, bilderOk = uebernommene
      * @throws RuntimeException mit einer Meldung fuer den Menschen
      */
-    public static function lesen(string $pfad, string $dateiname): array
+    public static function lesen(string $pfad, string $dateiname, ?Sammlung $sammlung = null): array
     {
+        $bilderOk = 0;
         $endung = strtolower(pathinfo($dateiname, PATHINFO_EXTENSION));
         if (!in_array($endung, self::ENDUNGEN, true)) {
             throw new RuntimeException('format');
@@ -50,7 +57,7 @@ class Hochladen
         }
         $ersatzTitel = Sammlung::nameAusCode(pathinfo($dateiname, PATHINFO_FILENAME));
         if ($endung === 'docx') {
-            [$inhalt, $bilder] = self::word($pfad);
+            [$inhalt, $bilder, $bilderOk] = self::word($pfad, $sammlung);
             $meta = [];
         } else {
             $roh = (string)file_get_contents($pfad);
@@ -71,35 +78,68 @@ class Hochladen
             'schlagworte' => self::liste($meta['schlagworte'] ?? ''),
             'suchwoerter' => self::liste($meta['suchwoerter'] ?? ''),
             'bilder' => $bilder,
+            'bilderOk' => $bilderOk,
         ];
     }
 
-    /** @return array{0: string, 1: int} Markdown und Zahl der Bilder */
-    private static function word(string $pfad): array
+    /** @return array{0: string, 1: int, 2: int} Markdown, nicht uebernommene und uebernommene Bilder */
+    private static function word(string $pfad, ?Sammlung $sammlung): array
     {
         $zip = new ZipArchive();
         if ($zip->open($pfad) !== true) {
             throw new RuntimeException('kaputt');
         }
+        // Offen bis zum Ende: eingebettete Bilder werden beim Durchgehen aus dem Archiv gelesen
         try {
             $dokument = self::xml($zip, 'word/document.xml');
             if ($dokument === null) {
                 throw new RuntimeException('kaputt');
             }
-            $k = new WordKontext(self::links($zip), self::stile($zip), self::nummerierte($zip));
+            $k = new WordKontext(self::links($zip), self::stile($zip), self::nummerierte($zip), self::bildZiele($zip), $zip, $sammlung);
+            $k->xp = new DOMXPath($dokument);
+            $k->xp->registerNamespace('w', self::W);
+            $k->xp->registerNamespace('r', self::R);
+            $k->xp->registerNamespace('a', self::A);
+            $k->xp->registerNamespace('wp', self::WP);
+            $k->xp->registerNamespace('v', self::V);
+            $body = $k->xp->query('/w:document/w:body')->item(0);
+            if (!$body instanceof DOMElement) {
+                throw new RuntimeException('kaputt');
+            }
+            $bloecke = [];
+            self::bloecke($body, $k, $bloecke);
+            return [self::zusammensetzen($bloecke), $k->bilder, $k->bilderOk];
         } finally {
             $zip->close();
         }
-        $k->xp = new DOMXPath($dokument);
-        $k->xp->registerNamespace('w', self::W);
-        $k->xp->registerNamespace('r', self::R);
-        $body = $k->xp->query('/w:document/w:body')->item(0);
-        if (!$body instanceof DOMElement) {
-            throw new RuntimeException('kaputt');
+    }
+
+    /** @return array<string, string> Beziehungs-ID => Pfad des Bildes im Archiv ("word/media/image1.png") */
+    private static function bildZiele(ZipArchive $zip): array
+    {
+        $doc = self::xml($zip, 'word/_rels/document.xml.rels');
+        $liste = [];
+        if ($doc === null) {
+            return [];
         }
-        $bloecke = [];
-        self::bloecke($body, $k, $bloecke);
-        return [self::zusammensetzen($bloecke), $k->bilder];
+        foreach ($doc->getElementsByTagName('Relationship') as $rel) {
+            $ziel = (string)$rel->getAttribute('Target');
+            if (!str_ends_with((string)$rel->getAttribute('Type'), '/image') || $rel->getAttribute('TargetMode') === 'External') {
+                continue;
+            }
+            // Relativ zu word/ ("media/image1.png") oder absolut im Archiv ("/word/media/image1.png")
+            $pfad = str_starts_with($ziel, '/') ? ltrim($ziel, '/') : 'word/' . $ziel;
+            $teile = [];
+            foreach (explode('/', $pfad) as $t) {
+                if ($t === '..') {
+                    array_pop($teile);
+                } elseif ($t !== '' && $t !== '.') {
+                    $teile[] = $t;
+                }
+            }
+            $liste[(string)$rel->getAttribute('Id')] = implode('/', $teile);
+        }
+        return $liste;
     }
 
     /** Absaetze und Tabellen in Reihenfolge -- auch innerhalb von Inhaltssteuerelementen (w:sdt) */
@@ -196,9 +236,9 @@ class Hochladen
                     : $innen;
                 continue;
             }
-            if ($xp->query('w:drawing | w:pict | w:object', $teil)->length > 0) {
-                $k->bilder++;
-                $text .= "\n\n" . self::BILD_HINWEIS . "\n\n";
+            // Neuere Word-Fassungen packen Bilder in mc:AlternateContent -- deshalb ueberall im Lauf suchen
+            if ($xp->query('.//w:drawing | .//w:pict | .//w:object', $teil)->length > 0) {
+                $text .= self::bilderImLauf($teil, $k);
                 continue;
             }
             $stueck = self::lauftext($teil);
@@ -224,6 +264,39 @@ class Hochladen
         $text = (string)preg_replace('/`([ \t]*)`/u', '$1', $text);
         // Tabs im Fliesstext: ein Leerzeichen -- am Zeilenanfang machte Markdown sonst einen Code-Block daraus
         return str_replace("\t", ' ', $text);
+    }
+
+    /**
+     * Bilder eines Laufs uebernehmen. Moderne Bilder (a:blip) zuerst; nur wenn es keine gibt, die alte
+     * Form (v:imagedata) -- Word legt oft beide fuer dasselbe Bild an (Choice/Fallback).
+     * Was nicht geht (z. B. EMF-Zeichnungen, Diagramme), bekommt den gelben Hinweis.
+     */
+    private static function bilderImLauf(DOMElement $r, WordKontext $k): string
+    {
+        $xp = $k->xp;
+        $ids = [];
+        foreach ($xp->query('.//a:blip/@r:embed', $r) as $attr) {
+            $ids[$attr->nodeValue] = true;
+        }
+        if ($ids === []) {
+            foreach ($xp->query('.//v:imagedata/@r:id', $r) as $attr) {
+                $ids[$attr->nodeValue] = true;
+            }
+        }
+        $beschreibung = trim((string)$xp->evaluate('string(.//wp:docPr/@descr)', $r))
+            ?: trim((string)$xp->evaluate('string(.//wp:docPr/@title)', $r));
+        $teile = [];
+        foreach (array_keys($ids) as $id) {
+            $md = $k->bild((string)$id, $beschreibung);
+            if ($md !== null) {
+                $teile[] = $md;
+            }
+        }
+        if ($teile === []) {
+            $k->bilder++;
+            return "\n\n" . self::BILD_HINWEIS . "\n\n";
+        }
+        return "\n\n" . implode("\n\n", $teile) . "\n\n";
     }
 
     /** Text eines Laufs. Bindestriche, die Word als eigenes Zeichen speichert, gehoeren dazu ("ISO-Image"). */

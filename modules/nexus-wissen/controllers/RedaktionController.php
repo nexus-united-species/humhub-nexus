@@ -7,6 +7,7 @@ use nexus\modules\wissen\models\Artikel;
 use nexus\modules\wissen\models\SammlungEintrag;
 use nexus\modules\wissen\models\Thema;
 use nexus\modules\wissen\models\Version;
+use nexus\modules\wissen\services\Bilder;
 use nexus\modules\wissen\services\Hochladen;
 use nexus\modules\wissen\services\Themen;
 use nexus\modules\wissen\services\Texte;
@@ -28,7 +29,7 @@ class RedaktionController extends WissenController
     {
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
-            [ControllerAccess::RULE_POST => ['hochladen', 'anlegen', 'veroeffentlichen', 'verwerfen', 'thema', 'sammlung-loeschen']],
+            [ControllerAccess::RULE_POST => ['hochladen', 'anlegen', 'veroeffentlichen', 'verwerfen', 'thema', 'sammlung-loeschen', 'bild-hochladen']],
         ];
     }
 
@@ -59,7 +60,7 @@ class RedaktionController extends WissenController
             return $this->redirect($this->sammlung->url('redaktion/neu', ['thema' => $thema]));
         }
         try {
-            $gelesen = Hochladen::lesen($datei->tempName, $datei->name);
+            $gelesen = Hochladen::lesen($datei->tempName, $datei->name, $this->sammlung);
         } catch (RuntimeException $e) {
             Yii::$app->session->setFlash(self::FLASH_FEHLER, Texte::t('hochladen_' . $e->getMessage()));
             return $this->redirect($this->sammlung->url('redaktion/neu', ['thema' => $thema]));
@@ -71,7 +72,7 @@ class RedaktionController extends WissenController
             // Die erste Ueberschrift ist der Titel -- im Text wuerde sie doppelt stehen
             'inhalt' => trim((string)preg_replace('/\A#\s+' . preg_quote($gelesen['titel'], '/') . '\s*\n/u', '', $gelesen['inhalt'])),
         ]);
-        return $this->formular($artikel, $gelesen['schlagworte'], $gelesen['suchwoerter'], $gelesen['bilder'], $datei->name);
+        return $this->formular($artikel, $gelesen['schlagworte'], $gelesen['suchwoerter'], $gelesen['bilder'], $datei->name, $gelesen['bilderOk']);
     }
 
     public function actionAnlegen()
@@ -130,6 +131,26 @@ class RedaktionController extends WissenController
         $artikel->delete();
         Yii::$app->session->setFlash(self::FLASH, Texte::t('entwurf_verworfen'));
         return $this->redirect($this->sammlung->url());
+    }
+
+    /** Bild aus dem Editor (Knopf, Einfuegen, Hineinziehen): speichern und den Markdown-Baustein zurueckgeben. */
+    public function actionBildHochladen()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $datei = UploadedFile::getInstanceByName('bild');
+        if ($datei === null || $datei->error !== UPLOAD_ERR_OK || $datei->size > Bilder::MAX_BYTES) {
+            return ['fehler' => Texte::t('bild_zu_gross')];
+        }
+        try {
+            $name = Bilder::speichern($this->sammlung, (string)file_get_contents($datei->tempName));
+        } catch (RuntimeException $e) {
+            Yii::error('nexus-wissen: Bilder-Ordner nicht beschreibbar: ' . Bilder::wurzel(), 'nexus-wissen');
+            return ['fehler' => Texte::t('bild_fehler')];
+        }
+        if ($name === null) {
+            return ['fehler' => Texte::t('bild_format')];
+        }
+        return ['markdown' => Bilder::markdown($name, (string)pathinfo($datei->name, PATHINFO_FILENAME))];
     }
 
     // ── Kategorien ─────────────────────────────────────────────────────────
@@ -233,13 +254,14 @@ class RedaktionController extends WissenController
 
     // ── Hilfen ─────────────────────────────────────────────────────────────
 
-    private function formular(Artikel $artikel, array $schlagworte, array $suchwoerter, int $bilder, string $herkunft = '')
+    private function formular(Artikel $artikel, array $schlagworte, array $suchwoerter, int $bilder, string $herkunft = '', int $bilderOk = 0)
     {
         return $this->render('@nexus-wissen/views/wissen/bearbeiten', [
             'sammlung' => $this->sammlung,
             'artikel' => $artikel,
             'neu' => true,
             'bilder' => $bilder,
+            'bilderOk' => $bilderOk,
             'herkunft' => $herkunft,
             'themen' => $this->sammlung->themen(),
             'schlagworte' => implode(', ', array_filter(array_map('trim', $schlagworte))),

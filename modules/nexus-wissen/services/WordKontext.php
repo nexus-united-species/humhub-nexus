@@ -3,6 +3,8 @@
 namespace nexus\modules\wissen\services;
 
 use DOMXPath;
+use RuntimeException;
+use ZipArchive;
 
 /**
  * Was beim Lesen einer Word-Datei ueberall gebraucht wird. Pro Datei neu -- nichts bleibt zwischen
@@ -12,15 +14,53 @@ use DOMXPath;
 final class WordKontext
 {
     public ?DOMXPath $xp = null;
+    /** Bilder, die NICHT uebernommen werden konnten (gelber Hinweis im Text) */
     public int $bilder = 0;
+    /** Bilder, die uebernommen wurden */
+    public int $bilderOk = 0;
     /** @var array<string, array{ebene: int, numId: string, ilvl: string, code: bool}> */
     private array $aufgeloest = [];
 
+    /**
+     * @param array<string, string> $links      Beziehungs-ID => Link-Ziel
+     * @param array<string, string> $bildZiele  Beziehungs-ID => Pfad im Word-Archiv ("word/media/image1.png")
+     */
     public function __construct(
         public readonly array $links,
         private readonly array $stile,
         public readonly array $nummeriert,
+        private readonly array $bildZiele = [],
+        private readonly ?ZipArchive $zip = null,
+        private readonly ?Sammlung $sammlung = null,
     ) {
+    }
+
+    /**
+     * Ein eingebettetes Bild in die Sammlung uebernehmen.
+     * @return string|null Markdown fuer das Bild, null wenn es nicht geht (Format wie EMF, fehlende Datei,
+     *                     keine Sammlung) -- dann zaehlt es als nicht uebernommen
+     */
+    public function bild(string $beziehung, string $beschreibung): ?string
+    {
+        $ziel = $this->bildZiele[$beziehung] ?? null;
+        if ($ziel === null || $this->zip === null || $this->sammlung === null) {
+            return null;
+        }
+        $bytes = $this->zip->getFromName($ziel);
+        $info = $this->zip->statName($ziel);
+        if ($bytes === false || $info === false || $info['size'] > Bilder::MAX_BYTES) {
+            return null;
+        }
+        try {
+            $name = Bilder::speichern($this->sammlung, $bytes);
+        } catch (RuntimeException $e) {
+            return null;
+        }
+        if ($name === null) {
+            return null;
+        }
+        $this->bilderOk++;
+        return Bilder::markdown($name, $beschreibung);
     }
 
     /**

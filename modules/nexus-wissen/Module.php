@@ -42,6 +42,14 @@ class Module extends \humhub\components\Module
     /** @var array<string, array> Sammlungen: Kennung => Einstellungen */
     public $sammlungen = [];
 
+    /**
+     * @var string Ordner fuer Bilder in Artikeln (Pfad oder Yii-Alias). Leer: neben dem Einstellungsordner
+     * ("nexus-wissen-bilder"). Darf NICHT im oeffentlichen Web-Verzeichnis liegen -- die Bilder werden
+     * ueber die Sammlung ausgeliefert, damit nur Berechtigte sie sehen. Der Web-Server-Benutzer muss
+     * dort schreiben duerfen.
+     */
+    public $bilderPfad = '';
+
     public static function instanz(): ?self
     {
         $modul = \Yii::$app->getModule('nexus-wissen');
