@@ -178,8 +178,9 @@ class Hochladen
             preg_match('/^(\s*)(.*?)(\s*)$/su', $stueck, $m);
             $text .= $m[1] . $marke . $m[2] . strrev($marke) . $m[3];
         }
-        // Word teilt fetten Text oft in mehrere Stuecke: "**Halb****satz**" -> "**Halbsatz**"
-        return str_replace('****', '', $text);
+        // Word teilt fetten Text oft in mehrere Stuecke: "**Halb****satz**" -> "**Halbsatz**",
+        // "**zwei** **Woerter**" -> "**zwei Woerter**"
+        return (string)preg_replace('/(?<!\*)\*\*([ \t]*)\*\*(?!\*)/u', '$1', $text);
     }
 
     private static function an(DOMXPath $xp, string $pfad, DOMElement $r): bool
