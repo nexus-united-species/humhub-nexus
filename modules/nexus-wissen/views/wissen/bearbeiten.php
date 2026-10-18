@@ -70,8 +70,27 @@ $this->title = $neu ? Texte::t('neuer_artikel') : Texte::t('bearbeiten');
                 <div style="grid-column: 1 / -1"><label>Schlagworte (sichtbar, mit Komma getrennt<?= $neu ? ' – leer lassen: die KI schlägt welche vor' : '' ?>)</label><input class="form-control" name="schlagworte" value="<?= Html::encode($schlagworte) ?>"></div>
                 <div style="grid-column: 1 / -1"><label>Suchwörter (Alltagswörter und andere Bezeichnungen, nur für die Suche)</label><input class="form-control" name="suchwoerter" value="<?= Html::encode($suchwoerter) ?>"></div>
             </div>
-            <label>Text (Markdown: ## Überschrift, - Aufzählung, **fett**, [Linktext](https://…))</label>
-            <textarea class="form-control nx-ws-editor" name="inhalt" required><?= Html::encode($artikel->inhalt) ?></textarea>
+            <label for="nx-ws-inhalt">Text</label>
+            <div class="nx-ws-werkzeuge" role="toolbar" aria-label="<?= Html::encode(Texte::t('formatieren')) ?>" aria-controls="nx-ws-inhalt">
+                <?php foreach ([
+                    'h2' => ['header', 'fmt_h2', 'Ü2'], 'h3' => ['header', 'fmt_h3', 'Ü3'], 'fett' => ['bold', 'fmt_fett', ''],
+                    'kursiv' => ['italic', 'fmt_kursiv', ''], 'liste' => ['list-ul', 'fmt_liste', ''], 'nummer' => ['list-ol', 'fmt_nummer', ''],
+                    'link' => ['link', 'fmt_link', ''], 'code' => ['code', 'fmt_code', ''], 'tabelle' => ['table', 'fmt_tabelle', ''],
+                ] as $format => [$symbol, $titel, $kurz]) : ?>
+                    <button type="button" class="btn btn-sm btn-light" data-nx-ws-format="<?= $format ?>" title="<?= Html::encode(Texte::t($titel)) ?>" aria-label="<?= Html::encode(Texte::t($titel)) ?>">
+                        <i class="fa fa-<?= $symbol ?>"></i><?= $kurz !== '' ? ' <small>' . Html::encode(substr($kurz, -1)) . '</small>' : '' ?>
+                    </button>
+                <?php endforeach; ?>
+                <span class="nx-ws-leise nx-ws-tab-hinweis"><?= Html::encode(Texte::t('tab_hinweis')) ?></span>
+            </div>
+            <div class="nx-ws-editor-rahmen">
+                <textarea id="nx-ws-inhalt" class="form-control nx-ws-editor" name="inhalt" required
+                          data-nx-ws-vorschau="<?= Html::encode($sammlung->url('vorschau')) ?>"><?= Html::encode($artikel->inhalt) ?></textarea>
+                <div class="nx-ws-vorschau-rahmen">
+                    <div class="nx-ws-leise nx-ws-vorschau-titel"><i class="fa fa-eye"></i> <?= Html::encode(Texte::t('vorschau')) ?></div>
+                    <div class="nx-ws-text nx-ws-vorschau" aria-live="polite" data-leer="<?= Html::encode(Texte::t('vorschau_leer')) ?>"></div>
+                </div>
+            </div>
             <?php if (!$neu) : ?>
                 <div class="nx-ws-felder" style="margin-top:.75rem">
                     <div style="grid-column: 1 / -1"><label>Was wurde geändert? (für die Versionsgeschichte)</label><input class="form-control" name="grund" maxlength="255" placeholder="z. B. Angabe nach Vorschlag von … korrigiert"></div>

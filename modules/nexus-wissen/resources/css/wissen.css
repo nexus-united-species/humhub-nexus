@@ -46,3 +46,15 @@
 .nx-ws .nx-ws-kat-zeile input[name="name"] { flex: 1 1 14rem; width: auto; }
 .nx-ws .nx-ws-kat-symbol { flex: 0 0 9rem; width: auto; }
 .nx-ws .nx-ws-kat-zahl { flex: 0 0 auto; min-width: 5.5rem; }
+/* Editor: Knoepfe, Text links, Vorschau rechts (schmale Bildschirme: untereinander) */
+.nx-ws .nx-ws-werkzeuge { display: flex; flex-wrap: wrap; gap: .25rem; align-items: center; margin: .25rem 0 .4rem; }
+.nx-ws .nx-ws-werkzeuge .btn { min-width: 2.2rem; }
+.nx-ws .nx-ws-tab-hinweis { font-size: .8rem; margin-left: .4rem; }
+.nx-ws .nx-ws-editor-rahmen { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+@media (min-width: 992px) { .nx-ws .nx-ws-editor-rahmen { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.nx-ws .nx-ws-editor { tab-size: 4; }
+.nx-ws .nx-ws-vorschau-rahmen { border: 1px solid var(--nx-ws-rand); border-radius: 8px; padding: .5rem .8rem; min-height: 28rem; max-height: 70vh; overflow: auto; }
+.nx-ws .nx-ws-vorschau-titel { border-bottom: 1px solid var(--nx-ws-rand); padding-bottom: .25rem; margin-bottom: .5rem; }
+.nx-ws .nx-ws-vorschau[data-leer-zeigen]::before, .nx-ws .nx-ws-vorschau:empty::before { content: attr(data-leer); color: var(--nx-ws-leise); font-style: italic; }
+.nx-ws .nx-ws-text pre { background: var(--bs-tertiary-bg, #f6f8fa); border-radius: 6px; padding: .6rem .8rem; overflow-x: auto; font-size: .88rem; }
+.nx-ws .nx-ws-text code { font-size: .9em; }

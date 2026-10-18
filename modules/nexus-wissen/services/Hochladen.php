@@ -13,7 +13,10 @@ use ZipArchive;
  * Speichern ansieht und korrigiert.
  *
  * - .md / .txt: Text wird uebernommen; ein Kopf (Front Matter) liefert Titel und Schlagworte.
- * - .docx (Word): Ueberschriften, Absaetze, Aufzaehlungen, fett/kursiv, Links und Tabellen.
+ * - .docx (Word): Ueberschriften, Absaetze, Aufzaehlungen, fett/kursiv, Links, Tabellen und Code
+ *   (Absaetze oder Woerter in Schreibmaschinenschrift wie Consolas/Courier).
+ *   Ueberschriften und Listen werden auch erkannt, wenn sie aus eigenen Formatvorlagen kommen
+ *   (Gliederungsebene, "basiert auf", Nummerierung in der Formatvorlage).
  *   Bilder kann der Text nicht tragen: An ihrer Stelle steht ein Hinweis zum Pruefen -- bei Word-
  *   Dateien standen schon App-Namen nur als Bild drin und fehlten nach der Umwandlung unbemerkt.
  * PDF bewusst nicht: Scans liefern keinen Text, und Seitenumbrueche zerreissen Saetze.
@@ -26,6 +29,11 @@ class Hochladen
     private const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
     private const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
     public const BILD_HINWEIS = '> ⚠️ **Hier war ein Bild.** Bilder werden nicht übernommen – bitte prüfen, ob dort wichtiger Text (z. B. ein Name) stand, und ihn hier eintragen.';
+    /** Schriften fuer Befehle und Programmcode -- so gesetzter Text wird zu Markdown-Code */
+    private const CODE_SCHRIFTEN = ['courier', 'consolas', 'lucida console', 'source code', 'dejavu sans mono', 'liberation mono',
+        'menlo', 'monaco', 'cascadia', 'fira code', 'fira mono', 'jetbrains mono', 'ubuntu mono', 'roboto mono', 'noto mono', 'andale mono'];
+    /** Markiert einen Code-Absatz zwischen absatz() und word() -- kommt in echtem Text nicht vor */
+    private const CODE = "\x01CODE\x01";
 
     /**
      * @return array{titel: string, inhalt: string, schlagworte: string[], suchwoerter: string[], bilder: int}
@@ -78,109 +86,205 @@ class Hochladen
             if ($dokument === null) {
                 throw new RuntimeException('kaputt');
             }
-            $links = self::links($zip);
-            $ueberschriften = self::ueberschriften($zip);
-            $nummeriert = self::nummerierte($zip);
+            $k = new WordKontext(self::links($zip), self::stile($zip), self::nummerierte($zip));
         } finally {
             $zip->close();
         }
-        $xp = new DOMXPath($dokument);
-        $xp->registerNamespace('w', self::W);
-        $xp->registerNamespace('r', self::R);
-        $body = $xp->query('/w:document/w:body')->item(0);
+        $k->xp = new DOMXPath($dokument);
+        $k->xp->registerNamespace('w', self::W);
+        $k->xp->registerNamespace('r', self::R);
+        $body = $k->xp->query('/w:document/w:body')->item(0);
         if (!$body instanceof DOMElement) {
             throw new RuntimeException('kaputt');
         }
-        $bilder = 0;
         $bloecke = [];
-        foreach ($body->childNodes as $knoten) {
+        self::bloecke($body, $k, $bloecke);
+        return [self::zusammensetzen($bloecke), $k->bilder];
+    }
+
+    /** Absaetze und Tabellen in Reihenfolge -- auch innerhalb von Inhaltssteuerelementen (w:sdt) */
+    private static function bloecke(DOMElement $eltern, WordKontext $k, array &$bloecke): void
+    {
+        foreach ($eltern->childNodes as $knoten) {
             if (!$knoten instanceof DOMElement) {
                 continue;
             }
-            if ($knoten->localName === 'p') {
-                $bloecke[] = self::absatz($knoten, $xp, $links, $ueberschriften, $nummeriert, $bilder);
-            } elseif ($knoten->localName === 'tbl') {
-                $bloecke[] = "\n" . self::tabelle($knoten, $xp, $links, $bilder) . "\n";
-            }
+            match ($knoten->localName) {
+                'p' => $bloecke[] = self::absatz($knoten, $k),
+                'tbl' => $bloecke[] = "\n" . self::tabelle($knoten, $k) . "\n",
+                'sdt', 'sdtContent', 'customXml', 'ins' => self::bloecke($knoten, $k, $bloecke),
+                default => null,
+            };
         }
-        // Aufzaehlungspunkte stehen ohne Leerzeile untereinander, alles andere als eigener Absatz
+    }
+
+    /** Aufzaehlungspunkte ohne Leerzeile untereinander, Code-Absaetze in einen Block, sonst Absaetze */
+    private static function zusammensetzen(array $bloecke): string
+    {
         $text = '';
+        $code = [];
+        $anhaengen = function (string $b) use (&$text): void {
+            $istPunkt = (bool)preg_match('/^\s*(-|\d+\.) /', $b);
+            $text .= ($text === '' ? '' : ($istPunkt && preg_match('/(^|\n)\s*(-|\d+\.) [^\n]*$/', $text) ? "\n" : "\n\n")) . $b;
+        };
         foreach ($bloecke as $b) {
             if ($b === null) {
                 continue;
             }
-            $istPunkt = (bool)preg_match('/^\s*(-|\d+\.) /', $b);
-            $text .= ($text === '' ? '' : ($istPunkt && preg_match('/(^|\n)\s*(-|\d+\.) [^\n]*$/', $text) ? "\n" : "\n\n")) . $b;
+            if (str_starts_with($b, self::CODE)) {
+                $code[] = substr($b, strlen(self::CODE));
+                continue;
+            }
+            if ($code !== []) {
+                $anhaengen("```\n" . implode("\n", $code) . "\n```");
+                $code = [];
+            }
+            $anhaengen($b);
         }
-        return [$text, $bilder];
+        if ($code !== []) {
+            $anhaengen("```\n" . implode("\n", $code) . "\n```");
+        }
+        return $text;
     }
 
-    private static function absatz(DOMElement $p, DOMXPath $xp, array $links, array $ueberschriften, array $nummeriert, int &$bilder): ?string
+    private static function absatz(DOMElement $p, WordKontext $k): ?string
     {
-        $text = self::laeufe($p, $xp, $links, $bilder);
-        $stil = (string)$xp->evaluate('string(w:pPr/w:pStyle/@w:val)', $p);
-        $ebene = $ueberschriften[$stil] ?? 0;
+        $xp = $k->xp;
+        $stil = $k->stil((string)$xp->evaluate('string(w:pPr/w:pStyle/@w:val)', $p));
+        if ($stil['code'] || self::nurCodeSchrift($p, $k)) {
+            $roh = rtrim(self::rohtext($p, $xp), "\n");
+            return trim($roh) === '' ? null : self::CODE . $roh;
+        }
+        $text = self::laeufe($p, $k);
         if (trim($text) === '') {
             return null;
         }
+        // Gliederungsebene direkt am Absatz geht der Formatvorlage vor
+        $gliederung = (string)$xp->evaluate('string(w:pPr/w:outlineLvl/@w:val)', $p);
+        $ebene = $gliederung !== '' && (int)$gliederung < 9 ? min(4, (int)$gliederung + 2) : $stil['ebene'];
         if ($ebene > 0) {
-            return str_repeat('#', min($ebene, 4)) . ' ' . trim(str_replace(['**', '*'], '', $text));
+            return str_repeat('#', min($ebene, 4)) . ' ' . trim(str_replace(['**', '*', '`'], '', $text));
         }
         $numId = (string)$xp->evaluate('string(w:pPr/w:numPr/w:numId/@w:val)', $p);
+        $ilvl = (string)$xp->evaluate('string(w:pPr/w:numPr/w:ilvl/@w:val)', $p);
+        if ($numId === '') {
+            $numId = $stil['numId'];
+        }
+        if ($ilvl === '') {
+            $ilvl = $stil['ilvl'];
+        }
         if ($numId !== '' && $numId !== '0') {
-            $ilvl = (int)$xp->evaluate('string(w:pPr/w:numPr/w:ilvl/@w:val)', $p);
-            $zeichen = isset($nummeriert[$numId . '|' . $ilvl]) ? '1.' : '-';
-            return str_repeat('  ', min($ilvl, 4)) . $zeichen . ' ' . trim($text);
+            $zeichen = isset($k->nummeriert[$numId . '|' . (int)$ilvl]) ? '1.' : '-';
+            return str_repeat('   ', min((int)$ilvl, 4)) . $zeichen . ' ' . trim($text);
         }
         return trim($text);
     }
 
-    private static function laeufe(DOMElement $eltern, DOMXPath $xp, array $links, int &$bilder): string
+    private static function laeufe(DOMElement $eltern, WordKontext $k): string
     {
+        $xp = $k->xp;
         $text = '';
-        foreach ($xp->query('w:r | w:hyperlink | w:ins | w:smartTag | w:fldSimple', $eltern) as $teil) {
+        foreach ($xp->query('w:r | w:hyperlink | w:ins | w:smartTag | w:fldSimple | w:sdt/w:sdtContent', $eltern) as $teil) {
             if (!$teil instanceof DOMElement) {
                 continue;
             }
             if ($teil->localName !== 'r') {
-                $innen = self::laeufe($teil, $xp, $links, $bilder);
-                $ziel = $teil->localName === 'hyperlink' ? ($links[$teil->getAttributeNS(self::R, 'id')] ?? '') : '';
+                $innen = self::laeufe($teil, $k);
+                $ziel = $teil->localName === 'hyperlink' ? ($k->links[$teil->getAttributeNS(self::R, 'id')] ?? '') : '';
                 $text .= $ziel !== '' && trim($innen) !== '' && preg_match('#^(https?://|mailto:)#i', $ziel)
                     ? '[' . trim(str_replace(['[', ']'], '', $innen)) . '](' . str_replace([' ', ')'], ['%20', '%29'], $ziel) . ')'
                     : $innen;
                 continue;
             }
             if ($xp->query('w:drawing | w:pict | w:object', $teil)->length > 0) {
-                $bilder++;
+                $k->bilder++;
                 $text .= "\n\n" . self::BILD_HINWEIS . "\n\n";
                 continue;
             }
-            $stueck = '';
-            foreach ($teil->childNodes as $k) {
-                if (!$k instanceof DOMElement) {
-                    continue;
-                }
-                $stueck .= match ($k->localName) {
-                    't' => $k->textContent,
-                    'tab' => ' ',
-                    'br', 'cr' => "\n",
-                    default => '',
-                };
-            }
+            $stueck = self::lauftext($teil);
             if (trim($stueck) === '') {
                 $text .= $stueck;
+                continue;
+            }
+            preg_match('/^(\s*)(.*?)(\s*)$/su', $stueck, $m);
+            if (self::istCodeSchrift($teil, $xp)) {
+                // Befehl mitten im Satz: `sudo apt update`
+                $text .= $m[1] . '`' . str_replace('`', "'", $m[2]) . '`' . $m[3];
                 continue;
             }
             $fett = self::an($xp, 'w:rPr/w:b', $teil);
             $kursiv = self::an($xp, 'w:rPr/w:i', $teil);
             $marke = ($fett ? '**' : '') . ($kursiv ? '*' : '');
             // Leerzeichen gehoeren vor/hinter die Markierung, sonst erkennt Markdown sie nicht
-            preg_match('/^(\s*)(.*?)(\s*)$/su', $stueck, $m);
             $text .= $m[1] . $marke . $m[2] . strrev($marke) . $m[3];
         }
-        // Word teilt fetten Text oft in mehrere Stuecke: "**Halb****satz**" -> "**Halbsatz**",
-        // "**zwei** **Woerter**" -> "**zwei Woerter**"
-        return (string)preg_replace('/(?<!\*)\*\*([ \t]*)\*\*(?!\*)/u', '$1', $text);
+        // Word teilt Text oft in mehrere Stuecke: "**Halb****satz**" -> "**Halbsatz**",
+        // "**zwei** **Woerter**" -> "**zwei Woerter**", "`sudo``apt`" -> "`sudoapt`"
+        $text = (string)preg_replace('/(?<!\*)\*\*([ \t]*)\*\*(?!\*)/u', '$1', $text);
+        $text = (string)preg_replace('/`([ \t]*)`/u', '$1', $text);
+        // Tabs im Fliesstext: ein Leerzeichen -- am Zeilenanfang machte Markdown sonst einen Code-Block daraus
+        return str_replace("\t", ' ', $text);
+    }
+
+    /** Text eines Laufs. Bindestriche, die Word als eigenes Zeichen speichert, gehoeren dazu ("ISO-Image"). */
+    private static function lauftext(DOMElement $r): string
+    {
+        $stueck = '';
+        foreach ($r->childNodes as $k) {
+            if (!$k instanceof DOMElement) {
+                continue;
+            }
+            $stueck .= match ($k->localName) {
+                't' => $k->textContent,
+                'tab' => "\t",
+                'br', 'cr' => "\n",
+                'noBreakHyphen' => '-',
+                'softHyphen' => '',
+                default => '',
+            };
+        }
+        return str_replace(["\u{00A0}", "\u{2011}"], [' ', '-'], $stueck);
+    }
+
+    /** Ein Code-Absatz unveraendert: Tabs und Zeilenumbrueche bleiben, keine Markdown-Zeichen. */
+    private static function rohtext(DOMElement $p, DOMXPath $xp): string
+    {
+        $text = '';
+        foreach ($xp->query('.//w:r', $p) as $r) {
+            $text .= self::lauftext($r);
+        }
+        return str_replace("\t", '    ', $text);
+    }
+
+    private static function istCodeSchrift(DOMElement $r, DOMXPath $xp): bool
+    {
+        $schrift = strtolower((string)$xp->evaluate('string(w:rPr/w:rFonts/@w:ascii)', $r)
+            ?: (string)$xp->evaluate('string(w:rPr/w:rFonts/@w:hAnsi)', $r));
+        if ($schrift === '') {
+            return false;
+        }
+        foreach (self::CODE_SCHRIFTEN as $s) {
+            if (str_contains($schrift, $s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Ein Absatz, dessen gesamter Text in Schreibmaschinenschrift steht, ist ein Befehl / Code. */
+    private static function nurCodeSchrift(DOMElement $p, WordKontext $k): bool
+    {
+        $mitText = 0;
+        foreach ($k->xp->query('.//w:r', $p) as $r) {
+            if (trim(self::lauftext($r)) === '') {
+                continue;
+            }
+            if (!self::istCodeSchrift($r, $k->xp)) {
+                return false;
+            }
+            $mitText++;
+        }
+        return $mitText > 0;
     }
 
     private static function an(DOMXPath $xp, string $pfad, DOMElement $r): bool
@@ -193,15 +297,15 @@ class Hochladen
         return !in_array($wert, ['0', 'false', 'none'], true);
     }
 
-    private static function tabelle(DOMElement $tbl, DOMXPath $xp, array $links, int &$bilder): string
+    private static function tabelle(DOMElement $tbl, WordKontext $k): string
     {
         $zeilen = [];
-        foreach ($xp->query('w:tr', $tbl) as $tr) {
+        foreach ($k->xp->query('w:tr', $tbl) as $tr) {
             $zellen = [];
-            foreach ($xp->query('w:tc', $tr) as $tc) {
+            foreach ($k->xp->query('w:tc | w:sdt/w:sdtContent/w:tc', $tr) as $tc) {
                 $teile = [];
-                foreach ($xp->query('w:p', $tc) as $p) {
-                    $teile[] = trim(self::laeufe($p, $xp, $links, $bilder));
+                foreach ($k->xp->query('.//w:p', $tc) as $p) {
+                    $teile[] = trim(str_replace("\t", ' ', self::laeufe($p, $k)));
                 }
                 $zellen[] = str_replace(['|', "\n"], ['\\|', ' '], trim(implode(' ', array_filter($teile))));
             }
@@ -250,24 +354,27 @@ class Hochladen
         return $liste;
     }
 
-    /** @return array<string, int> Stil-ID => Ueberschriftsebene ("Heading2", "berschrift2", "Title" ...) */
-    private static function ueberschriften(ZipArchive $zip): array
+    /**
+     * Absatz-Formatvorlagen: Name, "basiert auf", Gliederungsebene, Nummerierung.
+     * @return array<string, array{name: string, basis: string, gliederung: string, numId: string, ilvl: string}>
+     */
+    private static function stile(ZipArchive $zip): array
     {
         $liste = [];
         $doc = self::xml($zip, 'word/styles.xml');
-        if ($doc !== null) {
-            $xp = new DOMXPath($doc);
-            $xp->registerNamespace('w', self::W);
-            foreach ($xp->query('//w:style[@w:type="paragraph"]') as $stil) {
-                $name = strtolower((string)$xp->evaluate('string(w:name/@w:val)', $stil));
-                $id = $stil->getAttributeNS(self::W, 'styleId');
-                if ($name === 'title') {
-                    $liste[$id] = 1;
-                } elseif (preg_match('/^heading (\d)$/', $name, $m)) {
-                    // Ueberschrift 1 wird "##": "#" ist der Artikeltitel
-                    $liste[$id] = min(4, (int)$m[1] + 1);
-                }
-            }
+        if ($doc === null) {
+            return [];
+        }
+        $xp = new DOMXPath($doc);
+        $xp->registerNamespace('w', self::W);
+        foreach ($xp->query('//w:style[@w:type="paragraph"]') as $stil) {
+            $liste[$stil->getAttributeNS(self::W, 'styleId')] = [
+                'name' => strtolower((string)$xp->evaluate('string(w:name/@w:val)', $stil)),
+                'basis' => (string)$xp->evaluate('string(w:basedOn/@w:val)', $stil),
+                'gliederung' => (string)$xp->evaluate('string(w:pPr/w:outlineLvl/@w:val)', $stil),
+                'numId' => (string)$xp->evaluate('string(w:pPr/w:numPr/w:numId/@w:val)', $stil),
+                'ilvl' => (string)$xp->evaluate('string(w:pPr/w:numPr/w:ilvl/@w:val)', $stil),
+            ];
         }
         return $liste;
     }

@@ -35,6 +35,7 @@ class WissenController extends ContentContainerController
 {
     protected const FLASH = 'nexus-wissen';
     protected const FLASH_FEHLER = 'nexus-wissen-fehler';
+    private const MAX_VORSCHAU = 300000;
 
     /** @var Module */
     public $module;
@@ -45,7 +46,7 @@ class WissenController extends ContentContainerController
     {
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
-            [ControllerAccess::RULE_POST => ['vorschlag', 'sprechen', 'speichern', 'wiederherstellen', 'erledigen', 'freigabe']],
+            [ControllerAccess::RULE_POST => ['vorschlag', 'sprechen', 'speichern', 'wiederherstellen', 'erledigen', 'freigabe', 'vorschau']],
         ];
     }
 
@@ -222,6 +223,18 @@ class WissenController extends ContentContainerController
         Version::speichern($artikel, trim((string)$r->post('grund')) ?: 'Bearbeitung im Portal', $this->ich()->id);
         Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert') . $this->schlagworteErgaenzen($artikel));
         return $this->redirect($artikel->url($this->sammlung));
+    }
+
+    /**
+     * Vorschau im Editor: der Markdown-Text so, wie er im Artikel aussehen wird (ohne Querverweise).
+     * Gleiche Aufbereitung wie die Artikelseite -- also auch gleich gereinigt (HtmlPurifier).
+     */
+    public function actionVorschau()
+    {
+        $this->nurBearbeitende();
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $text = mb_substr(str_replace("\r\n", "\n", (string)Yii::$app->request->post('inhalt')), 0, self::MAX_VORSCHAU);
+        return ['html' => trim($text) === '' ? '' : Darstellung::nurText($text, $this->sammlung)];
     }
 
     public function actionVersionen(string $a, int $zeige = 0)
