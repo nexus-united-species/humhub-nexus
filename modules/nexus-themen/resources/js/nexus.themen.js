@@ -113,6 +113,10 @@
         auswahl.id = id;
         auswahl.name = name;
         auswahl.className = 'form-select form-select-sm ' + klasse;
+        // HumHub merkt sich den Formularinhalt beim Laden und warnt beim Verlassen der Seite, wenn er sich
+        // geaendert hat ("Nicht gespeicherte Aenderungen gehen verloren"). Unsere Auswahl kommt erst danach
+        // dazu -- ohne dieses Kennzeichen kam die Warnung bei jedem Seitenwechsel im Kreis (19.10.2026).
+        auswahl.setAttribute('data-prevent-statechange', '');
         stand.themen.forEach(function (t) {
             var o = document.createElement('option');
             o.value = String(t.id);
