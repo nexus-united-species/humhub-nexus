@@ -33,7 +33,9 @@
         'vorstellungenKreis' => 18,           // Begrüßung: "stell dich hier vor"
         'nichtVorschlagen' => [2, 3, 4],      // Kreise, die die Begrüßung nie vorschlägt
         'willkommensrundeTermin' => 43,       // Kalendereintrag einer regelmäßigen Willkommensrunde
-        'spendenLink' => 'https://ko-fi.com/...', // ohne Link kein Spendenaufruf
+        'spendenLink' => 'https://example.org/spenden', // ohne Link kein Spendenaufruf
+        'spendenLinkZusatz' => 'https://ko-fi.com/...',  // optional: zweiter Weg ("Lieber über Ko-fi?")
+        'spendenKreise' => [4],               // optional: nur dort; leer = PERIODIC_REMINDER_SPACE_IDS
     ],
 ],
 ```
@@ -55,6 +57,6 @@
 
 **Scheduled scripts:** see the table above (run as `www-data` inside the container, e.g. via systemd timers or cron).
 
-**Settings:** see the example above – `anleitungenKreis`, `vorstellungenKreis`, `nichtVorschlagen`, `willkommensrundeTermin`, `spendenLink` (no link = no donation appeal).
+**Settings:** see the example above – `anleitungenKreis`, `vorstellungenKreis`, `nichtVorschlagen`, `willkommensrundeTermin`, `spendenLink` (no link = no donation appeal), `spendenLinkZusatz` (optional second way, e.g. Ko-fi), `spendenKreise` (spaces for the donation appeal; empty = `PERIODIC_REMINDER_SPACE_IDS`).
 
 **Note:** persona and fixed texts are tailored to N.E.X.U.S. (`services/AssistentPersona.php`, `WillkommensService.php`, `PeriodicReminderService.php`, `WeeklySummaryService.php`) – adapt them for your community. The N.E.X.U.S. knowledge base is not part of this repository.

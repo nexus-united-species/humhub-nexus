@@ -20,33 +20,35 @@ class PeriodicReminderService
     private const SPENDENAUFRUF_INTERVALL_TAGE = 10;
     private const SELBSTVORSTELLUNG_INTERVALL_TAGE = 30;
 
+    // Seit 19.10.2026 ohne Betrag "5 €" und ohne Gutschrift-Versprechen: die Foerderseite sagt
+    // ausdruecklich, dass ein Beitrag keine Token oder spaeteren Ansprueche begruendet.
     private const SPENDENAUFRUF_TEXT = <<<'TEXT'
-💛 N.E.X.U.S. mittragen – schon 5 € im Monat helfen
+💛 N.E.X.U.S. mittragen – gemeinsam statt allein
 
 N.E.X.U.S. entsteht nicht aus Kapital, sondern aus Menschen, die gemeinsam etwas Neues aufbauen wollen.
 
-Trotzdem braucht die Umsetzung reale Mittel: Entwicklung der OneApp, KI-gestützte Programmierung, Tokens, Tests, Infrastruktur, Tools und laufende technische Arbeit.
+Trotzdem braucht die Umsetzung reale Mittel: Entwicklung der OneApp, Infrastruktur und Dienste, Werkzeuge, Dokumentation und laufende Projektarbeit.
 
-Über unsere Spendenplattform sind bereits erste Unterstützungen eingegangen. Dafür ein herzliches Danke an alle, die schon etwas beigetragen haben. Den größten Teil der bisherigen Kosten hat Josh bisher selbst getragen.
+Ein herzliches Danke an alle, die schon etwas beigetragen haben. Den größten Teil der bisherigen Kosten hat Josh bisher selbst getragen.
 
-Besonders hilfreich sind wiederkehrende kleine Beiträge.
+Wir sind inzwischen über 100 Menschen hier im Portal. Wenn jede und jeder etwas beiträgt, sind zumindest die laufenden Kosten gedeckt – nicht, weil Einzelne viel leisten müssen, sondern weil viele gemeinsam ein Stück Verantwortung tragen.
 
-Wenn viele aus der Gemeinschaft monatlich nur 5 oder 10 € geben, entsteht daraus eine stabile Entwicklungsbasis. Nicht, weil Einzelne viel leisten müssen — sondern weil viele gemeinsam ein Stück Verantwortung tragen.
+Ob 10, 20 oder 50 € – monatlich oder einmalig, ganz nach deinem Ermessen. Jeder Beitrag zählt.
 
-N.E.X.U.S. ist ein Gemeinschaftsprojekt.
-Und Gemeinschaft bedeutet auch: Wir bauen nicht nur ideell mit, sondern tragen das Fundament, soweit es jedem möglich ist.
-
-Wer N.E.X.U.S. unterstützen möchte, kann das hier tun:
+Alles dazu findest du auf unserer neuen Förderseite – mit verschiedenen Zahlungswegen, auch per Banküberweisung:
 
 👉 {spendenLink}
 
-Wichtig ist mir dabei: Eure Unterstützung fällt in kein schwarzes Loch.
+Dort siehst du auch, wie viel schon zusammengekommen ist und wofür das Geld eingesetzt wird.
+{zusatz}
+N.E.X.U.S. ist ein Gemeinschaftsprojekt. Danke an alle, die es möglich machen – mit Zeit, Wissen, Herz, Vertrauen oder finanzieller Unterstützung. 💛
+TEXT;
 
-Wir bauen ein System des fairen Ausgleichs, und genau das wenden wir auch jetzt schon an. Jeder Euro, den ihr als Infrastruktur-Unterstützung beisteuert, wird von mir lückenlos in unserem Spendeneingang dokumentiert und direkt 1:1 als "Vita" (bzw. "Aura") in unserem Ätherprotokoll später hinterlegt.
+    private const SPENDENAUFRUF_ZUSATZ = <<<'TEXT'
 
-Das bedeutet: Eure eingebrachte Energie wird im Netzwerk der OneApp als euer initiales Guthaben verbucht. Ihr leistet keine Spende ins Nichts, sondern einen vorgezogenen Energie-Ausgleich. Ihr sichert euch eure ersten Ressourcen im neuen System, noch bevor es offiziell startet. Wenn die Marktplatzfunktion und das Aether-Wertesystem integriert ist, könnt ihr es wiederverwenden.
+Lieber über Ko-fi? Das geht weiterhin: 👉 {link}
+(Der Zugang zur Unterstützer-Bibliothek läuft über Ko-fi.)
 
-Danke an alle, die dieses Projekt möglich machen — mit Zeit, Wissen, Herz, Vertrauen oder finanzieller Unterstützung. 💛
 TEXT;
 
     private const SELBSTVORSTELLUNG_TEXT = <<<'TEXT'
@@ -82,8 +84,27 @@ TEXT;
         if ($link === '') {
             return false;
         }
-        $text = str_replace('{spendenLink}', $link, self::SPENDENAUFRUF_TEXT);
-        return $this->fallsFaelligPosten('donation_reminder', self::SPENDENAUFRUF_INTERVALL_TAGE, $text);
+        return $this->fallsFaelligPosten('donation_reminder', self::SPENDENAUFRUF_INTERVALL_TAGE, self::spendenText(), self::spendenKreise());
+    }
+
+    public static function spendenText(): string
+    {
+        $modul = \nexus\modules\communityAssistant\Module::instanz();
+        $zusatz = trim((string)$modul->spendenLinkZusatz) !== ''
+            ? str_replace('{link}', trim((string)$modul->spendenLinkZusatz), self::SPENDENAUFRUF_ZUSATZ)
+            : "\n";
+        return strtr(self::SPENDENAUFRUF_TEXT, ['{spendenLink}' => (string)$modul->spendenLink, '{zusatz}' => $zusatz]);
+    }
+
+    /**
+     * Seit 19.10.2026 eigene Liste (Moduleinstellung "spendenKreise"), damit der Aufruf nur in
+     * ausgewaehlten Kreisen erscheint, die Selbstvorstellung aber weiter in allen.
+     * @return int[]|null null = dieselben Kreise wie die Selbstvorstellung
+     */
+    public static function spendenKreise(): ?array
+    {
+        $kreise = array_values(array_filter(array_map('intval', (array)\nexus\modules\communityAssistant\Module::instanz()->spendenKreise)));
+        return $kreise ?: null;
     }
 
     public function selbstvorstellungFallsFaellig(): bool
@@ -91,7 +112,7 @@ TEXT;
         return $this->fallsFaelligPosten('self_intro_reminder', self::SELBSTVORSTELLUNG_INTERVALL_TAGE, self::SELBSTVORSTELLUNG_TEXT);
     }
 
-    private function fallsFaelligPosten(string $name, int $intervallTage, string $text): bool
+    private function fallsFaelligPosten(string $name, int $intervallTage, string $text, ?array $kreise = null): bool
     {
         $jetzt = new \DateTimeImmutable();
         $letzterLauf = ReminderState::letzterLauf($name);
@@ -110,7 +131,7 @@ TEXT;
             return false;
         }
 
-        $spaceIds = $this->zielSpaceIds();
+        $spaceIds = $kreise ?? $this->zielSpaceIds();
         if (empty($spaceIds)) {
             Yii::warning('nexus-community-assistant: PERIODIC_REMINDER_SPACE_IDS nicht konfiguriert -- ueberspringe ' . $name);
             return false;

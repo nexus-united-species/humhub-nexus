@@ -28,6 +28,12 @@ class Module extends BaseModule
     /** @var string|null Spendenseite fuer den Spendenaufruf; leer = kein Spendenaufruf. */
     public $spendenLink = null;
 
+    /** @var string|null Zweiter Weg (z. B. Ko-fi), im Spendenaufruf als "Lieber über …?" genannt; leer = keine Zeile. */
+    public $spendenLinkZusatz = null;
+
+    /** @var int[] Kreise fuer den Spendenaufruf; leer = dieselben wie die Selbstvorstellung (PERIODIC_REMINDER_SPACE_IDS). */
+    public $spendenKreise = [];
+
     public static function instanz(): self
     {
         return \Yii::$app->getModule('nexus-community-assistant');
