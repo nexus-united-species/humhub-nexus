@@ -20,6 +20,7 @@ KarteAsset::register($this);
 $this->title = Texte::t('v_titel');
 $ok = Yii::$app->session->getFlash('nexus-karte-ok');
 $fehler = Yii::$app->session->getFlash('nexus-karte-fehler');
+$this->registerJs(file_get_contents(dirname(__DIR__, 2) . '/resources/bestaetigen.js'));
 ?>
 <div class="panel panel-default nka">
     <div class="panel-heading">
@@ -88,7 +89,7 @@ $fehler = Yii::$app->session->getFlash('nexus-karte-fehler');
                         <?= Html::endForm() ?>
                     <?php endif; ?>
                     <?php if ($istAdmin && !$standort->isNewRecord): ?>
-                        <?= Html::beginForm(['entmarkieren'], 'post', ['onsubmit' => 'return confirm(' . json_encode(Texte::t('a_entfernen_frage')) . ')']) ?>
+                        <?= Html::beginForm(['entmarkieren'], 'post', ['data-bestaetigen' => Texte::t('a_entfernen_frage')]) ?>
                             <?= Html::hiddenInput('space_id', (int)$space->id) ?><?= Html::hiddenInput('kreis', $nurKreis) ?>
                             <button type="submit" class="btn btn-default btn-sm"><?= Html::encode(Texte::t('a_entfernen')) ?></button>
                         <?= Html::endForm() ?>

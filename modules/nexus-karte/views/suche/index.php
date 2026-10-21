@@ -15,6 +15,7 @@ $this->title = Texte::t('s_titel');
 $ok = Yii::$app->session->getFlash('nexus-karte-ok');
 $fehler = Yii::$app->session->getFlash('nexus-karte-fehler');
 $nachricht = (string)($eintrag->nachricht ?? '');
+$this->registerJs(file_get_contents(dirname(__DIR__, 2) . '/resources/bestaetigen.js'));
 ?>
 <div class="panel panel-default nka">
     <div class="panel-heading">
@@ -44,7 +45,7 @@ $nachricht = (string)($eintrag->nachricht ?? '');
                     </div>
                 <?= Html::endForm() ?>
                 <div class="nka-knoepfe">
-                    <?= Html::beginForm(['loeschen'], 'post', ['onsubmit' => 'return confirm(' . json_encode(Texte::t('s_loeschen_frage')) . ')']) ?>
+                    <?= Html::beginForm(['loeschen'], 'post', ['data-bestaetigen' => Texte::t('s_loeschen_frage')]) ?>
                         <button type="submit" class="btn btn-default btn-sm"><?= Html::encode(Texte::t('s_loeschen')) ?></button>
                     <?= Html::endForm() ?>
                 </div>
