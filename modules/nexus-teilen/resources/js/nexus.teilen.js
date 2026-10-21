@@ -50,6 +50,16 @@
         });
     }
 
+    // Rueckfrage im Fenster des Portals statt window.confirm: Firefox kann Browser-Dialoge fuer eine
+    // Seite abschalten, danach antwortet confirm() still mit "Abbrechen".
+    function frage(text) {
+        try {
+            var modal = window.humhub && humhub.require('ui.modal');
+            if (modal && modal.confirm) { return Promise.resolve(modal.confirm({ body: text })); }
+        } catch (x) { /* weiter mit dem Browser-Fenster */ }
+        return Promise.resolve(window.confirm(text));
+    }
+
     function istHandy() {
         return !!navigator.share && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     }
@@ -183,9 +193,11 @@
         f.kasten.appendChild(text);
         if (info.darf) {
             f.knopf(info.texte.knopf_oeffentlich, 'btn-primary', function () {
-                if (!window.confirm(info.texte.frage_an)) { return; }
                 f.zu();
-                setzeFreigabe(id, false).then(function () {
+                frage(info.texte.frage_an).then(function (ja) {
+                    if (!ja) { hinweis(id, info); return Promise.reject(null); }
+                    return setzeFreigabe(id, false);
+                }).then(function () {
                     return holeInfo(id);
                 }).then(function (neu) {
                     // Nach dem Speichern ist der Fingertipp "verbraucht" -- deshalb das Fenster
@@ -246,10 +258,9 @@
     function freigabe(link) {
         var id = link.getAttribute('data-nexus-freigabe');
         var an = link.getAttribute('data-an') === '1';
-        if (!window.confirm(link.getAttribute(an ? 'data-frage-aus' : 'data-frage-an'))) {
-            return;
-        }
-        setzeFreigabe(id, an).catch(function () {});
+        frage(link.getAttribute(an ? 'data-frage-aus' : 'data-frage-an')).then(function (ja) {
+            if (ja) { setzeFreigabe(id, an).catch(function () {}); }
+        });
     }
 
     /* Schaufenster (nur Admins): Vorschau zeigen, dann mit einem Klick hineinstellen -- oder herausnehmen. */
@@ -266,11 +277,13 @@
     function schaufenster(link) {
         var id = link.getAttribute('data-nexus-schaufenster');
         if (link.getAttribute('data-an') === '1') {
-            if (!window.confirm(link.getAttribute('data-frage-raus'))) { return; }
-            sende('schaufenster-aus', id).then(function (antwort) {
-                schaufensterZustand(id, false);
-                meldung(antwort.meldung, 6000);
-            }).catch(function () { meldung('⚠ Fehler – bitte noch einmal versuchen. / Error – please try again.'); });
+            frage(link.getAttribute('data-frage-raus')).then(function (ja) {
+                if (!ja) { return; }
+                sende('schaufenster-aus', id).then(function (antwort) {
+                    schaufensterZustand(id, false);
+                    meldung(antwort.meldung, 6000);
+                }).catch(function () { meldung('⚠ Fehler – bitte noch einmal versuchen. / Error – please try again.'); });
+            });
             return;
         }
         fetch(BASIS + 'vorschau?id=' + encodeURIComponent(id), {
