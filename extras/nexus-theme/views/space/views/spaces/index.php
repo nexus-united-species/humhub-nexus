@@ -24,6 +24,14 @@ use yii\web\View;
 
 CardsAsset::register($this);
 
+// Alle Kreise in einem Rutsch laden: HumHub laedt sonst 25 je Portion nach (space/spaces/load-more),
+// und das Nachladen baut die Karten im Programmcode -- ohne diese Vorlage, also ohne Ueberschriften.
+// Mit dem 26. Kreis rutschten "Themen" und "Intern" so unter "Vor Ort" (Oktober 2026). Die Abfrage
+// liest dieselben Filter (Suche, Mitgliedschaft, Sortierung) wie die des Controllers.
+// Bewusst keine Konstante: im Worker-Modus wird die Vorlage mehrfach im selben Prozess eingebunden.
+$kreiseJeSeite = 500;
+$spaces = new SpaceDirectoryQuery(['pageSize' => $kreiseJeSeite]);
+
 // [ab Sortierzahl => Ueberschrift], aufsteigend.
 $gruppen = [
     0 => 'Ankommen & Orientieren',
