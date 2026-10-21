@@ -67,6 +67,19 @@
     var stand = { fenster: true, domain: '', praefix: '', name: '', meetings: [], tueren: [], meineTuer: null, darfTuer: false, tuerStunden: 4 };
 
     function fmt(text, wert) { return text.replace('%s', wert).replace('%d', wert); }
+
+    // Rueckfrage im Fenster des Portals statt window.confirm (Firefox kann Browser-Dialoge abschalten,
+    // dann antwortet confirm() still mit "Abbrechen"). Im echten Vollbild waere sie unsichtbar -- vorher raus.
+    function frage(text) {
+        var raus = document.fullscreenElement ? document.exitFullscreen().catch(function () {}) : Promise.resolve();
+        return raus.then(function () {
+            try {
+                var modal = window.humhub && humhub.require('ui.modal');
+                if (modal && modal.confirm) { return modal.confirm({ body: text }); }
+            } catch (x) { /* weiter mit dem Browser-Fenster */ }
+            return window.confirm(text);
+        });
+    }
     var hinweis = null;
     var offen = null;           // { box, api, id }
     var apiLaden = null;        // Promise fuer kMeets external_api.js
@@ -130,7 +143,7 @@
             rein.addEventListener('click', meinenRaumBetreten);
             var zu = el('button', 'btn btn-sm btn-light nexus-tuer-zu', TT.tuerZu);
             zu.type = 'button';
-            zu.addEventListener('click', function () { if (window.confirm(TT.zuFrage)) { tuerSchliessen(); } });
+            zu.addEventListener('click', function () { frage(TT.zuFrage).then(function (ja) { if (ja) { tuerSchliessen(); } }); });
             meine.append(mt, rein, zu);
             hinweis.appendChild(meine);
         }
@@ -247,7 +260,7 @@
             vollbild.setAttribute('aria-label', vollbild.title);
         });
         raus.addEventListener('click', function () {
-            if (window.confirm(optionen.schliessenFrage || T.schliessenFrage)) { schliesseFenster(); }
+            frage(optionen.schliessenFrage || T.schliessenFrage).then(function (ja) { if (ja) { schliesseFenster(); } });
         });
 
         kmeetProgramm().then(function () {
@@ -525,7 +538,7 @@
         e.preventDefault();
         e.stopPropagation();
         if (stand.meineTuer) {
-            if (window.confirm(TT.zuFrage)) { tuerSchliessen(); }
+            frage(TT.zuFrage).then(function (ja) { if (ja) { tuerSchliessen(); } });
         } else {
             tuerFragen();
         }

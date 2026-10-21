@@ -98,3 +98,6 @@
 .nexus-tuer-erklaerung { font-size: .92rem; color: var(--bs-secondary-color, #6c757d); }
 .nexus-tuer-wahl { display: flex; gap: .5rem; align-items: center; margin: .45rem 0; font-weight: 600; cursor: pointer; }
 .nexus-tuer-knoepfe { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem; }
+
+/* Rueckfragen des Portals ("Gespraech verlassen?") muessen ueber dem Meeting-Fenster (2100) liegen */
+#globalModalConfirm { z-index: 2300; }
