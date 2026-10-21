@@ -18,7 +18,7 @@ $format = fn(?\DateTimeImmutable $d) => $d ? $d->format('d.m.Y H:i') : 'noch nie
 // Sicherheitsabfrage vor dem Loeschen. Nicht als onclick="..." im HTML: die Sicherheitsregel
 // des Portals (CSP mit nonce) blockiert solchen Code still -- die Abfrage wurde dann
 // uebersprungen und sofort geloescht. registerJs bekommt den nonce von HumHub.
-$this->registerJs("document.querySelectorAll('[data-bestaetigen]').forEach(function (k) { k.addEventListener('click', function (e) { if (!window.confirm(k.getAttribute('data-bestaetigen'))) { e.preventDefault(); } }); });");
+$this->registerJs(file_get_contents(dirname(__DIR__, 2) . '/resources/bestaetigen.js'));
 ?>
 <div class="panel panel-default">
     <div class="panel-heading">
