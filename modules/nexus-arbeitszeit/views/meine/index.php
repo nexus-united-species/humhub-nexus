@@ -20,6 +20,7 @@ $status = [
     Eintrag::STATUS_FREIGEGEBEN => ['st_freigegeben', 'naz-frei'],
     Eintrag::STATUS_RUECKSPRACHE => ['st_ruecksprache', 'naz-rueck'],
 ];
+$this->registerJs(file_get_contents(dirname(__DIR__, 2) . '/resources/bestaetigen.js'));
 ?>
 <style>
     .naz { max-width: 760px; margin: 0 auto; }
@@ -114,7 +115,7 @@ $status = [
                     <div class="naz-klein" style="margin-top:6px">💬 <?= Html::encode($e->pruefer->displayName ?? '') ?>: <?= Html::encode($e->rueckfrage) ?></div>
                 <?php endif; ?>
                 <?php if ($e->status === Eintrag::STATUS_OFFEN): ?>
-                    <?= Html::beginForm(['/nexus-arbeitszeit/meine/loeschen', 'id' => $e->id], 'post', ['style' => 'margin-top:6px', 'onsubmit' => 'return confirm(' . json_encode(Texte::t('loeschen_frage')) . ')']) ?>
+                    <?= Html::beginForm(['/nexus-arbeitszeit/meine/loeschen', 'id' => $e->id], 'post', ['style' => 'margin-top:6px', 'data-bestaetigen' => Texte::t('loeschen_frage')]) ?>
                     <button type="submit" class="btn btn-sm btn-light">🗑 <?= Html::encode(Texte::t('loeschen')) ?></button>
                     <?= Html::endForm() ?>
                 <?php endif; ?>

@@ -11,6 +11,7 @@ use yii\helpers\Url;
 
 $this->title = 'Eintrag bearbeiten';
 $stundenWert = rtrim(rtrim(number_format((float)$eintrag->stunden, 2, '.', ''), '0'), '.');
+$this->registerJs(file_get_contents(dirname(__DIR__, 2) . '/resources/bestaetigen.js'));
 ?>
 <style>
     .naz { max-width: 700px; margin: 0 auto; }
@@ -75,7 +76,7 @@ $stundenWert = rtrim(rtrim(number_format((float)$eintrag->stunden, 2, '.', ''), 
         <?php endif; ?>
 
         <hr style="margin:24px 0 14px">
-        <?= Html::beginForm(['/nexus-arbeitszeit/freigabe/entfernen', 'id' => $eintrag->id], 'post', ['onsubmit' => 'return confirm("Diesen Eintrag wirklich endgültig löschen?")']) ?>
+        <?= Html::beginForm(['/nexus-arbeitszeit/freigabe/entfernen', 'id' => $eintrag->id], 'post', ['data-bestaetigen' => 'Diesen Eintrag wirklich endgültig löschen?']) ?>
             <button type="submit" class="btn btn-danger btn-sm">🗑 Eintrag löschen</button>
             <span style="font-size:13px;opacity:.75;margin-left:8px">Nur wenn er ganz falsch ist – für Korrekturen lieber oben ändern.</span>
         <?= Html::endForm() ?>
