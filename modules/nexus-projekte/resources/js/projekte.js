@@ -41,11 +41,26 @@
             }
         }
     });
+    // Rueckfrage im Fenster des Portals statt mit window.confirm: Firefox bietet bei Browser-Rueckfragen
+    // "Diese Seite daran hindern, weitere Dialoge zu erzeugen" an -- danach antwortet confirm() still mit
+    // "Abbrechen", und der Knopf tat scheinbar nichts (Rueckmeldung eines Mitglieds, 20.10.2026).
+    function portalRueckfrage(frage) {
+        try {
+            var modal = window.humhub && humhub.require('ui.modal');
+            if (modal && modal.confirm) { return Promise.resolve(modal.confirm({ body: frage })); }
+        } catch (x) { /* weiter mit dem Browser-Fenster */ }
+        return Promise.resolve(window.confirm(frage));
+    }
     document.addEventListener('submit', function (e) {
-        var frage = e.target.getAttribute('data-nx-pj-frage');
-        if (frage && !window.confirm(frage)) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-        }
+        var form = e.target;
+        var frage = form.getAttribute('data-nx-pj-frage');
+        if (!frage || form.getAttribute('data-nx-pj-bestaetigt') === '1') { return; }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        portalRueckfrage(frage).then(function (ja) {
+            if (!ja) { return; }
+            form.setAttribute('data-nx-pj-bestaetigt', '1');
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
+        });
     }, true);
 })();
