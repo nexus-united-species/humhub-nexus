@@ -34,8 +34,8 @@ use nexus\modules\wissen\services\Texte;
         <?php if ($gezeigt !== null) : ?>
             <hr>
             <h2 style="font-size:1.15rem"><?= Html::encode($gezeigt->titel) ?> <span class="nx-ws-leise">– <?= Html::encode(Yii::$app->formatter->asDatetime($gezeigt->created_at, 'medium')) ?></span></h2>
-            <?= Html::beginForm($sammlung->url('wiederherstellen', ['a' => $artikel->slug, 'version' => $gezeigt->id]), 'post', ['onsubmit' => 'return confirm("Diese Fassung wiederherstellen? Die aktuelle bleibt in der Versionsgeschichte erhalten.");']) ?>
-                <button type="submit" class="btn btn-default btn-sm"><i class="fa fa-undo"></i> Diese Fassung wiederherstellen</button>
+            <?= Html::beginForm($sammlung->url('wiederherstellen', ['a' => $artikel->slug, 'version' => $gezeigt->id]), 'post') ?>
+                <button type="submit" class="btn btn-default btn-sm" data-nx-ws-bestaetigen="Diese Fassung wiederherstellen? Die aktuelle bleibt in der Versionsgeschichte erhalten."><i class="fa fa-undo"></i> Diese Fassung wiederherstellen</button>
             <?= Html::endForm() ?>
             <div class="nx-ws-text" style="margin-top:1rem"><?= $gezeigtHtml /* mit HtmlPurifier gereinigt */ ?></div>
         <?php endif; ?>

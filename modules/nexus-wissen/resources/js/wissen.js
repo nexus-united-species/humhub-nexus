@@ -224,11 +224,27 @@
         if (e.target.classList && e.target.classList.contains('nx-ws-editor')) { vorschauBald(e.target); }
     });
 
+    // Rueckfrage im Fenster des Portals statt window.confirm: Firefox kann Browser-Dialoge fuer eine
+    // Seite abschalten, danach antwortet confirm() still mit "Abbrechen" und der Knopf tut nichts.
+    function portalFrage(text) {
+        try {
+            var modal = window.humhub && humhub.require('ui.modal');
+            if (modal && modal.confirm) { return Promise.resolve(modal.confirm({ body: text })); }
+        } catch (x) { /* weiter mit dem Browser-Fenster */ }
+        return Promise.resolve(window.confirm(text));
+    }
+
     document.addEventListener('click', function (e) {
         var frage = e.target.closest('[data-nx-ws-bestaetigen]');
-        if (frage && !window.confirm(frage.getAttribute('data-nx-ws-bestaetigen'))) {
+        if (frage && frage.getAttribute('data-nx-ws-bestaetigt') !== '1') {
             e.preventDefault();
             e.stopPropagation();
+            portalFrage(frage.getAttribute('data-nx-ws-bestaetigen')).then(function (ja) {
+                if (!ja) { return; }
+                frage.setAttribute('data-nx-ws-bestaetigt', '1');
+                frage.click();
+                frage.removeAttribute('data-nx-ws-bestaetigt');
+            });
             return;
         }
         var format = e.target.closest('[data-nx-ws-format]');
