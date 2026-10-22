@@ -7,6 +7,7 @@
  * @var $projekt nexus\modules\projekte\models\Projekt
  * @var $karten nexus\modules\projekte\models\Karte[]
  * @var $stimmenZahl array<int, array{ok: int, aenderung: int}>
+ * @var $entwuerfe array<int, array{zahl: int, teilnehmer: int, gewaehlt: string}>
  * @var $gewaehlt nexus\modules\projekte\models\Karte|null
  * @var $ich humhub\modules\user\models\User
  * @var $meldung string|null
@@ -73,7 +74,7 @@ $this->title = $projekt->titel;
                     <?php foreach ($inSpalte as $k) : ?>
                         <?php $schritte = $k->schritte; $erledigt = count(array_filter($schritte, fn($s) => $s->erledigt)); ?>
                         <a class="nx-pj-karte<?= $gewaehlt && $gewaehlt->id === $k->id ? ' nx-pj-gewaehlt' : '' ?>" href="<?= Html::encode($k->url()) ?>">
-                            <strong><?php if ($k->istVorschlag()) : ?><i class="fa fa-lightbulb-o" title="<?= Html::encode(Texte::t('vorschlag')) ?>"></i> <?php endif; ?><?= Html::encode($k->titel) ?></strong>
+                            <strong><?php if ($k->istVorschlag()) : ?><i class="fa fa-lightbulb-o" title="<?= Html::encode(Texte::t('vorschlag')) ?>"></i> <?php elseif ($k->istAuswahl()) : ?><i class="fa fa-picture-o" title="<?= Html::encode(Texte::t('auswahl')) ?>"></i> <?php endif; ?><?= Html::encode($k->titel) ?></strong>
                             <span class="nx-pj-meta">
                                 <?php if ($k->verantwortlich) : ?>
                                     <span><i class="fa fa-user"></i> <?= Html::encode($k->verantwortlich->displayName) ?></span>
@@ -92,7 +93,15 @@ $this->title = $projekt->titel;
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
-                                <?php if ($k->ergebnis) : ?>
+                                <?php if (isset($entwuerfe[$k->id])) : ?>
+                                    <?php $e = $entwuerfe[$k->id]; ?>
+                                    <?php if ($e['gewaehlt'] !== '') : ?>
+                                        <span class="nx-pj-gruen"><i class="fa fa-picture-o"></i> <?= Html::encode(sprintf(Texte::t('auswahl_kachel_gewaehlt'), $e['gewaehlt'])) ?></span>
+                                    <?php else : ?>
+                                        <span><i class="fa fa-picture-o"></i> <?= Html::encode(sprintf(Texte::t('auswahl_kachel_zahl'), $e['zahl'])) ?></span>
+                                        <?php if ($spalte === 'abstimmung') : ?><span title="<?= Html::encode(Texte::t('auswahl_kachel_teilnehmer_titel')) ?>"><i class="fa fa-users"></i> <?= (int)$e['teilnehmer'] ?></span><?php endif; ?>
+                                    <?php endif; ?>
+                                <?php elseif ($k->ergebnis) : ?>
                                     <span class="<?= ['angenommen' => 'nx-pj-gruen', 'abgelehnt' => 'nx-pj-rot'][$k->ergebnis] ?? '' ?>"><?= Html::encode(Texte::t('ergebnis_' . $k->ergebnis)) ?></span>
                                 <?php endif; ?>
                             </span>

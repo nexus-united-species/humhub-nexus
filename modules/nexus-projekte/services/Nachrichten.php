@@ -5,6 +5,7 @@ namespace nexus\modules\projekte\services;
 use humhub\modules\post\models\Post;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\models\Karte;
+use nexus\modules\projekte\models\Option;
 use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Stimme;
 use nexus\modules\projekte\Module;
@@ -35,7 +36,13 @@ class Nachrichten
     {
         $projekt = $karte->projekt;
         $bis = $karte->abstimmung_bis ? ' – bis ' . Yii::$app->formatter->asDate($karte->abstimmung_bis, 'php:D d.m.') : '';
-        if ($karte->istVorschlag()) {
+        if ($karte->istAuswahl()) {
+            $anzahl = (int)Option::find()->where(['karte_id' => $karte->id])->count();
+            $text = sprintf(
+                "🖼️ **Bitte wähle mit: %s – %s**\n\n%d Entwürfe stehen zur Auswahl. Gib zu jedem Entwurf deine Stimme%s: Zustimmung, Bedenken oder schwerwiegender Einwand (Bedenken und Einwand bitte kurz begründen). Gewählt wird der Entwurf ohne schwerwiegenden Einwand mit den meisten Zustimmungen.\n%s",
+                $projekt->titel, $karte->titel, $anzahl, $bis, $karte->url(true)
+            );
+        } elseif ($karte->istVorschlag()) {
             $bitte = match (Entscheidung::regelFuer($karte)) {
                 'konsent' => 'Bitte nimm Stellung%s: zustimmen, Zustimmung mit Bedenken oder schwerwiegender Einwand (mit Begründung). Angenommen ist der Vorschlag, wenn niemand einen schwerwiegenden Einwand hat.',
                 'mehrheit' => 'Bitte stimm ab%s: Ja, Nein oder Enthaltung.',
@@ -92,6 +99,32 @@ class Nachrichten
             if ((int)$mensch->id !== (int)$von->id) {
                 self::senden($mensch, $karte->projekt, $text);
             }
+        }
+    }
+
+    /** Bild-Auswahl: Bedenken oder Einwand zu einem Entwurf -- an Verantwortliche und Leitung */
+    public static function entwurfRueckmeldung(Karte $karte, string $entwurf, Stimme $stimme, User $von): void
+    {
+        $was = $stimme->art === 'einwand' ? '✋ %s hat einen schwerwiegenden Einwand gegen %s in **%s**:' : '⚠️ %s hat Bedenken zu %s in **%s**:';
+        $text = sprintf($was . "\n\n> %s\n\n%s",
+            $von->displayName, $entwurf, $karte->titel, str_replace("\n", "\n> ", trim((string)$stimme->text)), $karte->url(true));
+        foreach (self::verantwortlicheUndLeitung($karte) as $mensch) {
+            if ((int)$mensch->id !== (int)$von->id) {
+                self::senden($mensch, $karte->projekt, $text);
+            }
+        }
+    }
+
+    /** Bild-Auswahl entschieden: an alle, die abgestimmt oder einen Entwurf eingestellt haben */
+    public static function auswahlErgebnis(Karte $karte, User $von): void
+    {
+        $ids = array_map('intval', Stimme::find()->select('user_id')->where(['karte_id' => $karte->id, 'runde' => $karte->runde])->column());
+        $ids = array_merge($ids, array_map('intval', Option::find()->select('created_by')->where(['karte_id' => $karte->id])->column()));
+        $ids[] = (int)$karte->verantwortlich_id;
+        $ids = array_diff(array_unique(array_filter($ids)), [(int)$von->id]);
+        $text = sprintf("🖼️ Für **%s** ist entschieden: %s.\n\n%s", $karte->titel, (string)$karte->ergebnis_text, $karte->url(true));
+        foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
+            self::senden($mensch, $karte->projekt, $text);
         }
     }
 

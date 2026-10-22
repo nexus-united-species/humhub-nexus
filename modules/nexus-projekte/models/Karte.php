@@ -26,7 +26,7 @@ use humhub\modules\user\models\User;
  * @property string $created_at
  * @property int|null $created_by
  * @property string $updated_at
- * @property string $art              aufgabe | vorschlag
+ * @property string $art              aufgabe | vorschlag | auswahl
  * @property string|null $zusammenfassung
  * @property string|null $begruendung
  * @property string|null $ergebnis     angenommen | abgelehnt | zurueckgezogen
@@ -47,7 +47,7 @@ class Karte extends ActiveRecord
     public const SPALTEN = ['offen', 'arbeit', 'abstimmung', 'fertig'];
     public const HELFER_TABELLE = 'nexus_projekt_helfer';
     public const MAX_LINKS = 8;
-    public const ARTEN = ['aufgabe', 'vorschlag'];
+    public const ARTEN = ['aufgabe', 'vorschlag', 'auswahl'];
     public const ERGEBNISSE = ['angenommen', 'abgelehnt', 'zurueckgezogen'];
     public const WEITERGABE = ['vorgelegt', 'beschlossen', 'abgelehnt'];
 
@@ -110,6 +110,12 @@ class Karte extends ActiveRecord
         return $this->art === 'vorschlag';
     }
 
+    /** Bild-Auswahl: mehrere Entwuerfe, Abstimmung im Konsent je Entwurf (services/Auswahl.php) */
+    public function istAuswahl(): bool
+    {
+        return $this->art === 'auswahl';
+    }
+
     /** @return User[] */
     public function helfer(): array
     {
@@ -159,10 +165,10 @@ class Karte extends ActiveRecord
         $this->links = $sauber === [] ? null : json_encode(array_slice($sauber, 0, self::MAX_LINKS), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
-    /** @return Stimme[] Stimmen der aktuellen Runde */
+    /** @return Stimme[] Stimmen der aktuellen Runde zur ganzen Kachel (ohne Stimmen zu einzelnen Entwuerfen) */
     public function stimmen(): array
     {
-        return Stimme::find()->where(['karte_id' => $this->id, 'runde' => $this->runde])->with('autor')->orderBy('id')->all();
+        return Stimme::find()->where(['karte_id' => $this->id, 'runde' => $this->runde, 'option_id' => 0])->with('autor')->orderBy('id')->all();
     }
 
     public function istUeberfaellig(): bool

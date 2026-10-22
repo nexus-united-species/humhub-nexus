@@ -83,7 +83,7 @@ class Entscheidung
     /** @return array<string, int> art => Anzahl in der laufenden Runde */
     public static function zahlen(Karte $karte): array
     {
-        $roh = Stimme::find()->select(['n' => 'COUNT(*)', 'art'])->where(['karte_id' => $karte->id, 'runde' => $karte->runde])
+        $roh = Stimme::find()->select(['n' => 'COUNT(*)', 'art'])->where(['karte_id' => $karte->id, 'runde' => $karte->runde, 'option_id' => 0])
             ->groupBy('art')->indexBy('art')->column();
         $zahlen = [];
         foreach (array_keys(self::optionen(self::regelFuer($karte))) as $art) {

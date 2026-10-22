@@ -12,6 +12,7 @@ use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Schritt;
 use nexus\modules\projekte\models\Stimme;
 use nexus\modules\projekte\Module;
+use nexus\modules\projekte\services\Auswahl;
 use nexus\modules\projekte\services\Dateien;
 use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Nachrichten;
@@ -93,6 +94,7 @@ class ProjektController extends ContentContainerController
             'projekt' => $projekt,
             'karten' => $karten,
             'stimmenZahl' => $this->stimmenZahl($karten),
+            'entwuerfe' => $this->entwuerfe($karten),
             'gewaehlt' => $gewaehlt,
             'ich' => $this->ich(),
             'meldung' => Yii::$app->session->getFlash(self::FLASH),
@@ -184,6 +186,12 @@ class ProjektController extends ContentContainerController
         $karte->frist = trim((string)$r->post('frist')) ?: null;
         $karte->setzeLinks($this->linksAus((string)$r->post('links')));
         $darfZuweisen = Rechte::darfLeiten($projekt, $ich);
+        // Aufgabe oder Bild-Auswahl -- eine Auswahl mit Entwuerfen bleibt eine, sonst haengen diese in der Luft
+        $art = (string)$r->post('art');
+        if ($darfZuweisen && in_array($art, ['aufgabe', 'auswahl'], true)
+            && ($art === 'auswahl' || !$karte->istAuswahl() || Auswahl::optionen($karte) === [])) {
+            $karte->art = $art;
+        }
         if ($darfZuweisen) {
             $v = $this->personen((array)$r->post('verantwortlich', []))[0] ?? null;
             $karte->verantwortlich_id = $v?->id;
@@ -241,6 +249,13 @@ class ProjektController extends ContentContainerController
             throw new NotFoundHttpException();
         }
         $this->pruefe(Rechte::darfVerschieben($karte, $ziel, $this->ich()));
+        if ($ziel === 'abstimmung' && $karte->istAuswahl() && Auswahl::optionen($karte) === []) {
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('auswahl_leer'));
+            return $this->redirect($karte->url());
+        }
+        if ($karte->spalte === 'fertig' && $karte->istAuswahl()) {
+            Auswahl::zuruecksetzen($karte);
+        }
         if ($karte->spalte === 'fertig' && $karte->istVorschlag()) {
             // Wieder geoeffnet: das alte Ergebnis gilt nicht mehr
             $karte->ergebnis = $karte->ergebnis_text = $karte->ergebnis_am = null;
@@ -317,8 +332,8 @@ class ProjektController extends ContentContainerController
             Yii::$app->session->setFlash(self::FLASH, Texte::t('zu_kurz'));
             return $this->redirect($karte->url());
         }
-        $stimme = Stimme::findOne(['karte_id' => $karte->id, 'runde' => $karte->runde, 'user_id' => $ich->id])
-            ?? new Stimme(['karte_id' => $karte->id, 'runde' => $karte->runde, 'user_id' => $ich->id]);
+        $stimme = Stimme::findOne(['karte_id' => $karte->id, 'runde' => $karte->runde, 'user_id' => $ich->id, 'option_id' => 0])
+            ?? new Stimme(['karte_id' => $karte->id, 'runde' => $karte->runde, 'user_id' => $ich->id, 'option_id' => 0]);
         $vorher = $stimme->isNewRecord ? null : [$stimme->art, $stimme->text];
         $stimme->art = $art;
         // Auch bei Zustimmung darf man ein Wort dazuschreiben
@@ -388,11 +403,33 @@ class ProjektController extends ContentContainerController
      * @param Karte[] $karten
      * @return array<int, array<string, int>> Kachel => art => Anzahl in der laufenden Runde
      */
+    /**
+     * Bild-Auswahl auf der Tafel: wie viele Entwuerfe, wie viele haben mitgewaehlt, welcher wurde es
+     * @return array<int, array{zahl: int, teilnehmer: int, gewaehlt: string}>
+     */
+    private function entwuerfe(array $karten): array
+    {
+        $liste = [];
+        foreach ($karten as $k) {
+            if (!$k->istAuswahl()) {
+                continue;
+            }
+            $optionen = Auswahl::optionen($k);
+            $gewaehlt = Auswahl::gewaehlt($optionen);
+            $liste[$k->id] = [
+                'zahl' => count($optionen),
+                'teilnehmer' => $k->spalte === 'abstimmung' ? Auswahl::teilnehmer($k) : 0,
+                'gewaehlt' => $gewaehlt ? Auswahl::buchstaben($optionen)[(int)$gewaehlt->id] : '',
+            ];
+        }
+        return $liste;
+    }
+
     private function stimmenZahl(array $karten): array
     {
         $zahl = [];
         foreach ($karten as $k) {
-            if ($k->spalte === 'abstimmung') {
+            if ($k->spalte === 'abstimmung' && !$k->istAuswahl()) {
                 $zahl[$k->id] = Entscheidung::zahlen($k);
             }
         }

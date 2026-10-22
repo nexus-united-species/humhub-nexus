@@ -12,7 +12,8 @@ use humhub\modules\user\models\User;
  * @property int $karte_id
  * @property int $runde
  * @property int $user_id
- * @property string $art     ok | aenderung
+ * @property string $art     ok | aenderung (Bild-Auswahl: zustimmung | bedenken | einwand)
+ * @property int $option_id  0 = Stimme zur Kachel, sonst Stimme zu einem Entwurf der Bild-Auswahl
  * @property string|null $text
  * @property string $created_at
  *

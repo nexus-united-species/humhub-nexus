@@ -33,6 +33,12 @@ $this->title = Texte::t($neu ? 'neue_karte' : 'karte_bearbeiten');
                 <div class="nx-pj-ganz"><label for="nx-pj-beschreibung"><?= Html::encode(Texte::t('beschreibung')) ?></label>
                     <textarea id="nx-pj-beschreibung" class="form-control" name="beschreibung" rows="3" maxlength="10000"><?= Html::encode((string)$karte->beschreibung) ?></textarea></div>
                 <?php if ($darfZuweisen) : ?>
+                    <div class="nx-pj-ganz"><label for="nx-pj-art"><?= Html::encode(Texte::t('auswahl_art')) ?></label>
+                        <select id="nx-pj-art" name="art" class="form-control">
+                            <option value="aufgabe"<?= $karte->istAuswahl() ? '' : ' selected' ?>><?= Html::encode(Texte::t('auswahl_art_aufgabe')) ?></option>
+                            <option value="auswahl"<?= $karte->istAuswahl() ? ' selected' : '' ?>><?= Html::encode(Texte::t('auswahl_art_auswahl')) ?></option>
+                        </select>
+                        <span class="nx-pj-leise"><?= Html::encode(Texte::t('auswahl_art_hilfe')) ?></span></div>
                     <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label>
                         <?= UserPickerField::widget(['name' => 'verantwortlich', 'selection' => $karte->verantwortlich ? [$karte->verantwortlich] : [],
                             'url' => $suche, 'maxSelection' => 1, 'placeholder' => Texte::t('personen')]) ?></div>

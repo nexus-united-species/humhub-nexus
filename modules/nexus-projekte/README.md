@@ -67,6 +67,8 @@ Optional settings in `protected/config/common.php`:
 
 **Requirements:** HumHub 1.18+. Interface in English, German and Spanish; messages and posts are German (`services/Nachrichten.php`).
 
+**Image selection:** A tile can be an image selection (kind of tile, set when editing it). Every circle member adds drafts (A, B, C …, images only). After “Put to the vote” everyone gives each draft “I agree”, “Agree with concerns” or “Serious objection” (the last two with a reason). Only drafts without an objection and with at least one agreement qualify; the one with the most agreements wins, on a tie the project lead chooses. If none qualifies, the tile goes back to collecting. The chosen draft is shown large, the others stay expandable. The images are stored in the circle’s files.
+
 ## Deutsch
 
 **Projekt-Tafeln für Kreise** – gemacht für Gemeinschaften, in denen viele Mitglieder keine Projektwerkzeuge gewohnt sind: eine Pinnwand mit Kacheln und Knöpfen statt Listen und Status.
@@ -82,3 +84,5 @@ Optional settings in `protected/config/common.php`:
 **Einrichten:** Modul einschalten, dann im Kreis unter Einstellungen → Module „Projekte“ aktivieren. Einstellungen siehe oben (`projektAnlegen`, `erinnern`, `abstimmungTage`). Private Nachrichten über `nexus-arbeitszeit`, sonst entfallen nur die Nachrichten.
 
 **Vorschläge und Entscheidungen:** Jedes Kreismitglied kann in einem Projekt einen Vorschlag einbringen – mit Zusammenfassung, Begründung, Textänderungen (Stelle / bisher / neu, wortgenau rot-grün) und Dateien in Fassungen (z. B. Word mit „Änderungen nachverfolgen“, Layout-Entwürfe). Je Projekt einstellbar: einfache Rückmeldung, **Konsent** (angenommen, wenn niemand einen schwerwiegenden Einwand hat) oder Mehrheit, Dauer einer Runde (Vorgabe 14 Tage) und optional ein Gremium, dem Angenommenes vorgelegt wird (z. B. die DAO) – dafür gibt es eine Beschlussvorlage zum Drucken oder als Word-Datei. Ändert sich ein Vorschlag während der Runde, beginnt eine neue Runde. Die Seite „Beschlüsse“ zeigt alles Entschiedene mit Weitergabe und Umsetzung („umgesetzt in Bauplan V14“).
+
+**Bild-Auswahl:** Eine Kachel kann eine Bild-Auswahl sein (Art beim Bearbeiten der Kachel). Jedes Kreismitglied stellt Entwürfe ein (A, B, C …, nur Bilder). Nach „Zur Abstimmung geben“ sagt jede Person zu jedem Entwurf „Ich stimme zu“, „Zustimmung mit Bedenken“ oder „Schwerwiegender Einwand“ (die beiden letzten mit Begründung). In Frage kommen nur Entwürfe ohne Einwand mit mindestens einer Zustimmung; der mit den meisten Zustimmungen gewinnt, bei Gleichstand wählt die Leitung. Trägt keiner, geht die Kachel zurück ins Sammeln. Der gewählte Entwurf wird groß gezeigt, die anderen bleiben aufklappbar. Die Bilder liegen im Dateibereich des Kreises.

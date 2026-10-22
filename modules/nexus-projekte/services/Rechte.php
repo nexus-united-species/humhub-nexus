@@ -46,8 +46,9 @@ class Rechte
 
     public static function darfVerschieben(Karte $karte, string $ziel, ?User $mensch): bool
     {
-        // Ein Vorschlag wird nicht einfach "fertig" geschoben, sondern entschieden (Ergebnis wird festgehalten)
-        if ($karte->istVorschlag() && $ziel === 'fertig') {
+        // Vorschlag und Bild-Auswahl werden nicht einfach "fertig" geschoben, sondern entschieden
+        // (Ergebnis wird festgehalten)
+        if (($karte->istVorschlag() || $karte->istAuswahl()) && $ziel === 'fertig') {
             return false;
         }
         if (self::darfLeiten($karte->projekt, $mensch)) {
@@ -89,6 +90,26 @@ class Rechte
     public static function darfEntscheiden(Karte $karte, ?User $mensch): bool
     {
         return $karte->istVorschlag() && self::darfLeiten($karte->projekt, $mensch);
+    }
+
+    /** Bild-Auswahl: Entwuerfe einstellen darf jedes Kreismitglied, solange gesammelt wird */
+    public static function darfEntwurfEinstellen(Karte $karte, ?User $mensch): bool
+    {
+        return $karte->istAuswahl() && in_array($karte->spalte, ['offen', 'arbeit'], true)
+            && $karte->projekt->status === 'aktiv' && self::istMitglied($karte->projekt->kreis, $mensch);
+    }
+
+    /** Eigenen Entwurf zuruecknehmen (die Leitung jeden) -- nur waehrend gesammelt wird */
+    public static function darfEntwurfLoeschen(Karte $karte, ?int $vonId, ?User $mensch): bool
+    {
+        return $mensch !== null && $karte->istAuswahl() && in_array($karte->spalte, ['offen', 'arbeit'], true)
+            && ((int)$vonId === (int)$mensch->id || self::darfLeiten($karte->projekt, $mensch));
+    }
+
+    /** Ergebnis der Bild-Auswahl festhalten oder zurueck ins Sammeln: die Leitung */
+    public static function darfAuswahlEntscheiden(Karte $karte, ?User $mensch): bool
+    {
+        return $karte->istAuswahl() && $karte->spalte === 'abstimmung' && self::darfLeiten($karte->projekt, $mensch);
     }
 
     public static function darfZurueckziehen(Karte $karte, ?User $mensch): bool

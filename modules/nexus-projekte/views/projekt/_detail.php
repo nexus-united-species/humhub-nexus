@@ -20,6 +20,7 @@ use nexus\modules\projekte\services\Texte;
 $url = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/projekt/' . $aktion, ['k' => $karte->id] + $p);
 $vUrl = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/vorschlag/' . $aktion, ['k' => $karte->id] + $p);
 $istVorschlag = $karte->istVorschlag();
+$istAuswahl = $karte->istAuswahl();
 $regel = Entscheidung::regelFuer($karte);
 $optionen = Entscheidung::optionen($regel);
 $helfer = $karte->helfer();
@@ -50,7 +51,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 <div class="nx-pj-detail" id="karte">
     <div style="display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap">
         <div>
-            <h2><?php if ($istVorschlag) : ?><i class="fa fa-lightbulb-o"></i> <?php endif; ?><?= Html::encode($karte->titel) ?></h2>
+            <h2><?php if ($istVorschlag) : ?><i class="fa fa-lightbulb-o"></i> <?php elseif ($istAuswahl) : ?><i class="fa fa-picture-o"></i> <?php endif; ?><?= Html::encode($karte->titel) ?></h2>
             <div class="nx-pj-leise">
                 <?php if ($karte->verantwortlich) : ?>
                     <?php if ($istVorschlag) : ?>
@@ -74,6 +75,8 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 
     <?php if ($istVorschlag) : ?>
         <?= $this->render('_vorschlag', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich]) ?>
+    <?php elseif ($istAuswahl) : ?>
+        <?= $this->render('_auswahl', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich]) ?>
     <?php endif; ?>
 
     <?php if ($karte->linkListe() !== []) : ?>
@@ -85,9 +88,10 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
     <?php endif; ?>
 
     <?php
-    // Entwuerfe & Bilder: ueber Teilschritten und Abstimmung -- wer abstimmt, sieht sofort, worum es geht
-    $fassungen = !$istVorschlag && Dateien::verfuegbar() ? Dateien::fassungen($karte) : [];
-    $darfHochladen = !$istVorschlag && $karte->spalte !== 'fertig' && Rechte::darfAbhaken($karte, $ich) && Dateien::hochladbar($kreis);
+    // Entwuerfe & Bilder: ueber Teilschritten und Abstimmung -- wer abstimmt, sieht sofort, worum es geht.
+    // Bei der Bild-Auswahl sind die Bilder die Entwuerfe A, B, C … (_auswahl.php), nicht noch einmal hier.
+    $fassungen = !$istVorschlag && !$istAuswahl && Dateien::verfuegbar() ? Dateien::fassungen($karte) : [];
+    $darfHochladen = !$istVorschlag && !$istAuswahl && $karte->spalte !== 'fertig' && Rechte::darfAbhaken($karte, $ich) && Dateien::hochladbar($kreis);
     ?>
     <?php if ($fassungen !== [] || $darfHochladen) : ?>
         <div class="nx-pj-entwuerfe">
@@ -126,7 +130,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         </ul>
     <?php endif; ?>
 
-    <?php if ($karte->spalte === 'abstimmung') : ?>
+    <?php if ($karte->spalte === 'abstimmung' && !$istAuswahl) : ?>
         <div class="nx-pj-abstimmung">
             <?php if ($karte->abstimmung_bis) : ?>
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?> <?= Html::encode(Texte::datum($karte->abstimmung_bis, 'php:D d.m.Y')) ?></div>
@@ -207,7 +211,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
             <?php if (Rechte::darfVerschieben($karte, 'abstimmung', $ich)) : ?>
                 <?php /* Rueckfrage: ein Klick stellt die Kachel zur Abstimmung UND schreibt einen Beitrag in den Kreis */ ?>
                 <?= Html::beginForm($url('verschieben'), 'post', ['style' => 'display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap',
-                    'data-nx-pj-frage' => Texte::t($fassungen === [] && !$istVorschlag ? 'zur_abstimmung_frage_ohne' : 'zur_abstimmung_frage')]) ?>
+                    'data-nx-pj-frage' => Texte::t($istAuswahl ? 'auswahl_abstimmung_frage' : ($fassungen === [] && !$istVorschlag ? 'zur_abstimmung_frage_ohne' : 'zur_abstimmung_frage'))]) ?>
                     <?= Html::hiddenInput('ziel', 'abstimmung') ?>
                     <label class="nx-pj-leise" for="nx-pj-bis" style="margin:0"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?></label>
                     <input id="nx-pj-bis" type="date" name="abstimmung_bis" class="form-control input-sm" style="width:auto" value="<?= date('Y-m-d', strtotime('+' . Entscheidung::rundenTage($karte) . ' days')) ?>" min="<?= date('Y-m-d') ?>">
@@ -215,7 +219,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 <?= Html::endForm() ?>
             <?php endif; ?>
         <?php endif; ?>
-        <?php if ($karte->spalte === 'abstimmung' && !$istVorschlag) : ?>
+        <?php if ($karte->spalte === 'abstimmung' && !$istVorschlag && !$istAuswahl) : ?>
             <?= $knopf('arbeit', 'in_arbeit', 'undo') ?>
         <?php endif; ?>
         <?php if ($karte->spalte !== 'fertig') : ?>
