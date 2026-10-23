@@ -20,8 +20,43 @@ use Yii;
 class GespraechAntwort
 {
     private const MARKE_MERKEN = '/\[\[MERKEN:\s*(.+?)\]\]\s*/u';
+    private const MARKE_QUELLEN = '/\[\[QUELLEN:\s*(.*?)\]\]\s*/su';
     private const WISSEN_TREFFER = 4;
     private const WISSEN_ZEICHEN = 2500;
+    /** Mindestpunkte der Portal-Suche: bei langen Fragen reicht sonst ein einzelnes zufaellig passendes Wort */
+    private const WISSEN_MIN_PUNKTE = 12;
+    /** Ohne Angabe der KI: so viele Dokument-Treffer als Quellen zeigen */
+    private const QUELLEN_OHNE_ANGABE = 5;
+
+    /**
+     * Unter der Antwort stehen nur die Quellen, die Nova selbst als benutzt nennt ([[QUELLEN: A | B]]) --
+     * vorher stand dort jeder Suchtreffer, auch unpassende. Unbekannte Titel fallen weg.
+     * @return array{0: string, 1: array}
+     */
+    private static function genutzteQuellen(string $antwort, array $kandidaten): array
+    {
+        $genannt = null;
+        $antwort = trim(preg_replace_callback(self::MARKE_QUELLEN, function ($m) use (&$genannt) {
+            $genannt = array_filter(array_map('trim', explode('|', $m[1])));
+            return '';
+        }, $antwort));
+        if ($genannt === null) {
+            $dokumente = array_values(array_filter($kandidaten, fn($q) => ($q['art'] ?? '') !== 'wissen'));
+            return [$antwort, array_slice($dokumente, 0, self::QUELLEN_OHNE_ANGABE)];
+        }
+        $nachTitel = [];
+        foreach ($kandidaten as $q) {
+            $nachTitel[mb_strtolower(trim((string)$q['titel']))] = $q;
+        }
+        $liste = [];
+        foreach ($genannt as $titel) {
+            $q = $nachTitel[mb_strtolower($titel)] ?? null;
+            if ($q !== null && !in_array($q, $liste, true)) {
+                $liste[] = $q;
+            }
+        }
+        return [$antwort, $liste];
+    }
 
     /**
      * @return string|null Fehlermeldung fuer das Mitglied, null bei Erfolg
@@ -63,7 +98,7 @@ class GespraechAntwort
         foreach ($merken as $punkt) {
             self::merken($mensch, $punkt);
         }
-        $quellen = array_merge($ergebnis['quellen'] ?? [], $ergebnis['wissen'] ?? []);
+        [$antwort, $quellen] = self::genutzteQuellen($antwort, array_merge($ergebnis['quellen'] ?? [], $ergebnis['wissen'] ?? []));
         (new GespraechNachricht([
             'gespraech_id' => $gespraech->id, 'rolle' => 'assistant', 'inhalt' => $antwort !== '' ? $antwort : '…',
             'quellen' => $quellen !== [] ? json_encode($quellen, JSON_UNESCAPED_UNICODE) : null,
@@ -130,6 +165,10 @@ class GespraechAntwort
             . "Zeile an: [[MERKEN: kurzer Satz in der dritten Person]]. Hoechstens eine je Antwort, nichts doppelt. "
             . 'NIE merken: Gesundheit, Religion, politische Haltung, Finanzen, Adressen, Angaben ueber andere Menschen. '
             . 'Das Mitglied sieht diese Eintraege und kann sie loeschen.',
+            "=== QUELLENANGABE ===\nHast du Treffer aus der Suche oder aus den Wissensbereichen verwendet, schreibe ganz "
+            . 'am Ende eine eigene Zeile: [[QUELLEN: Titel 1 | Titel 2]] -- mit den Titeln genau so, wie sie bei den '
+            . 'Treffern in eckigen Klammern stehen, und nur mit denen, die du wirklich benutzt hast. Das Mitglied sieht '
+            . 'diese Zeile nicht, die Quellen erscheinen darunter als Liste.',
             "=== DAS MITGLIED ===\nName: {$mensch->displayName}\nKreise: " . ($kreise !== [] ? implode(', ', $kreise) : '–')
             . "\nWas du dir gemerkt hast:\n" . ($merk !== [] ? '- ' . implode("\n- ", $merk) : '(noch nichts)'),
         ];
@@ -157,6 +196,9 @@ class GespraechAntwort
                     continue;
                 }
                 foreach (array_slice(\nexus\modules\wissen\services\Suche::suche($sammlung, $frage), 0, 2) as $t) {
+                    if ($t['punkte'] < self::WISSEN_MIN_PUNKTE) {
+                        continue;
+                    }
                     $treffer[] = [$t['punkte'], $sammlung, $t['artikel']];
                 }
             }
