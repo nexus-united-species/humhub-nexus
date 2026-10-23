@@ -109,23 +109,40 @@
     // "...finally is not a function"). Danach luden Feed und "Letzte Aktivitaeten" nicht mehr, solange
     // das Fenster offen war (Rueckmeldung 19.10. und 23.10.2026). Deshalb vorher merken und nach dem
     // Laden zuruecksetzen; kMeet arbeitet intern mit seiner eigenen Fassung weiter.
+    // core-js tauscht nicht nur window.Promise aus, sondern ueberschreibt auch Promise.prototype.then des
+    // Originals -- jede Kette lieferte danach ein Promise ohne finally/done (23.10.2026, zweiter Anlauf).
+    // Deshalb auch alle Eigenschaften von Promise und Promise.prototype merken und wiederherstellen.
     var GESCHUETZT = ['Promise', 'queueMicrotask'];
 
     function globaleMerken() {
-        var gemerkt = {};
-        GESCHUETZT.forEach(function (name) { gemerkt[name] = window[name]; });
+        var gemerkt = { werte: {} };
+        GESCHUETZT.forEach(function (name) { gemerkt.werte[name] = window[name]; });
+        gemerkt.statisch = Object.getOwnPropertyDescriptors(window.Promise);
+        gemerkt.methoden = Object.getOwnPropertyDescriptors(window.Promise.prototype);
+        gemerkt.Promise = window.Promise;
         return gemerkt;
+    }
+
+    function eigenschaftenZurueck(ziel, beschreibungen) {
+        Object.keys(beschreibungen).forEach(function (name) {
+            var jetzt = Object.getOwnPropertyDescriptor(ziel, name);
+            var vorher = beschreibungen[name];
+            if (jetzt && jetzt.value === vorher.value && jetzt.get === vorher.get) { return; }
+            try { Object.defineProperty(ziel, name, vorher); } catch (e) { /* nicht aenderbar -- dann bleibt es */ }
+        });
     }
 
     function globaleZurueck(gemerkt) {
         GESCHUETZT.forEach(function (name) {
-            if (window[name] === gemerkt[name]) { return; }
+            if (window[name] === gemerkt.werte[name]) { return; }
             try {
-                if (gemerkt[name] === undefined) { delete window[name]; } else { window[name] = gemerkt[name]; }
+                if (gemerkt.werte[name] === undefined) { delete window[name]; } else { window[name] = gemerkt.werte[name]; }
             } catch (e) {
-                Object.defineProperty(window, name, { value: gemerkt[name], writable: true, configurable: true });
+                Object.defineProperty(window, name, { value: gemerkt.werte[name], writable: true, configurable: true });
             }
         });
+        eigenschaftenZurueck(gemerkt.Promise, gemerkt.statisch);
+        eigenschaftenZurueck(gemerkt.Promise.prototype, gemerkt.methoden);
     }
 
     function kmeetProgramm() {
