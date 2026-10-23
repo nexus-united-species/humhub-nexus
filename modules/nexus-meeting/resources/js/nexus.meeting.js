@@ -103,15 +103,44 @@
     }
 
     // ── kMeet-Programm VOLLSTAENDIG laden, bevor ein Treffen startet ─────────
+    // kMeets external_api.js bringt die Nachruest-Bibliothek core-js mit. Haelt sie das Promise des
+    // Browsers fuer unvollstaendig (so im Yandex-Browser, 23.10.2026), ersetzt sie es fuer die GANZE
+    // Seite durch ihr eigenes -- ohne das, was das Portal braucht ("u.done is not a function",
+    // "...finally is not a function"). Danach luden Feed und "Letzte Aktivitaeten" nicht mehr, solange
+    // das Fenster offen war (Rueckmeldung 19.10. und 23.10.2026). Deshalb vorher merken und nach dem
+    // Laden zuruecksetzen; kMeet arbeitet intern mit seiner eigenen Fassung weiter.
+    var GESCHUETZT = ['Promise', 'queueMicrotask'];
+
+    function globaleMerken() {
+        var gemerkt = {};
+        GESCHUETZT.forEach(function (name) { gemerkt[name] = window[name]; });
+        return gemerkt;
+    }
+
+    function globaleZurueck(gemerkt) {
+        GESCHUETZT.forEach(function (name) {
+            if (window[name] === gemerkt[name]) { return; }
+            try {
+                if (gemerkt[name] === undefined) { delete window[name]; } else { window[name] = gemerkt[name]; }
+            } catch (e) {
+                Object.defineProperty(window, name, { value: gemerkt[name], writable: true, configurable: true });
+            }
+        });
+    }
+
     function kmeetProgramm() {
         if (window.JitsiMeetExternalAPI) { return Promise.resolve(); }
         if (apiLaden) { return apiLaden; }
-        apiLaden = new Promise(function (fertig, fehler) {
+        var gemerkt = globaleMerken();
+        apiLaden = new gemerkt.Promise(function (fertig, fehler) {
             var s = document.createElement('script');
             s.src = 'https://' + stand.domain + '/external_api.js';
             s.async = true;
-            s.onload = function () { window.JitsiMeetExternalAPI ? fertig() : fehler(new Error('keine API')); };
-            s.onerror = function () { apiLaden = null; fehler(new Error('nicht geladen')); };
+            s.onload = function () {
+                globaleZurueck(gemerkt);
+                if (window.JitsiMeetExternalAPI) { fertig(); } else { fehler(new Error('keine API')); }
+            };
+            s.onerror = function () { globaleZurueck(gemerkt); apiLaden = null; fehler(new Error('nicht geladen')); };
             document.head.appendChild(s);
         });
         return apiLaden;
