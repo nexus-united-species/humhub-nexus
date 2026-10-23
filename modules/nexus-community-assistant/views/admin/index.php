@@ -8,6 +8,7 @@
 /** @var \DateTimeImmutable|null $letzterSpendenaufruf */
 /** @var \DateTimeImmutable|null $letzteSelbstvorstellung */
 
+use nexus\modules\communityAssistant\services\Gespraeche;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -30,6 +31,42 @@ $this->registerJs(file_get_contents(dirname(__DIR__, 2) . '/resources/bestaetige
             Spendenaufruf zuletzt: <?= Html::encode($format($letzterSpendenaufruf)) ?> --
             Selbstvorstellung zuletzt: <?= Html::encode($format($letzteSelbstvorstellung)) ?>
         </p>
+
+        <h4 style="margin-top: 24px;" id="nova-gespraeche">Nova-Gespräche</h4>
+        <?php if (!Gespraeche::eingerichtet()) : ?>
+            <div class="alert alert-warning">Noch nicht eingerichtet: Es fehlt die Cockpit-Adresse (common.php, <code>cockpitUrl</code>) oder der Schlüssel.</div>
+        <?php endif; ?>
+        <p class="text-muted">
+            Kosten in diesem Monat: <?= Html::encode(number_format(Gespraeche::monatsKosten(), 2, ',', '.')) ?> € von
+            <?= Html::encode(number_format(Gespraeche::monatsgrenze(), 2, ',', '.')) ?> € –
+            <a href="<?= Url::to(['quellen']) ?>">Welche Dokumente durchsucht Nova?</a>
+            <br>Die Gespräche selbst sieht hier niemand – nur das Mitglied, das sie führt.
+        </p>
+        <?= Html::beginForm(['gespraeche'], 'post') ?>
+            <div class="mb-3">
+                <label for="nova-zugang" class="form-label"><strong>Zugang</strong> – Benutzernamen, einer je Zeile (Systemadmins haben immer Zugang)</label>
+                <textarea id="nova-zugang" name="zugang" class="form-control" rows="6"><?= Html::encode(implode("\n", Gespraeche::zugang())) ?></textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="nova-tageslimit" class="form-label">Nachrichten je Mensch und Tag</label>
+                    <input id="nova-tageslimit" type="number" min="0" max="500" name="tageslimit" class="form-control" value="<?= Gespraeche::tageslimit() ?>">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="nova-monatsgrenze" class="form-label">Monatsgrenze aller Gespräche (€, 0 = keine)</label>
+                    <input id="nova-monatsgrenze" type="number" min="0" step="1" name="monatsgrenze" class="form-control" value="<?= Html::encode(Gespraeche::monatsgrenze()) ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nova-modell" class="form-label">KI-Modell</label>
+                    <?= Html::dropDownList('modell', Gespraeche::modell(), Gespraeche::MODELLE, ['id' => 'nova-modell', 'class' => 'form-control']) ?>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="nova-token" class="form-label">Schlüssel für das Cockpit (<?= Gespraeche::token() !== '' ? 'ist hinterlegt – nur ausfüllen, um ihn zu ersetzen' : 'fehlt noch' ?>)</label>
+                <input id="nova-token" type="password" name="token" class="form-control" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+        <?= Html::endForm() ?>
 
         <h4 style="margin-top: 24px;">Meeting-Erinnerungen</h4>
 

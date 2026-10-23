@@ -2,7 +2,10 @@
 
 namespace nexus\modules\communityAssistant;
 
+use humhub\modules\ui\menu\MenuLink;
+use humhub\modules\user\models\User;
 use nexus\modules\communityAssistant\services\DirectMessageReplyService;
+use nexus\modules\communityAssistant\services\Gespraeche;
 use nexus\modules\communityAssistant\services\MentionReplyService;
 use Yii;
 
@@ -20,6 +23,27 @@ class Events
             'url' => ['/nexus-community-assistant/admin/index'],
             'sortOrder' => 960,
         ]);
+    }
+
+    /** "Nova" in der oberen Leiste -- nur wer die Nova-Gespraeche nutzen darf, sieht den Punkt */
+    public static function onObenMenue($event)
+    {
+        try {
+            $ich = Yii::$app->user->getIdentity();
+            if (!$ich instanceof User || !Gespraeche::darfNutzen($ich)) {
+                return;
+            }
+            $controller = Yii::$app->controller;
+            $event->sender->addEntry(new MenuLink([
+                'label' => 'Nova',
+                'url' => ['/nexus-community-assistant/gespraech/index'],
+                'icon' => 'comments',
+                'sortOrder' => 450,
+                'isActive' => $controller !== null && $controller->module->id === 'nexus-community-assistant' && $controller->id === 'gespraech',
+            ]));
+        } catch (\Throwable $e) {
+            Yii::error('nexus-community-assistant: obere Leiste: ' . $e->getMessage());
+        }
     }
 
     /**

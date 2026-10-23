@@ -6,6 +6,9 @@ use humhub\modules\space\models\Space;
 use nexus\modules\communityAssistant\models\Meeting;
 use nexus\modules\communityAssistant\models\MeetingSpace;
 use nexus\modules\communityAssistant\models\ReminderState;
+use nexus\modules\communityAssistant\services\CockpitClient;
+use nexus\modules\communityAssistant\services\Gespraeche;
+use humhub\modules\user\models\User;
 use Yii;
 use humhub\components\access\ControllerAccess;
 use humhub\modules\admin\components\Controller;
@@ -114,6 +117,42 @@ class AdminController extends Controller
 
         Yii::$app->session->setFlash('success', 'Meeting geloescht.');
         return $this->redirect(['index']);
+    }
+
+    /** Einstellungen der Nova-Gespraeche (Zugang, Tageslimit, Monatsgrenze, Modell, Schluessel) */
+    public function actionGespraeche()
+    {
+        $this->requirePost();
+        $r = Yii::$app->request;
+        $namen = array_values(array_unique(array_filter(array_map('trim', preg_split('/[\s,;]+/', (string)$r->post('zugang'))))));
+        $bekannt = User::find()->where(['username' => $namen])->select('username')->column();
+        $unbekannt = array_diff(array_map('mb_strtolower', $namen), array_map('mb_strtolower', $bekannt));
+        Gespraeche::setze('zugang', implode("\n", $namen));
+        Gespraeche::setze('tageslimit', max(0, min(500, (int)$r->post('tageslimit'))));
+        Gespraeche::setze('monatsgrenze', max(0, min(10000, (float)str_replace(',', '.', (string)$r->post('monatsgrenze')))));
+        if (isset(Gespraeche::MODELLE[(string)$r->post('modell')])) {
+            Gespraeche::setze('modell', (string)$r->post('modell'));
+        }
+        // Der Schluessel wird nie angezeigt -- nur ersetzt, wenn ein neuer eingetragen wird
+        if (trim((string)$r->post('token')) !== '') {
+            Gespraeche::setze('token', trim((string)$r->post('token')));
+        }
+        Yii::$app->session->setFlash('success', 'Nova-Gespräche gespeichert.'
+            . ($unbekannt !== [] ? ' Achtung, diese Benutzernamen gibt es nicht: ' . implode(', ', $unbekannt) : ''));
+        return $this->redirect(['index', '#' => 'nova-gespraeche']);
+    }
+
+    /** Welche Dokumente Nova in den Gespraechen durchsucht -- und welche warum nicht (aus dem Cockpit) */
+    public function actionQuellen()
+    {
+        try {
+            $quellen = CockpitClient::quellen();
+            $fehler = null;
+        } catch (\Throwable $e) {
+            $quellen = ['freigegeben' => [], 'ausgelassen' => []];
+            $fehler = $e->getMessage();
+        }
+        return $this->render('quellen', ['quellen' => $quellen, 'fehler' => $fehler]);
     }
 
     private function findMeeting(int $id): Meeting

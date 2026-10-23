@@ -31,6 +31,9 @@ class Module extends BaseModule
     /** @var string|null Zweiter Weg (z. B. Ko-fi), im Spendenaufruf als "Lieber über …?" genannt; leer = keine Zeile. */
     public $spendenLinkZusatz = null;
 
+    /** @var string|null Adresse des Cockpits fuer die Nova-Gespraeche (z. B. https://cockpit.example.org); leer = keine Gespraeche. */
+    public $cockpitUrl = null;
+
     /** @var int[] Kreise fuer den Spendenaufruf; leer = dieselben wie die Selbstvorstellung (PERIODIC_REMINDER_SPACE_IDS). */
     public $spendenKreise = [];
 

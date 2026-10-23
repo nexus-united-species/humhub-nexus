@@ -4,6 +4,7 @@ use humhub\modules\admin\widgets\AdminMenu;
 use humhub\modules\mail\models\MessageEntry;
 use humhub\modules\ui\menu\widgets\Menu;
 use humhub\modules\user\models\Mentioning;
+use humhub\widgets\TopMenu;
 use yii\db\ActiveRecord;
 
 return [
@@ -12,6 +13,8 @@ return [
     'namespace' => 'nexus\modules\communityAssistant',
     'events' => [
         ['class' => AdminMenu::class, 'event' => Menu::EVENT_RUN, 'callback' => ['nexus\modules\communityAssistant\Events', 'onAdminMenuInit']],
+        // Menuepunkt "Nova" oben -- nur fuer Menschen mit Zugang zu den Nova-Gespraechen
+        ['class' => TopMenu::class, 'event' => TopMenu::EVENT_INIT, 'callback' => ['nexus\modules\communityAssistant\Events', 'onObenMenue']],
         // Feuert bei jeder neuen @-Erwaehnung (Zeile in user_mentioning) --
         // unser Haken fuer die Direktfrage-Funktion (siehe Events::onMentioning).
         ['class' => Mentioning::class, 'event' => ActiveRecord::EVENT_AFTER_INSERT, 'callback' => ['nexus\modules\communityAssistant\Events', 'onMentioning']],
