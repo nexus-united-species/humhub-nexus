@@ -3,7 +3,7 @@
 use humhub\components\Migration;
 
 /**
- * "Suchende": Mitglieder, die in ihrer Region Mitstreiter fuer eine Gemeinschaft suchen
+ * "Suchende": Mitglieder, die in ihrer Region Mitwirkende fuer eine Gemeinschaft suchen
  * (Josh, 30.09.2026). Freiwillig, eine Zeile je Mensch, jederzeit selbst loeschbar.
  * Sichtbar nur fuer Angemeldete -- nie fuer Gaeste.
  */

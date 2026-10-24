@@ -13,7 +13,7 @@ use nexus\modules\projekte\services\Texte;
 use Yii;
 
 /**
- * "Teams – mach mit": alle Teams, die Mitstreiter suchen oder arbeiten, aus den Kreisen, die man sehen darf
+ * "Teams – mach mit": alle Teams, die Mitwirkende suchen oder arbeiten, aus den Kreisen, die man sehen darf
  * (Mitgliedschaft oder fuer alle Angemeldeten sichtbar). Private Kreise ohne Mitgliedschaft bleiben aussen vor.
  */
 class TeamsController extends Controller

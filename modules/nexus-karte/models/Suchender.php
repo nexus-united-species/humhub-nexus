@@ -6,7 +6,7 @@ use humhub\modules\user\models\User;
 use humhub\components\ActiveRecord;
 
 /**
- * Ein Mitglied, das in seiner Region Mitstreiter sucht.
+ * Ein Mitglied, das in seiner Region Mitwirkende sucht.
  *
  * @property int $user_id
  * @property string $ort

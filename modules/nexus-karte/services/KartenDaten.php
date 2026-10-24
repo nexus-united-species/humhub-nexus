@@ -52,7 +52,7 @@ class KartenDaten
     }
 
     /**
-     * Mitglieder, die in ihrer Region Mitstreiter suchen -- NUR fuer Angemeldete gedacht, wird
+     * Mitglieder, die in ihrer Region Mitwirkende suchen -- NUR fuer Angemeldete gedacht, wird
      * Gaesten nie mitgegeben. Deaktivierte Konten fehlen.
      *
      * @return array<int, array{id: int, name: string, ort: string, lat: float, lng: float, text: string, url: string}>

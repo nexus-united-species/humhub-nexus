@@ -22,7 +22,7 @@ $aktiv = array_filter($liste, static fn($e) => $e['team']->status !== 'suchend')
             <p><?= Html::encode(Texte::t('teams_ueberall_keine')) ?></p>
         <?php endif; ?>
 
-        <?php foreach ([['team_suchen_mitstreiter', $suchend], ['team_arbeiten', $aktiv]] as [$ueberschrift, $gruppe]) : ?>
+        <?php foreach ([['team_suchen_mitwirkende', $suchend], ['team_arbeiten', $aktiv]] as [$ueberschrift, $gruppe]) : ?>
             <?php if ($gruppe === []) { continue; } ?>
             <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t($ueberschrift)) ?></h2>
             <div class="nx-pj-raster">

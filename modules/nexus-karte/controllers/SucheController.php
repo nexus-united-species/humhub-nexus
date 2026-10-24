@@ -10,7 +10,7 @@ use nexus\modules\karte\services\Texte;
 use Yii;
 
 /**
- * "Ich suche Mitstreiter in meiner Region": Jedes Mitglied pflegt nur seinen EIGENEN Eintrag
+ * "Ich suche Mitwirkende in meiner Region": Jedes Mitglied pflegt nur seinen EIGENEN Eintrag
  * (die Zeile haengt an der eigenen Konto-Nummer, nie an einer mitgeschickten).
  */
 class SucheController extends Controller
