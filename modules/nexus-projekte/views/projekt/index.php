@@ -17,6 +17,7 @@ $this->title = Texte::t('projekte');
 ?>
 <div class="panel panel-default nx-pj">
     <div class="panel-body">
+        <?= $this->render('/team/_reiter', ['kreis' => $kreis, 'aktiv' => 'projekte']) ?>
         <div class="nx-pj-kopf">
             <h1><i class="fa fa-columns"></i> <?= Html::encode(Texte::t('projekte')) ?></h1>
         </div>

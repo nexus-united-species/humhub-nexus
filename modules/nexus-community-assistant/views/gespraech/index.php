@@ -11,6 +11,7 @@
  * @var int $rest
  * @var string|null $sperre
  * @var string|null $meldung
+ * @var string $vorlage
  */
 
 use nexus\modules\communityAssistant\services\Gespraeche;
@@ -163,7 +164,7 @@ JS);
                 <?php else : ?>
                     <?= Html::beginForm(['senden', 'g' => $aktiv->id], 'post', ['id' => 'nx-nova-form']) ?>
                         <label for="nx-nova-text" class="sr-only visually-hidden"><?= Html::encode($t('eingabe')) ?></label>
-                        <textarea id="nx-nova-text" name="text" class="form-control" required maxlength="<?= Gespraeche::MAX_NACHRICHT ?>" placeholder="<?= Html::encode($t('eingabe')) ?>"></textarea>
+                        <textarea id="nx-nova-text" name="text" class="form-control" required maxlength="<?= Gespraeche::MAX_NACHRICHT ?>" placeholder="<?= Html::encode($t('eingabe')) ?>"><?= Html::encode($vorlage ?? '') ?></textarea>
                         <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
                             <span class="nx-nova-hinweis"><?= Html::encode(sprintf($t('heute'), $rest, Gespraeche::tageslimit())) ?></span>
                             <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> <?= Html::encode($t('senden')) ?></button>

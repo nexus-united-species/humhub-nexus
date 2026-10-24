@@ -52,6 +52,8 @@ class GespraechController extends Controller
             'rest' => max(0, Gespraeche::tageslimit() - Gespraeche::heuteGenutzt($ich)),
             'sperre' => Gespraeche::sperre($ich),
             'meldung' => Yii::$app->session->getFlash(self::FLASH),
+            // Vorlage fuer das Eingabefeld, z. B. der Verlauf aus dem Team-Postfach (nexus-projekte)
+            'vorlage' => $aktiv !== null ? (string)Yii::$app->session->getFlash('nx-nova-vorlage', '') : '',
         ]);
     }
 

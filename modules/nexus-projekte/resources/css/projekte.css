@@ -101,3 +101,24 @@
 .nx-pj .nx-pj-andere { margin-top: .6rem; }
 .nx-pj .nx-pj-andere summary { cursor: pointer; }
 .nx-pj .nx-pj-durch { opacity: .6; }
+
+/* Teams: Reiter "Projekte | Teams", Status-Marken, Aufgabenzeilen, Postfach */
+.nx-pj .nx-pj-reiter { display: flex; gap: .3rem; border-bottom: 1px solid var(--nx-pj-rand); margin: -.2rem 0 1rem; }
+.nx-pj .nx-pj-reiter a { padding: .45rem .9rem; border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; text-decoration: none; color: var(--nx-pj-leise); font-weight: 600; margin-bottom: -1px; }
+.nx-pj .nx-pj-reiter a:hover, .nx-pj .nx-pj-reiter a:focus-visible { color: var(--bs-primary); }
+.nx-pj .nx-pj-reiter a.nx-pj-reiter-an { color: inherit; border-color: var(--nx-pj-rand); background: var(--bs-body-bg, #fff); }
+.nx-pj .nx-pj-team-status { display: inline-block; font-size: .78rem; font-weight: 600; border-radius: 999px; padding: .05rem .55rem; margin-bottom: .3rem; background: var(--nx-pj-flaeche); }
+.nx-pj .nx-pj-team-suchend { background: var(--bs-warning-bg-subtle, #fff3cd); color: var(--bs-warning-text-emphasis, #664d03); }
+.nx-pj .nx-pj-team-aktiv { background: var(--bs-success-bg-subtle, #d1e7dd); color: var(--bs-success-text-emphasis, #0a3622); }
+.nx-pj .nx-pj-team-auftrag { display: block; margin-top: .25rem; }
+.nx-pj .nx-pj-team-zeile { display: grid; grid-template-columns: minmax(0, 3fr) minmax(7rem, 1fr) minmax(8rem, 1.4fr); gap: .4rem; margin-bottom: .4rem; }
+@media (max-width: 575px) { .nx-pj .nx-pj-team-zeile { grid-template-columns: 1fr 1fr; } .nx-pj .nx-pj-team-titel { grid-column: 1 / -1; } }
+.nx-pj .nx-pj-team-rollen { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; margin-top: .3rem; font-size: .9rem; align-items: center; }
+.nx-pj .nx-pj-team-rollen form { display: inline; margin: 0; }
+.nx-pj .nx-pj-team-weg { padding: 0 .3rem; text-decoration: none; }
+.nx-pj .nx-pj-team-mitglieder { list-style: none; padding: 0; margin: 0 0 .5rem; display: flex; flex-direction: column; gap: .35rem; }
+.nx-pj .nx-pj-team-marke { font-size: .75rem; font-weight: 600; border: 1px solid var(--bs-primary); color: var(--bs-primary); border-radius: 999px; padding: 0 .45rem; margin-left: .3rem; }
+.nx-pj .nx-pj-team-post li { align-items: flex-start; flex-wrap: wrap; }
+.nx-pj .nx-pj-team-post-offen { font-weight: 600; color: var(--bs-primary); }
+.nx-pj .nx-pj-team-post-kreisleitung { font-weight: 600; color: var(--bs-danger, #dc3545); }
+.nx-pj .nx-pj-team-mitmachen summary, .nx-pj details > summary { cursor: pointer; }

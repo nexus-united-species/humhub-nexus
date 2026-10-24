@@ -11,7 +11,10 @@ use nexus\modules\projekte\services\Texte;
 <div class="container">
 <div class="panel panel-default nx-pj">
     <div class="panel-body">
-        <h1 style="font-size:1.5rem;margin:0 0 1rem"><i class="fa fa-check-square-o"></i> <?= Html::encode(Texte::t('meine_aufgaben')) ?></h1>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem">
+            <h1 style="font-size:1.5rem;margin:0"><i class="fa fa-check-square-o"></i> <?= Html::encode(Texte::t('meine_aufgaben')) ?></h1>
+            <a class="btn btn-light btn-sm" href="<?= Html::encode(\yii\helpers\Url::to(['/nexus-projekte/teams/index'])) ?>"><i class="fa fa-users"></i> <?= Html::encode(Texte::t('teams_mach_mit')) ?></a>
+        </div>
         <?php if ($eintraege === []) : ?>
             <p><?= Html::encode(Texte::t('meine_leer')) ?></p>
         <?php else : ?>

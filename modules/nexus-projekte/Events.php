@@ -29,11 +29,11 @@ class Events
                 return;
             }
             $event->sender->addEntry(new MenuLink([
-                'label' => Texte::t('projekte'),
+                'label' => Texte::t('projekte_und_teams'),
                 'url' => $kreis->createUrl('/nexus-projekte/projekt/index'),
                 'icon' => 'columns',
                 'sortOrder' => self::MENUE_KREIS,
-                'isActive' => self::aktiv('projekt'),
+                'isActive' => self::aktiv('projekt') || self::aktiv('team'),
             ]));
         } catch (Throwable $e) {
             Yii::error('nexus-projekte: Kreis-Menue: ' . $e->getMessage(), 'nexus-projekte');

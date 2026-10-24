@@ -37,6 +37,9 @@ class Module extends ContentContainerModule
     /** @var bool Erinnerungen an Fristen und Abstimmungen als private Nachricht (braucht nexus-arbeitszeit) */
     public $erinnern = true;
 
+    /** @var int[] Kreise (Space-IDs), in denen nur Systemadmins Teams ausschreiben -- sonst Kreisbesitz/-Admins */
+    public $teamsNurAdmins = [];
+
     /** @var int Tage, die eine Abstimmung laeuft, wenn kein Datum gewaehlt wird */
     public $abstimmungTage = 7;
 

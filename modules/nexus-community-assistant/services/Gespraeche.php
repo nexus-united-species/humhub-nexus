@@ -56,6 +56,12 @@ class Gespraeche
             . 'Stimme und seine Aussage bei, mache den Text klarer, verstaendlicher und fehlerfrei und achte auf '
             . 'die N.E.X.U.S.-Begriffe. Gib zuerst den ueberarbeiteten Text, danach kurz die wichtigsten '
             . 'Aenderungen. Frag nach Zweck und Leserkreis, wenn das unklar ist.'],
+        'antwort' => ['reply',
+            'Das Mitglied moechte eine Nachricht beantworten, die an sein Team oder an N.E.X.U.S. ging -- meist steht '
+            . 'der bisherige Verlauf in der ersten Nachricht. Erfasse, was die schreibende Person eigentlich wissen '
+            . 'oder erreichen will, pruefe Inhaltliches mit den Dokumenten und schlage eine kurze, freundliche, '
+            . 'ehrliche Antwort in der Sprache der Unterhaltung vor. Versprich nichts, was nicht entschieden ist, und '
+            . 'nenne offen, was das Team noch klaeren oder an die Kreisleitung geben sollte.'],
     ];
 
     private const TEXTE = [
@@ -67,6 +73,7 @@ class Gespraeche
             'art_idee' => 'Idee entwickeln', 'art_idee_hilfe' => 'Gemeinsam eine Idee weiterdenken',
             'art_pruefen' => 'Kritisch prüfen lassen', 'art_pruefen_hilfe' => 'Nova sucht Lücken und Risiken in deiner Idee oder deinem Text',
             'art_text' => 'Text überarbeiten', 'art_text_hilfe' => 'Einen Beitrag, Brief oder Flyer klarer und fehlerfrei machen',
+            'art_antwort' => 'Antwort vorbereiten', 'art_antwort_hilfe' => 'Eine Nachricht an dich oder dein Team gut beantworten',
             'starten' => 'Gespräch beginnen',
             'keine' => 'Noch keine Gespräche. Wähle links, worum es gehen soll.',
             'eingabe' => 'Deine Nachricht an Nova …',
@@ -97,6 +104,7 @@ class Gespraeche
             'art_idee' => 'Develop an idea', 'art_idee_hilfe' => 'Think an idea further together',
             'art_pruefen' => 'Get critical feedback', 'art_pruefen_hilfe' => 'Nova looks for gaps and risks in your idea or text',
             'art_text' => 'Improve a text', 'art_text_hilfe' => 'Make a post, letter or flyer clearer and error-free',
+            'art_antwort' => 'Prepare a reply', 'art_antwort_hilfe' => 'Answer a message to you or your team well',
             'starten' => 'Start conversation',
             'keine' => 'No conversations yet. Choose on the left what it should be about.',
             'eingabe' => 'Your message to Nova …',
@@ -127,6 +135,7 @@ class Gespraeche
             'art_idee' => 'Desarrollar una idea', 'art_idee_hilfe' => 'Pensar juntos una idea',
             'art_pruefen' => 'Revisión crítica', 'art_pruefen_hilfe' => 'Nova busca lagunas y riesgos en tu idea o tu texto',
             'art_text' => 'Mejorar un texto', 'art_text_hilfe' => 'Hacer más claro y sin errores una publicación, carta o folleto',
+            'art_antwort' => 'Preparar una respuesta', 'art_antwort_hilfe' => 'Responder bien a un mensaje para ti o tu equipo',
             'starten' => 'Empezar conversación',
             'keine' => 'Todavía no hay conversaciones. Elige a la izquierda de qué se trata.',
             'eingabe' => 'Tu mensaje a Nova …',
@@ -250,7 +259,18 @@ class Gespraeche
         if ($mensch === null || !self::eingerichtet()) {
             return false;
         }
-        return $mensch->isSystemAdmin() || in_array(mb_strtolower($mensch->username), array_map('mb_strtolower', self::zugang()), true);
+        return $mensch->isSystemAdmin() || in_array(mb_strtolower($mensch->username), array_map('mb_strtolower', self::zugang()), true)
+            || self::imTeam($mensch);
+    }
+
+    /** Wer in einem Team mitarbeitet (Modul nexus-projekte), bekommt Nova automatisch -- Josh, 24.10.2026 */
+    private static function imTeam(User $mensch): bool
+    {
+        try {
+            return (new \yii\db\Query())->from('nexus_team_mitglied')->where(['user_id' => $mensch->id, 'status' => 'dabei'])->exists();
+        } catch (\Throwable $e) {
+            return false;   // Modul nexus-projekte ohne Teams-Tabelle
+        }
     }
 
     public static function heuteGenutzt(User $mensch): int

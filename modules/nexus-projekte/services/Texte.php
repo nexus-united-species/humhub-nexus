@@ -250,7 +250,9 @@ class Texte
     {
         $sprache = self::sprache();
         return self::TEXTE[$sprache][$schluessel] ?? TexteVorschlag::TEXTE[$sprache][$schluessel] ?? TexteAuswahl::TEXTE[$sprache][$schluessel]
-            ?? self::TEXTE['en'][$schluessel] ?? TexteVorschlag::TEXTE['en'][$schluessel] ?? TexteAuswahl::TEXTE['en'][$schluessel] ?? $schluessel;
+            ?? TexteTeam::TEXTE[$sprache][$schluessel]
+            ?? self::TEXTE['en'][$schluessel] ?? TexteVorschlag::TEXTE['en'][$schluessel] ?? TexteAuswahl::TEXTE['en'][$schluessel]
+            ?? TexteTeam::TEXTE['en'][$schluessel] ?? $schluessel;
     }
 
     public static function datum(?string $datum, string $format = 'medium'): string
