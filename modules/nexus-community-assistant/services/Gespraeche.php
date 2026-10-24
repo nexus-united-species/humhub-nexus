@@ -151,10 +151,50 @@ class Gespraeche
         ],
     ];
 
-    public static function t(string $schluessel): string
+    /**
+     * Eine Nova, zwei Rollen (Josh, 24.10.2026): "Nova (KI-Assistent)" = das Konto mit kurzen Antworten und
+     * festen Nachrichten, "Nova – Gespraeche" = ausfuehrlich, mit Quellen und Gedaechtnis. Diese Texte machen
+     * den Unterschied sichtbar.
+     */
+    private const ROLLEN = [
+        'de' => [
+            'untertitel' => 'ausführlich, mit Quellen und Gedächtnis',
+            'wegweiser' => 'Ausführlicher, mit Quellen und Gedächtnis: [Nova – Gespräche](%s)',
+            'automatisch' => '🤖 Automatische Nachricht von Nova (KI-Assistent)',
+        ],
+        'en' => [
+            'untertitel' => 'in depth, with sources and memory',
+            'wegweiser' => 'In more depth, with sources and memory: [Nova – Conversations](%s)',
+            'automatisch' => '🤖 Automatic message from Nova (AI assistant)',
+        ],
+        'es' => [
+            'untertitel' => 'en profundidad, con fuentes y memoria',
+            'wegweiser' => 'Con más detalle, con fuentes y memoria: [Nova – Conversaciones](%s)',
+            'automatisch' => '🤖 Mensaje automático de Nova (asistente de IA)',
+        ],
+    ];
+
+    public static function t(string $schluessel, ?string $sprache = null): string
     {
-        $sprache = substr((string)Yii::$app->language, 0, 2);
-        return self::TEXTE[$sprache][$schluessel] ?? self::TEXTE['de'][$schluessel] ?? $schluessel;
+        $sprache = substr($sprache ?: (string)Yii::$app->language, 0, 2);
+        return self::TEXTE[$sprache][$schluessel] ?? self::ROLLEN[$sprache][$schluessel]
+            ?? self::TEXTE['de'][$schluessel] ?? self::ROLLEN['de'][$schluessel] ?? $schluessel;
+    }
+
+    /** Feste Nachrichten (Erinnerungen, Spendenaufruf) als solche kennzeichnen -- die schreibt keine KI frei */
+    public static function mitHinweisAutomatisch(string $text, ?string $sprache = 'de'): string
+    {
+        return rtrim($text) . "\n\n_" . self::t('automatisch', $sprache) . '_';
+    }
+
+    /** Unter Novas kurzer Antwort auf eine private Nachricht: Weg zu den Gespraechen -- nur fuer, wer Zugang hat */
+    public static function wegweiser(?User $mensch): string
+    {
+        if (!self::darfNutzen($mensch)) {
+            return '';
+        }
+        $url = rtrim((string)Yii::$app->settings->get('baseUrl'), '/') . '/nexus-community-assistant/gespraech/index';
+        return "\n\n_" . sprintf(self::t('wegweiser', $mensch->language ?: 'de'), $url) . '_';
     }
 
     // ── Einstellungen ───────────────────────────────────────────────────────

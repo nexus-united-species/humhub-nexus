@@ -140,7 +140,7 @@ TEXT;
         $poster = new PosterService($this->assistantUserId);
         foreach ($spaceIds as $spaceId) {
             try {
-                $poster->postInSpace($spaceId, $text);
+                $poster->postInSpace($spaceId, Gespraeche::mitHinweisAutomatisch($text));
             } catch (\Throwable $e) {
                 Yii::error("nexus-community-assistant: {$name} -> Space {$spaceId} fehlgeschlagen: " . $e->getMessage());
             }

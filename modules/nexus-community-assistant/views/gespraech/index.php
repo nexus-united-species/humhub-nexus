@@ -81,7 +81,8 @@ JS);
 <div class="container nx-nova">
     <div class="nx-nova-seite">
         <div class="panel panel-default">
-            <div class="panel-heading"><strong><i class="fa fa-comments"></i> <?= Html::encode($t('titel')) ?></strong></div>
+            <div class="panel-heading"><strong><i class="fa fa-comments"></i> <?= Html::encode($t('titel')) ?></strong>
+                <div class="nx-nova-hinweis"><?= Html::encode($t('untertitel')) ?></div></div>
             <div class="panel-body">
                 <div class="nx-nova-liste">
                     <?php foreach ($gespraeche as $g) : ?>

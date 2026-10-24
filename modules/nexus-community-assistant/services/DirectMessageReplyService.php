@@ -106,6 +106,10 @@ class DirectMessageReplyService
         }
 
         [$antwort, $anMenschen] = Weitergabe::zerlegen($antwort);
+        if (!$anMenschen) {
+            // Testgruppe: Hinweis auf die ausfuehrliche Fassung (Nova – Gespraeche)
+            $antwort .= Gespraeche::wegweiser($absender);
+        }
         (new PosterService($assistentId))->antwortenInKonversation((int)$entry->message_id, $antwort);
         if ($anMenschen) {
             Weitergabe::anMenschen($absender, $frage, $antwort, 'private Nachricht an Nova – die sehen nur die beiden');

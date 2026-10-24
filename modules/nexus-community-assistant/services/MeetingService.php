@@ -77,7 +77,7 @@ class MeetingService
         $poster = new PosterService($this->assistantUserId);
         foreach ($meeting->zielSpaceIds() as $spaceId) {
             try {
-                $poster->postInSpace($spaceId, $meeting->message);
+                $poster->postInSpace($spaceId, Gespraeche::mitHinweisAutomatisch($meeting->message));
             } catch (\Throwable $e) {
                 Yii::error("nexus-community-assistant: Meeting '{$meeting->title}' -> Space {$spaceId} fehlgeschlagen: " . $e->getMessage());
             }

@@ -150,7 +150,8 @@ class WillkommensService
             $t['schluss'],
         ];
         $absaetze = array_filter($absaetze, static fn($absatz) => $absatz !== null);
-        return ['titel' => $t['titel'], 'text' => implode("\n\n", $absaetze), 'kreis_id' => $kreisId];
+        // Gekennzeichnet als automatische Nachricht von Nova (KI-Assistent) -- Josh, 24.10.2026
+        return ['titel' => $t['titel'], 'text' => Gespraeche::mitHinweisAutomatisch(implode("\n\n", $absaetze), $sprache), 'kreis_id' => $kreisId];
     }
 
     /** Begruesst einen Menschen genau einmal. true = gesendet. */
