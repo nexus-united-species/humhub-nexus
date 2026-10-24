@@ -3,6 +3,7 @@
 namespace nexus\modules\projekte\services;
 
 use humhub\modules\cfiles\models\Folder;
+use humhub\modules\content\models\Content;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\models\Datei;
@@ -89,7 +90,21 @@ class Dateien
         $kreis = $karte->projekt->kreis;
         $ordner = Folder::getOrInitRoot($kreis);
         foreach ([self::ORDNER, self::sauber($karte->projekt->titel, 100), self::sauber('#' . $karte->id . ' ' . $karte->titel, 100)] as $name) {
-            $ordner = $ordner->findFolderByName($name) ?? self::neuerOrdner($ordner, $name);
+            $gefunden = $ordner->findFolderByName($name);
+            $ordner = $gefunden !== null ? self::lebendig($gefunden) : self::neuerOrdner($ordner, $name);
+        }
+        return $ordner;
+    }
+
+    /**
+     * findFolderByName findet auch einen als geloescht markierten Ordner. Neue Dateien landeten dann darin --
+     * und HumHub raeumt einmal am Tag alles Geloeschte endgueltig weg, samt Inhalt (PurgeDeletedContents).
+     * So verschwanden am 23./24.10.2026 18 Entwuerfe der Kalender-Kacheln. Deshalb den Ordner wieder hervorholen.
+     */
+    private static function lebendig(Folder $ordner): Folder
+    {
+        if ((int)$ordner->content->state === Content::STATE_DELETED) {
+            $ordner->content->updateAttributes(['state' => Content::STATE_PUBLISHED]);
         }
         return $ordner;
     }
