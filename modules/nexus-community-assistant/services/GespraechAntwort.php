@@ -138,8 +138,14 @@ class GespraechAntwort
     public static function anweisung(Gespraech $gespraech, User $mensch): string
     {
         $art = Gespraeche::ARTEN[$gespraech->art] ?? Gespraeche::ARTEN['frage'];
-        $kreise = Membership::find()->joinWith('space')->where(['space_membership.user_id' => $mensch->id, 'space_membership.status' => Membership::STATUS_MEMBER])
-            ->select('space.name')->column();
+        // Kreise, die jemand leitet (Besitz oder Kreis-Admin), stehen dabei -- Nova soll Kreisleitungen beim
+        // Fuehren ihres Kreises helfen (Josh, 24.10.2026)
+        $kreise = [];
+        foreach (Membership::find()->joinWith('space')->where(['space_membership.user_id' => $mensch->id, 'space_membership.status' => Membership::STATUS_MEMBER])
+                     ->select(['space.name', 'space.created_by', 'space_membership.group_id'])->asArray()->all() as $z) {
+            $leitet = (int)$z['created_by'] === (int)$mensch->id || $z['group_id'] === 'admin';
+            $kreise[] = $z['name'] . ($leitet ? ' (du leitest diesen Kreis)' : '');
+        }
         $merk = Merkpunkt::find()->where(['user_id' => $mensch->id])->orderBy('id')->select('text')->column();
         $sprache = substr((string)($mensch->language ?: Yii::$app->language), 0, 2);
 
@@ -157,7 +163,9 @@ class GespraechAntwort
             . "(noch) nicht entschieden. Erfinde keine Beschluesse, Zahlen oder Termine.\n"
             . "- Sprich respektvoll ueber Menschen ausserhalb und innerhalb der Gemeinschaft, auch ueber Kritiker.\n"
             . "- Bei Konto-Problemen, Konflikten zwischen Mitgliedern oder Wuenschen ans Team: verweise freundlich "
-            . "auf das Support-Team bzw. die Kreis-Admins.",
+            . "auf das Support-Team bzw. die Kreis-Admins.\n"
+            . "- Leitet das Mitglied einen Kreis, hilf ihm auch beim Fuehren: Treffen vorbereiten, Einladungen und Beitraege "
+            . "formulieren, Projekte planen (Projekt-Tafel im Kreis), Gruppendynamik und Gruendungsschritte vor Ort.",
             "=== FORM ===\nMarkdown mit kurzen Absaetzen, Aufzaehlungen wo hilfreich. So lang wie noetig, so kurz wie "
             . 'moeglich. Ein Link nur, wenn du ihn aus den Unterlagen kennst.',
             "=== GEDAECHTNIS ===\nErzaehlt das Mitglied etwas Bleibendes ueber sich, das dir in spaeteren Gespraechen "
