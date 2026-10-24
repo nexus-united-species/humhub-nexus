@@ -10,6 +10,7 @@ class TexteTeam
 {
     public const TEXTE = [
         'de' => [
+            'teams_und_aufgaben' => 'Teams & Aufgaben',
             'projekte_und_teams' => 'Projekte & Teams',
             'teams' => 'Teams',
             'teams_erklaerung' => 'Teams tragen Arbeit gemeinsam und dauerhaft – damit nicht alles bei einer Person landet.',
@@ -130,6 +131,7 @@ class TexteTeam
             'team_kein_recht' => 'Das darfst du in diesem Team nicht.',
         ],
         'en' => [
+            'teams_und_aufgaben' => 'Teams & tasks',
             'projekte_und_teams' => 'Projects & teams',
             'teams' => 'Teams',
             'teams_erklaerung' => 'Teams carry work together and for the long run – so not everything lands on one person.',
@@ -250,6 +252,7 @@ class TexteTeam
             'team_kein_recht' => 'You are not allowed to do that in this team.',
         ],
         'es' => [
+            'teams_und_aufgaben' => 'Equipos y tareas',
             'projekte_und_teams' => 'Proyectos y equipos',
             'teams' => 'Equipos',
             'teams_erklaerung' => 'Los equipos llevan el trabajo juntos y de forma duradera, para que no todo recaiga en una sola persona.',

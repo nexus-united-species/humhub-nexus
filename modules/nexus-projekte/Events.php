@@ -50,7 +50,7 @@ class Events
             }
             $anzahl = MeineAufgaben::anzahl($ich);
             $event->sender->addEntry(new MenuLink([
-                'label' => Texte::t('meine_aufgaben') . ($anzahl > 0 ? " ($anzahl)" : ''),
+                'label' => Texte::t('teams_und_aufgaben') . ($anzahl > 0 ? " ($anzahl)" : ''),
                 'url' => ['/nexus-projekte/meine/index'],
                 'icon' => 'check-square-o',
                 'sortOrder' => self::MENUE_OBEN,
