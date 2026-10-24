@@ -2,6 +2,7 @@
 
 namespace nexus\modules\wissen\services;
 
+use humhub\modules\space\models\Membership;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\wissen\models\Thema;
@@ -173,7 +174,9 @@ class Sammlung
 
     /**
      * Redaktion einer Sammlung: Systemadmins und Besitzer/Admins ihres Kreises (Josh, 18.10.2026 --
-     * vorher nur Systemadmins). Sie schreiben Artikel, pflegen Kategorien und geben frei.
+     * vorher nur Systemadmins), seit 24.10.2026 auch die Moderatoren des Kreises: Wer Wissen pflegt, soll
+     * dafuer nicht gleich den ganzen Kreis verwalten muessen. Sie schreiben Artikel, pflegen Kategorien und
+     * geben frei. Einen Wissensbereich ANLEGEN bleibt Besitz/Admins (EinrichtenController).
      */
     public function darfBearbeiten(?User $mensch): bool
     {
@@ -184,8 +187,16 @@ class Sammlung
             return true;
         }
         $kreis = $this->kreis();
+        if ($kreis === null) {
+            return false;
+        }
         // isAdmin() immer mit der ID -- ohne sie fragt HumHub nach dem gerade angemeldeten Menschen
-        return $kreis !== null && $kreis->isAdmin((int)$mensch->id);
+        if ($kreis->isAdmin((int)$mensch->id)) {
+            return true;
+        }
+        $mitgliedschaft = $kreis->getMembership((int)$mensch->id);
+        return $mitgliedschaft !== null && $mitgliedschaft->group_id === Space::USERGROUP_MODERATOR
+            && (int)$mitgliedschaft->status === Membership::STATUS_MEMBER;
     }
 
     public function darfLesen(?User $mensch): bool
@@ -211,7 +222,8 @@ class Sammlung
         $kreis = $this->kreis();
         if ($kreis !== null) {
             foreach (User::find()->innerJoin('space_membership m', 'm.user_id = user.id')
-                ->where(['m.space_id' => $kreis->id, 'm.group_id' => Space::USERGROUP_ADMIN, 'user.status' => User::STATUS_ENABLED])->all() as $u) {
+                ->where(['m.space_id' => $kreis->id, 'm.group_id' => [Space::USERGROUP_ADMIN, Space::USERGROUP_MODERATOR],
+                    'm.status' => Membership::STATUS_MEMBER, 'user.status' => User::STATUS_ENABLED])->all() as $u) {
                 $liste[$u->id] = $u;
             }
             $besitzer = User::findOne(['id' => $kreis->created_by, 'status' => User::STATUS_ENABLED]);
