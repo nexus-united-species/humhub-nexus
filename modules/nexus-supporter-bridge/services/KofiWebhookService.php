@@ -65,6 +65,17 @@ class KofiWebhookService
 
         SupporterEvent::protokollieren(SupporterEvent::PAYMENT_RECEIVED, null, $messageId);
 
+        // Finanzierungs-Ampel (Modul nexus-finanzen, falls eingeschaltet): jede Zahlung als Eingang --
+        // auch ohne E-Mail. Ein Fehler dort darf die Freischaltung hier nie aufhalten.
+        $finanzen = 'nexus\modules\finanzen\services\Buchung';
+        if (\Yii::$app->hasModule('nexus-finanzen') && class_exists($finanzen)) {
+            try {
+                $finanzen::vonKofi($messageId, $amount, $currency, (string)($payload['type'] ?? ''));
+            } catch (\Throwable $e) {
+                \Yii::error('Ko-fi -> Finanzierungs-Ampel fehlgeschlagen: ' . $e->getMessage(), 'nexus-supporter-bridge');
+            }
+        }
+
         if ($email === '') {
             return ['status' => 200, 'message' => 'Keine E-Mail im Ereignis -- ignoriert'];
         }

@@ -1,0 +1,8 @@
+{
+    "id": "nexus-finanzen",
+    "name": "N.E.X.U.S. Finanzierungs-Ampel",
+    "description": "Gemeinsam finanzieren: Kostenkacheln (laufend, optional, einmalig) mit Ampel, Einnahmen (Ko-fi automatisch, sonst von Hand), Monatsverteilung mit Vier-Augen-Freigabe und oeffentliche Zahlen ohne Namen fuer die eigene Webseite.",
+    "keywords": ["nexus", "finanzen", "spenden", "transparenz"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

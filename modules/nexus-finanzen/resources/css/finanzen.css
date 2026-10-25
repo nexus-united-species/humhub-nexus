@@ -1,0 +1,51 @@
+/* Finanzierungs-Ampel -- Farben aus dem Theme (Bootstrap-5-Variablen), damit hell und dunkel passen */
+.nx-fin { --nx-fin-rand: var(--bs-border-color, #dee2e6); --nx-fin-leise: var(--bs-secondary-color, #6c757d); --nx-fin-flaeche: var(--bs-tertiary-bg, #f4f5f7);
+    --nx-fin-rot: #c0392b; --nx-fin-gelb: #d4a017; --nx-fin-gruen: #2e8b57; --nx-fin-grau: #9aa3ab; }
+.nx-fin h1 { font-size: 1.5rem; margin: 0; }
+.nx-fin h2 { font-size: 1.2rem; margin: 1.6rem 0 .3rem; scroll-margin-top: 80px; }
+.nx-fin h3 { font-size: 1rem; margin: .8rem 0 .4rem; }
+.nx-fin h3 small { color: var(--nx-fin-leise); font-weight: normal; }
+.nx-fin .nx-fin-leise { color: var(--nx-fin-leise); font-size: .88rem; }
+.nx-fin .nx-fin-titelzeile { display: flex; justify-content: space-between; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.nx-fin .nx-fin-monate { display: flex; gap: 1rem; align-items: center; margin: .6rem 0 1rem; }
+.nx-fin .nx-fin-summen { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .5rem; margin-bottom: 1rem; }
+.nx-fin .nx-fin-summen > div { background: var(--nx-fin-flaeche); border-radius: 8px; padding: .5rem .7rem; display: flex; flex-direction: column; }
+.nx-fin .nx-fin-summen span { font-size: .82rem; color: var(--nx-fin-leise); }
+.nx-fin .nx-fin-summen strong { font-size: 1.15rem; }
+.nx-fin .nx-fin-bereich { border-top: 1px solid var(--nx-fin-rand); margin-top: 1rem; }
+.nx-fin .nx-fin-ziel { margin: .3rem 0 .8rem; }
+.nx-fin .nx-fin-gruppe { border-left: 3px solid var(--nx-fin-rand); padding-left: .7rem; margin: .4rem 0 .8rem; }
+.nx-fin .nx-fin-kachel { border: 1px solid var(--nx-fin-rand); border-left: 6px solid var(--nx-fin-grau); border-radius: 8px; padding: .55rem .75rem; margin-bottom: .5rem; }
+.nx-fin .nx-fin-kachel.nx-fin-rot { border-left-color: var(--nx-fin-rot); }
+.nx-fin .nx-fin-kachel.nx-fin-gelb { border-left-color: var(--nx-fin-gelb); }
+.nx-fin .nx-fin-kachel.nx-fin-gruen { border-left-color: var(--nx-fin-gruen); }
+.nx-fin .nx-fin-kopf { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.nx-fin .nx-fin-betrag { margin-left: auto; font-weight: 600; white-space: nowrap; }
+.nx-fin .nx-fin-betrag small { font-weight: normal; color: var(--nx-fin-leise); }
+.nx-fin .nx-fin-punkt { display: inline-block; width: .8rem; height: .8rem; border-radius: 50%; background: var(--nx-fin-grau); flex: none; }
+.nx-fin .nx-fin-rot .nx-fin-punkt, .nx-fin .nx-fin-punkt.nx-fin-rot { background: var(--nx-fin-rot); }
+.nx-fin .nx-fin-gelb .nx-fin-punkt, .nx-fin .nx-fin-punkt.nx-fin-gelb { background: var(--nx-fin-gelb); }
+.nx-fin .nx-fin-gruen .nx-fin-punkt, .nx-fin .nx-fin-punkt.nx-fin-gruen { background: var(--nx-fin-gruen); }
+.nx-fin .nx-fin-balken { height: 8px; background: var(--nx-fin-flaeche); border-radius: 4px; overflow: hidden; margin: .4rem 0; }
+.nx-fin .nx-fin-balken.nx-fin-gross { height: 12px; }
+.nx-fin .nx-fin-balken > span { display: block; height: 100%; background: var(--nx-fin-gruen); }
+.nx-fin .nx-fin-gelb .nx-fin-balken > span { background: var(--nx-fin-gelb); }
+.nx-fin .nx-fin-zeile { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .88rem; align-items: center; }
+.nx-fin .nx-fin-status { font-weight: 600; }
+.nx-fin .nx-fin-marke { font-size: .75rem; border: 1px solid var(--nx-fin-rand); border-radius: 999px; padding: 0 .5rem; color: var(--nx-fin-leise); }
+.nx-fin .nx-fin-marke.nx-fin-offen { border-color: var(--nx-fin-gelb); color: inherit; }
+.nx-fin .nx-fin-text { white-space: pre-wrap; }
+.nx-fin .nx-fin-legende { margin-top: 1.4rem; }
+.nx-fin .nx-fin-mithelfen { background: var(--nx-fin-flaeche); border-radius: 8px; padding: .7rem .9rem; margin-top: .6rem; }
+.nx-fin .nx-fin-mithelfen a { margin-left: .4rem; font-weight: 600; }
+.nx-fin .nx-fin-meldung { background: var(--bs-success-bg-subtle, #e8f5e9); border-radius: 8px; padding: .5rem .8rem; margin-bottom: .8rem; }
+.nx-fin .nx-fin-hinweis { background: var(--bs-warning-bg-subtle, #fff3cd); border-radius: 8px; padding: .45rem .75rem; margin: .4rem 0; font-size: .9rem; }
+.nx-fin .nx-fin-kasten { border: 1px solid var(--nx-fin-rand); border-radius: 8px; padding: .7rem .9rem; }
+.nx-fin .nx-fin-formular { display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-end; margin: .5rem 0 .8rem; }
+.nx-fin .nx-fin-formular label { display: flex; flex-direction: column; font-size: .82rem; font-weight: 600; flex: 1 1 10rem; }
+.nx-fin .nx-fin-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .7rem; }
+.nx-fin .nx-fin-felder label { display: flex; flex-direction: column; font-weight: 600; font-size: .88rem; }
+.nx-fin .nx-fin-felder .nx-fin-ganz, .nx-fin .nx-fin-felder .nx-fin-haken { grid-column: 1 / -1; }
+.nx-fin .nx-fin-felder .nx-fin-haken { flex-direction: row; gap: .5rem; align-items: center; font-weight: normal; }
+.nx-fin .nx-fin-tabelle { overflow-x: auto; }
+.nx-fin .nx-fin-tabelle td { vertical-align: top; }
