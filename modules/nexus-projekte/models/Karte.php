@@ -171,6 +171,29 @@ class Karte extends ActiveRecord
         return Stimme::find()->where(['karte_id' => $this->id, 'runde' => $this->runde, 'option_id' => 0])->with('autor')->orderBy('id')->all();
     }
 
+    /**
+     * Rueckmeldungen aus abgeschlossenen Runden, neueste Runde zuerst: Runde => Stimmen. Sie bleiben sichtbar,
+     * solange man an der Kachel weiterarbeitet (Rueckmeldung eines Mitglieds, 26.10.2026: nach "Zurueck in Arbeit"
+     * waren die Kommentare weg -- die Stimmen zaehlen je Runde, die Anzeige kannte aber nur die laufende).
+     * In "In Abstimmung" zaehlt die laufende Runde nicht dazu (sie steht ohnehin im Abstimmungskasten);
+     * in allen anderen Spalten ist die zuletzt gelaufene Runde die juengste Rueckmeldung.
+     *
+     * @return array<int, Stimme[]>
+     */
+    public function fruehereStimmen(): array
+    {
+        $bis = $this->spalte === 'abstimmung' ? (int)$this->runde - 1 : (int)$this->runde;
+        if ($bis < 1) {
+            return [];
+        }
+        $je = [];
+        foreach (Stimme::find()->where(['karte_id' => $this->id, 'option_id' => 0])->andWhere(['<=', 'runde', $bis])
+            ->with('autor')->orderBy(['runde' => SORT_DESC, 'id' => SORT_ASC])->all() as $s) {
+            $je[(int)$s->runde][] = $s;
+        }
+        return $je;
+    }
+
     public function istUeberfaellig(): bool
     {
         return $this->frist !== null && $this->spalte !== 'fertig' && $this->frist < date('Y-m-d');

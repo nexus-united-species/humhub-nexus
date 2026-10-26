@@ -33,6 +33,10 @@
 .nx-pj .nx-pj-schritte li { padding: .15rem 0; }
 .nx-pj .nx-pj-schritte button { background: none; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; }
 .nx-pj .nx-pj-schritte .nx-pj-erledigt { text-decoration: line-through; color: var(--nx-pj-leise); }
+.nx-pj .nx-pj-frueher { background: var(--nx-pj-flaeche); border-radius: 8px; padding: .6rem .85rem; margin-top: .8rem; font-size: .92rem; }
+.nx-pj .nx-pj-frueher summary { cursor: pointer; }
+.nx-pj .nx-pj-frueher blockquote { margin: .3rem 0 .5rem; padding-left: .7rem; border-left: 3px solid var(--nx-pj-rand); white-space: pre-wrap; font-size: .9rem; }
+.nx-pj .nx-pj-frueher .nx-pj-runde { margin-top: .6rem; padding-top: .4rem; border-top: 1px dashed var(--nx-pj-rand); }
 .nx-pj .nx-pj-abstimmung { background: var(--nx-pj-flaeche); border-radius: 8px; padding: .7rem .85rem; margin-top: .8rem; font-size: .92rem; }
 .nx-pj .nx-pj-abstimmung blockquote { margin: .3rem 0 .5rem; padding-left: .7rem; border-left: 3px solid var(--nx-pj-rand); white-space: pre-wrap; font-size: .9rem; }
 .nx-pj .nx-pj-meldung { background: var(--bs-success-bg-subtle, #e8f5e9); border-radius: 8px; padding: .5rem .8rem; margin-bottom: 1rem; }

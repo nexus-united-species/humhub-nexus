@@ -130,6 +130,45 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         </ul>
     <?php endif; ?>
 
+    <?php /* Rueckmeldungen frueherer Runden -- bleiben sichtbar, auch wenn die Kachel wieder in Arbeit ist */ ?>
+    <?php $frueher = $istAuswahl ? [] : $karte->fruehereStimmen(); ?>
+    <?php if ($frueher !== []) : ?>
+        <?php $anzahlFrueher = array_sum(array_map('count', $frueher)); ?>
+        <details class="nx-pj-frueher"<?= $karte->spalte !== 'abstimmung' ? ' open' : '' ?>>
+            <summary><i class="fa fa-comments-o"></i> <strong><?= Html::encode(Texte::t('frueher_titel')) ?></strong> (<?= (int)$anzahlFrueher ?>)</summary>
+            <?php if ($karte->spalte !== 'abstimmung') : ?>
+                <div class="nx-pj-leise"><?= Html::encode(Texte::t('frueher_hinweis')) ?></div>
+            <?php endif; ?>
+            <?php foreach ($frueher as $runde => $liste) : ?>
+                <?php
+                $nachArtFrueher = [];
+                foreach ($liste as $s) {
+                    $nachArtFrueher[$s->art][] = $s;
+                }
+                $erste = $liste[0]->created_at ?? null;
+                ?>
+                <div class="nx-pj-runde">
+                    <div class="nx-pj-label"><?= Html::encode(sprintf(Texte::t('frueher_runde'), $runde)) ?><?= $erste ? ' · ' . Html::encode(Texte::datum($erste, 'php:d.m.Y')) : '' ?></div>
+                    <?php foreach ($optionen as $art => [$text, $symbol, $farbe, $mitText]) : ?>
+                        <?php if (empty($nachArtFrueher[$art])) { continue; } ?>
+                        <div class="<?= $farbe ?>" style="margin-top:.25rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
+                            <?= Html::encode(implode(', ', array_map($name, $nachArtFrueher[$art]))) ?></div>
+                        <?php foreach ($nachArtFrueher[$art] as $s) : ?>
+                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote><?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                    <?php /* Stimmen einer Art, die die heutige Regel nicht mehr kennt (Regel des Projekts geaendert): trotzdem zeigen */ ?>
+                    <?php foreach ($nachArtFrueher as $art => $stimmenDerArt) : ?>
+                        <?php if (isset($optionen[$art])) { continue; } ?>
+                        <?php foreach ($stimmenDerArt as $s) : ?>
+                            <div style="margin-top:.25rem"><?= Html::encode($name($s)) ?><?= $s->text ? ': ' . Html::encode((string)$s->text) : '' ?></div>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
+        </details>
+    <?php endif; ?>
+
     <?php if ($karte->spalte === 'abstimmung' && !$istAuswahl) : ?>
         <div class="nx-pj-abstimmung">
             <?php if ($karte->abstimmung_bis) : ?>
