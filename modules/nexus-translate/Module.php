@@ -26,6 +26,8 @@ class Module extends \humhub\components\Module
     private const TEILGROESSE = 2000;
     /** So viele Stuecke laufen gleichzeitig. */
     private const GLEICHZEITIG = 8;
+    /** Zeitlimit je Stueck in Sekunden; Haengende werden in einer zweiten Runde gemeinsam wiederholt. */
+    private const TEIL_ZEITLIMIT = 35;
 
     public function getName()
     {
@@ -120,8 +122,9 @@ class Module extends \humhub\components\Module
     }
 
     /**
-     * Uebersetzt die Stuecke in Gruppen gleichzeitig (curl_multi). Scheitert eines (Zeitueberschreitung,
-     * Ueberlastung), wird NUR dieses Stueck einmal einzeln wiederholt -- dann bricht nicht alles ab.
+     * Uebersetzt die Stuecke in Gruppen gleichzeitig (curl_multi). Der Dienst haengt gelegentlich ("0 bytes
+     * received") -- ein haengendes Stueck kostet dann sein ganzes Zeitlimit. Deshalb kurzes Limit je Stueck und
+     * zwei Runden: was in Runde 1 scheitert, wird in Runde 2 GEMEINSAM und gleichzeitig noch einmal versucht.
      *
      * @param string[] $teile
      * @return string[] in derselben Reihenfolge
@@ -129,36 +132,46 @@ class Module extends \humhub\components\Module
     private function teileUebersetzen(array $teile, string $zielsprache, string $zusatz, bool $markdown): array
     {
         $ergebnis = [];
-        foreach (array_chunk($teile, self::GLEICHZEITIG, true) as $gruppe) {
-            $multi = curl_multi_init();
-            $handles = [];
-            foreach ($gruppe as $nr => $teil) {
-                [$url, $koerper] = $this->vorbereiten($teil, $zielsprache, $zusatz, $markdown);
-                $ch = $this->curlHandle($url, $koerper, 60);
-                curl_multi_add_handle($multi, $ch);
-                $handles[$nr] = $ch;
-            }
-            do {
-                $status = curl_multi_exec($multi, $laeuft);
-                if ($laeuft) {
-                    curl_multi_select($multi, 1.0);
+        $offen = array_keys($teile);
+        $letzter = null;
+        for ($runde = 1; $runde <= 2 && $offen !== []; $runde++) {
+            $nochOffen = [];
+            foreach (array_chunk($offen, self::GLEICHZEITIG) as $gruppe) {
+                $multi = curl_multi_init();
+                $handles = [];
+                foreach ($gruppe as $nr) {
+                    [$url, $koerper] = $this->vorbereiten($teile[$nr], $zielsprache, $zusatz, $markdown);
+                    $ch = $this->curlHandle($url, $koerper, self::TEIL_ZEITLIMIT);
+                    curl_multi_add_handle($multi, $ch);
+                    $handles[$nr] = $ch;
                 }
-            } while ($laeuft && $status === CURLM_OK);
+                do {
+                    $status = curl_multi_exec($multi, $laeuft);
+                    if ($laeuft) {
+                        curl_multi_select($multi, 1.0);
+                    }
+                } while ($laeuft && $status === CURLM_OK);
 
-            foreach ($handles as $nr => $ch) {
-                $antwort = curl_multi_getcontent($ch);
-                $fehler = curl_error($ch);
-                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_multi_remove_handle($multi, $ch);
-                curl_close($ch);
-                try {
-                    $ergebnis[$nr] = $this->auswerten((string)$antwort, $code, $fehler);
-                } catch (RuntimeException $e) {
-                    Yii::warning('Teil ' . ($nr + 1) . '/' . count($teile) . ' fehlgeschlagen, wiederhole einzeln: ' . $e->getMessage(), 'nexus-translate');
-                    $ergebnis[$nr] = $this->einzeln($gruppe[$nr], $zielsprache, $zusatz, $markdown);
+                foreach ($handles as $nr => $ch) {
+                    $antwort = curl_multi_getcontent($ch);
+                    $fehler = curl_error($ch);
+                    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_multi_remove_handle($multi, $ch);
+                    curl_close($ch);
+                    try {
+                        $ergebnis[$nr] = $this->auswerten((string)$antwort, $code, $fehler);
+                    } catch (RuntimeException $e) {
+                        $letzter = $e;
+                        $nochOffen[] = $nr;
+                        Yii::warning("Teil " . ($nr + 1) . '/' . count($teile) . " (Runde {$runde}) fehlgeschlagen: " . $e->getMessage(), 'nexus-translate');
+                    }
                 }
+                curl_multi_close($multi);
             }
-            curl_multi_close($multi);
+            $offen = $nochOffen;
+        }
+        if ($offen !== []) {
+            throw $letzter ?? new RuntimeException('Die Uebersetzung langer Texte ist fehlgeschlagen.');
         }
         ksort($ergebnis);
         return array_values($ergebnis);
