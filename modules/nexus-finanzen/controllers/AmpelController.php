@@ -21,6 +21,9 @@ class AmpelController extends Controller
 
     public function actionIndex(?string $monat = null)
     {
+        if (!Module::instanz()->darfSehen(Yii::$app->user->getIdentity())) {
+            throw new \yii\web\NotFoundHttpException();
+        }
         FinanzenAsset::register($this->view);
         $this->view->title = Texte::t('titel');
         $monat = Geld::monat($monat);
@@ -32,6 +35,7 @@ class AmpelController extends Controller
             'darfVerwalten' => Module::instanz()->istVerantwortlich(Yii::$app->user->getIdentity()),
             'deckel' => Module::instanz()->entwicklungsDeckel(),
             'mithelfenUrl' => Module::instanz()->mithelfenUrl(),
+            'fuerAlle' => Module::instanz()->fuerAlle(),
         ]);
     }
 }

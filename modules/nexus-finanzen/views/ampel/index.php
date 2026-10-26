@@ -9,6 +9,7 @@
  * @var $darfVerwalten bool
  * @var $deckel int
  * @var $mithelfenUrl string
+ * @var $fuerAlle bool
  */
 
 use humhub\helpers\Html;
@@ -27,6 +28,7 @@ $summen = $stand->summen($monat);
                 <a class="btn btn-light btn-sm" href="<?= Html::encode(Url::to(['/nexus-finanzen/verwaltung/index', 'monat' => $monat])) ?>"><i class="fa fa-cog"></i> <?= Html::encode(Texte::t('verwaltung')) ?></a>
             <?php endif; ?>
         </div>
+        <?php if (!$fuerAlle) : ?><div class="nx-fin-hinweis"><?= Html::encode(Texte::t('nur_intern')) ?></div><?php endif; ?>
         <p><?= Html::encode(Texte::t('einleitung')) ?></p>
 
         <nav class="nx-fin-monate" aria-label="<?= Html::encode(Texte::t('monat')) ?>">

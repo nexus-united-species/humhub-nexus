@@ -13,7 +13,8 @@ class Events
     public static function onTopMenuInit($event): void
     {
         try {
-            if (Yii::$app->user->isGuest) {
+            $modul = Module::instanz();
+            if (Yii::$app->user->isGuest || $modul === null || !$modul->darfSehen(Yii::$app->user->getIdentity())) {
                 return;
             }
             $event->sender->addEntry(new MenuLink([

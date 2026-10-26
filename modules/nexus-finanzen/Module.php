@@ -64,6 +64,20 @@ class Module extends \humhub\components\Module
         return preg_match('#^https://#i', $u) ? $u : '';
     }
 
+    /**
+     * Fuer alle sichtbar? Solange nein (Vorgabe), sehen Menuepunkt und Ampel nur die Finanzverantwortlichen,
+     * und die oeffentlichen Zahlen sind gesperrt -- so laesst sich alles vorbereiten, bevor die Gemeinschaft es sieht.
+     */
+    public function fuerAlle(): bool
+    {
+        return (string)$this->settings->get('fuerAlle', '0') === '1';
+    }
+
+    public function darfSehen(?User $mensch): bool
+    {
+        return $mensch !== null && ($this->fuerAlle() || $this->istVerantwortlich($mensch));
+    }
+
     public function istVerantwortlich(?User $mensch): bool
     {
         return $mensch !== null && in_array(mb_strtolower($mensch->username), array_map('mb_strtolower', $this->verantwortliche()), true);

@@ -213,6 +213,7 @@ class VerwaltungController extends Controller
             'webseiten' => implode("\n", $m->webseiten()),
             'deckel' => $m->entwicklungsDeckel(),
             'mithelfenUrl' => $m->mithelfenUrl(),
+            'fuerAlle' => $m->fuerAlle(),
         ]);
     }
 
@@ -225,6 +226,7 @@ class VerwaltungController extends Controller
         $s->set('verantwortliche', implode("\n", $gueltig));
         $seiten = array_filter(array_map('trim', preg_split('/\s+/', (string)$r->post('webseiten'))), fn($u) => preg_match('#^https://[a-z0-9.-]+$#i', $u));
         $s->set('webseiten', implode("\n", $seiten));
+        $s->set('fuerAlle', (string)$r->post('fuerAlle') === '1' ? '1' : '0');
         $url = trim((string)$r->post('mithelfenUrl'));
         $s->set('mithelfenUrl', preg_match('#^https://\S+$#i', $url) ? $url : '');
         $s->set('entwicklungsDeckel', (string)(Geld::lesen((string)$r->post('deckel')) ?? 0));

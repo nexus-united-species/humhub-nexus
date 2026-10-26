@@ -11,6 +11,7 @@ class Texte
 {
     private const TEXTE = [
         'de' => [
+            'nur_intern' => 'Noch nicht für alle sichtbar – diese Seite sehen im Moment nur die Finanzverantwortlichen. Freischalten: Verwalten → Einstellungen.',
             'nav' => 'Finanzierung',
             'titel' => 'Gemeinsam finanzieren',
             'einleitung' => 'Hier siehst du, was N.E.X.U.S. jeden Monat braucht, welche Entwicklungsschritte wir gemeinsam möglich machen wollen – und was davon schon gedeckt ist.',
@@ -57,6 +58,7 @@ class Texte
             'nachher' => 'später →',
         ],
         'en' => [
+            'nur_intern' => 'Not yet visible to everyone – only the finance officers can see this page at the moment.',
             'nav' => 'Funding',
             'titel' => 'Funding together',
             'einleitung' => 'Here you can see what N.E.X.U.S. needs every month, which development steps we want to make possible together – and how much of it is already covered.',
@@ -103,6 +105,7 @@ class Texte
             'nachher' => 'later →',
         ],
         'es' => [
+            'nur_intern' => 'Todavía no es visible para todos: por ahora solo la ven las personas responsables de finanzas.',
             'nav' => 'Financiación',
             'titel' => 'Financiar juntos',
             'einleitung' => 'Aquí ves lo que N.E.X.U.S. necesita cada mes, qué pasos de desarrollo queremos hacer posibles juntos y cuánto ya está cubierto.',

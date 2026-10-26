@@ -22,6 +22,9 @@ class OeffentlichController extends Controller
         if (!Yii::$app->request->isGet) {
             throw new MethodNotAllowedHttpException();
         }
+        if (!Module::instanz()->fuerAlle()) {
+            throw new \yii\web\NotFoundHttpException();
+        }
         $antwort = Yii::$app->response;
         $antwort->format = Response::FORMAT_JSON;
         $herkunft = (string)Yii::$app->request->headers->get('Origin');

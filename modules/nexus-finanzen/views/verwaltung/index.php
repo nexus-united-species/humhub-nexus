@@ -40,6 +40,7 @@ $quellen = ['ueberweisung' => 'Überweisung', 'stripe' => 'Stripe (direkt, nicht
                 <?php if ($ich->isSystemAdmin()) : ?><a class="btn btn-light btn-sm" href="<?= Html::encode(Url::to(['einstellungen'])) ?>">Einstellungen</a><?php endif; ?>
             </span>
         </div>
+        <?php if (!nexus\modules\finanzen\Module::instanz()->fuerAlle()) : ?><div class="nx-fin-hinweis">Noch nicht für alle sichtbar: Menüpunkt, Ampel und öffentliche Zahlen sehen nur die Finanzverantwortlichen. Freischalten in den Einstellungen (Systemadmin).</div><?php endif; ?>
         <?php if ($meldung) : ?><div class="nx-fin-meldung"><?= Html::encode($meldung) ?></div><?php endif; ?>
 
         <nav class="nx-fin-monate">
