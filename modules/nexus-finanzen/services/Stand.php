@@ -36,6 +36,8 @@ class Stand
     private array $bezahltMonat = [];
     /** @var array<int, array<string, int>> kachel_id => Monat => davon vorgestreckt */
     private array $vorgestrecktMonat = [];
+    /** @var array<int, array<string, bool>> kachel_id => Monat => mindestens ein Betrag ist geschaetzt */
+    private array $bezahltGeschaetzt = [];
     /** @var array<int, string> user_id => Anzeigename */
     private array $namen = [];
 
@@ -62,8 +64,9 @@ class Stand
             $this->namen[(int)$r['v']] ??= (\humhub\modules\user\models\User::findOne((int)$r['v'])?->displayName ?? '?');
         }
         // Alles Bezahlte je Kachel und Monat (nach Datum der Zahlung), egal ob aus dem Topf oder vorgestreckt
-        foreach ($db->createCommand('SELECT kachel_id, LEFT(datum, 7) m, (vorgestreckt_von IS NOT NULL) v, SUM(betrag) s FROM nexus_fin_ausgabe WHERE status = \'freigegeben\' GROUP BY kachel_id, m, v')->queryAll() as $r) {
+        foreach ($db->createCommand('SELECT kachel_id, LEFT(datum, 7) m, (vorgestreckt_von IS NOT NULL) v, SUM(betrag) s, MAX(geschaetzt) g FROM nexus_fin_ausgabe WHERE status = \'freigegeben\' GROUP BY kachel_id, m, v')->queryAll() as $r) {
             $this->bezahltMonat[(int)$r['kachel_id']][$r['m']] = ($this->bezahltMonat[(int)$r['kachel_id']][$r['m']] ?? 0) + (int)$r['s'];
+            $this->bezahltGeschaetzt[(int)$r['kachel_id']][$r['m']] = ($this->bezahltGeschaetzt[(int)$r['kachel_id']][$r['m']] ?? false) || (int)$r['g'] === 1;
             if ((int)$r['v'] === 1) {
                 $this->vorgestrecktMonat[(int)$r['kachel_id']][$r['m']] = (int)$r['s'];
             }
@@ -148,6 +151,21 @@ class Stand
     }
 
     /**
+     * Alles, was fuer die Kachel bezahlt wurde (aus den Spenden + vorgestreckt): im Monat (laufend) bzw. insgesamt (einmalig).
+     * @return array{betrag: int, geschaetzt: bool}|null
+     */
+    public function bezahlt(Kachel $k, string $monat): ?array
+    {
+        $je = $this->bezahltMonat[(int)$k->id] ?? [];
+        $betrag = $k->istLaufend() ? ($je[$monat] ?? 0) : array_sum($je);
+        if ($betrag <= 0) {
+            return null;
+        }
+        $g = $this->bezahltGeschaetzt[(int)$k->id] ?? [];
+        return ['betrag' => $betrag, 'geschaetzt' => $k->istLaufend() ? ($g[$monat] ?? false) : in_array(true, $g, true)];
+    }
+
+    /**
      * Aus eigener Tasche vorgestreckt: im Monat (laufend) bzw. insgesamt (einmalig). Leer = nichts.
      * @return array{betrag: int, geschaetzt: bool, von: string[]}|null
      */
@@ -193,9 +211,10 @@ class Stand
             $zugewiesen += array_sum($je);
         }
         $ausgegeben = array_sum($this->ausgegeben);
-        $bezahltMonat = $vorgestrecktMonat = 0;
+        $bezahltMonat = $vorgestrecktMonat = $bezahltGesamt = 0;
         foreach ($this->bezahltMonat as $je) {
             $bezahltMonat += $je[$monat] ?? 0;
+            $bezahltGesamt += array_sum($je);
         }
         foreach ($this->vorgestrecktMonat as $je) {
             $vorgestrecktMonat += $je[$monat] ?? 0;
@@ -203,6 +222,7 @@ class Stand
         return [
             'bezahlt_monat' => $bezahltMonat,
             'vorgestreckt_monat' => $vorgestrecktMonat,
+            'bezahlt_gesamt' => $bezahltGesamt,
             'eingegangen' => $this->eingangGesamt,
             'im_monat' => $this->eingangMonat[$monat] ?? 0,
             'reserviert' => max(0, $zugewiesen - $ausgegeben),

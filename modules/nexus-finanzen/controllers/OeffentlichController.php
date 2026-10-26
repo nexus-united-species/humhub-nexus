@@ -59,6 +59,7 @@ class OeffentlichController extends Controller
                     'einordnung' => $k->einordnung,
                     'zusatz' => $k->zusatz,
                     // Vorgestreckt = aus eigener Tasche bezahlt, noch nicht erstattet (ohne Namen)
+                    'bezahlt_cent' => $stand->bezahlt($k, $monat)['betrag'] ?? 0,
                     'vorgestreckt_cent' => $stand->vorgestreckt($k, $monat)['betrag'] ?? 0,
                     'vorgestreckt_geschaetzt' => $stand->vorgestreckt($k, $monat)['geschaetzt'] ?? false,
                 ];
@@ -77,6 +78,7 @@ class OeffentlichController extends Controller
                 'ausgegeben_cent' => $summen['ausgegeben'],
                 'frei_cent' => $summen['frei'],
                 'vorgestreckt_cent' => $summen['vorgestreckt'],
+                'bezahlt_gesamt_cent' => $summen['bezahlt_gesamt'],
                 'bezahlt_monat_cent' => $summen['bezahlt_monat'],
                 'vorgestreckt_monat_cent' => $summen['vorgestreckt_monat'],
             ],

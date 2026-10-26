@@ -37,12 +37,21 @@ $summen = $stand->summen($monat);
             <a href="<?= Html::encode(Url::to(['index', 'monat' => Geld::nachMonat($monat)])) ?>"><?= Html::encode(Texte::t('nachher')) ?></a>
         </nav>
 
-        <div class="nx-fin-summen">
-            <?php foreach (['im_monat', 'bezahlt_monat', 'eingegangen', 'reserviert', 'ausgegeben', 'frei', 'vorgestreckt'] as $s) : ?>
-                <?php if ($s === 'vorgestreckt' && $summen[$s] === 0) { continue; } ?>
-                <div><span><?= Html::encode(Texte::t($s)) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s])) ?></strong></div>
-            <?php endforeach; ?>
-        </div>
+        <?php /* Zwei getrennte Zeilen, damit klar ist, was zum Monat und was zur Gesamtbilanz gehoert. Leere Zusatzfelder bleiben weg. */
+        $zeilen = [
+            sprintf(Texte::t('zeile_monat'), Geld::monatName($monat)) => ['im_monat', 'bezahlt_monat', 'vorgestreckt_monat'],
+            Texte::t('zeile_gesamt') => ['eingegangen', 'bezahlt_gesamt', 'ausgegeben', 'vorgestreckt', 'frei', 'reserviert'],
+        ];
+        $nurWennNichtNull = ['vorgestreckt_monat', 'vorgestreckt', 'reserviert']; ?>
+        <?php foreach ($zeilen as $kopf => $felder) : ?>
+            <h3 class="nx-fin-summenkopf"><?= Html::encode($kopf) ?></h3>
+            <div class="nx-fin-summen">
+                <?php foreach ($felder as $s) : ?>
+                    <?php if (in_array($s, $nurWennNichtNull, true) && $summen[$s] === 0) { continue; } ?>
+                    <div><span><?= Html::encode(Texte::t($s)) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s])) ?></strong></div>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
 
         <?php foreach (['grund', 'optional', 'entwicklung'] as $bereich) : ?>
             <?php $kacheln = $stand->kacheln($bereich); if ($kacheln === []) { continue; } $b = $stand->bereich($bereich, $monat); ?>

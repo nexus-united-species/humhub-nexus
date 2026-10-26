@@ -8,6 +8,7 @@
 .nx-fin .nx-fin-leise { color: var(--nx-fin-leise); font-size: .88rem; }
 .nx-fin .nx-fin-titelzeile { display: flex; justify-content: space-between; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .6rem; }
 .nx-fin .nx-fin-monate { display: flex; gap: 1rem; align-items: center; margin: .6rem 0 1rem; }
+.nx-fin .nx-fin-summenkopf { font-size: .95rem; margin: .9rem 0 .35rem; color: var(--nx-fin-leise); }
 .nx-fin .nx-fin-summen { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .5rem; margin-bottom: 1rem; }
 .nx-fin .nx-fin-summen > div { background: var(--nx-fin-flaeche); border-radius: 8px; padding: .5rem .7rem; display: flex; flex-direction: column; }
 .nx-fin .nx-fin-summen span { font-size: .82rem; color: var(--nx-fin-leise); }
