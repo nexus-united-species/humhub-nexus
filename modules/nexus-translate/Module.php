@@ -42,7 +42,7 @@ class Module extends \humhub\components\Module
      *
      * Bewusst per curl statt einer Programmbibliothek -- eine einzelne,
      * seltene Anfrage rechtfertigt keine zusaetzliche Abhaengigkeit.
-     * Lange Markdown-Texte werden in Absatz-Stuecken gleichzeitig uebersetzt (siehe TEILGROESSE).
+     * Lange Texte (Markdown wie reiner Text) werden in Absatz-Stuecken gleichzeitig uebersetzt (siehe TEILGROESSE).
      *
      * @throws RuntimeException bei fehlendem Schluessel, Verbindungsfehlern
      *   oder einer Fehlerantwort des Dienstes. Wird vom aufrufenden
@@ -51,10 +51,11 @@ class Module extends \humhub\components\Module
      */
     public function uebersetzen(string $text, string $zielsprache, string $zusatz = '', bool $markdown = false): string
     {
-        if ($markdown && mb_strlen($text) > self::TEILGROESSE) {
+        // Auch der "Translate"-Knopf (reiner Text, 25 s) lief bei langen Nachrichten in die Zeitueberschreitung.
+        if (mb_strlen($text) > self::TEILGROESSE) {
             $teile = self::inTeile($text, self::TEILGROESSE);
             if (count($teile) > 1) {
-                return implode("\n\n", $this->teileUebersetzen($teile, $zielsprache, $zusatz));
+                return implode("\n\n", $this->teileUebersetzen($teile, $zielsprache, $zusatz, $markdown));
             }
         }
         return $this->einzeln($text, $zielsprache, $zusatz, $markdown);
@@ -125,14 +126,14 @@ class Module extends \humhub\components\Module
      * @param string[] $teile
      * @return string[] in derselben Reihenfolge
      */
-    private function teileUebersetzen(array $teile, string $zielsprache, string $zusatz): array
+    private function teileUebersetzen(array $teile, string $zielsprache, string $zusatz, bool $markdown): array
     {
         $ergebnis = [];
         foreach (array_chunk($teile, self::GLEICHZEITIG, true) as $gruppe) {
             $multi = curl_multi_init();
             $handles = [];
             foreach ($gruppe as $nr => $teil) {
-                [$url, $koerper] = $this->vorbereiten($teil, $zielsprache, $zusatz, true);
+                [$url, $koerper] = $this->vorbereiten($teil, $zielsprache, $zusatz, $markdown);
                 $ch = $this->curlHandle($url, $koerper, 60);
                 curl_multi_add_handle($multi, $ch);
                 $handles[$nr] = $ch;
@@ -154,7 +155,7 @@ class Module extends \humhub\components\Module
                     $ergebnis[$nr] = $this->auswerten((string)$antwort, $code, $fehler);
                 } catch (RuntimeException $e) {
                     Yii::warning('Teil ' . ($nr + 1) . '/' . count($teile) . ' fehlgeschlagen, wiederhole einzeln: ' . $e->getMessage(), 'nexus-translate');
-                    $ergebnis[$nr] = $this->einzeln($gruppe[$nr], $zielsprache, $zusatz, true);
+                    $ergebnis[$nr] = $this->einzeln($gruppe[$nr], $zielsprache, $zusatz, $markdown);
                 }
             }
             curl_multi_close($multi);
