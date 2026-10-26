@@ -11,6 +11,8 @@
  * @var $verwandt array
  * @var $darfBearbeiten bool
  * @var $darfVorschlagen bool
+ * @var $teilenKreise array<int, array{id: int, name: string}>  Kreise, in die die Person teilen kann
+ * @var $oeffentlichMoeglich bool
  * @var $meldung string|null
  */
 
@@ -61,6 +63,65 @@ $this->title = $artikel->titel;
                 <?php endif; ?>
                 <?php if ($artikel->kennung) : ?><span class="nx-ws-leise"><?= Html::encode($artikel->kennung) ?></span><?php endif; ?>
             </div>
+        <?php endif; ?>
+
+        <?php if (!$artikel->entwurf) : ?>
+            <?php /* Teilen: alle Mitglieder -- Link weitergeben, in einen anderen Kreis; die Redaktion zusaetzlich oeffentlich lesbar machen */ ?>
+            <div class="nx-ws-teilen">
+                <button type="button" class="btn btn-default btn-sm" data-nx-ws-kopieren="<?= Html::encode($artikel->url($sammlung, true)) ?>"
+                        data-nx-ws-titel="<?= Html::encode($artikel->titel) ?>" data-nx-ws-kopiert="<?= Html::encode(Texte::t('link_kopiert')) ?>"
+                        data-nx-ws-feld="nx-ws-linkfeld">
+                    <i class="fa fa-share-alt"></i> <span><?= Html::encode(Texte::t('weitergeben')) ?></span>
+                </button>
+                <?php if ($teilenKreise !== []) : ?>
+                    <button type="button" class="btn btn-default btn-sm" data-nx-ws-oeffne="nx-ws-teilen-kreis"><i class="fa fa-comments"></i> <?= Html::encode(Texte::t('teilen_kreis')) ?></button>
+                <?php endif; ?>
+                <?php if ($darfBearbeiten && $oeffentlichMoeglich && !$artikel->istOeffentlich()) : ?>
+                    <?= Html::beginForm($sammlung->url('oeffentlich', ['a' => $artikel->slug]), 'post', ['style' => 'display:inline']) ?>
+                        <?= Html::hiddenInput('an', '1') ?>
+                        <button type="submit" class="btn btn-default btn-sm" data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('oeffentlich_frage')) ?>"><i class="fa fa-globe"></i> <?= Html::encode(Texte::t('oeffentlich_machen')) ?></button>
+                    <?= Html::endForm() ?>
+                <?php endif; ?>
+            </div>
+            <div class="nx-ws-linkzeile" id="nx-ws-linkfeld" hidden>
+                <label><?= Html::encode(Texte::t('link_manuell')) ?> <input type="text" class="form-control" readonly value="<?= Html::encode($artikel->url($sammlung, true)) ?>"></label>
+            </div>
+            <?php if ($teilenKreise !== []) : ?>
+                <div class="nx-ws-formular" id="nx-ws-teilen-kreis" hidden>
+                    <?= Html::beginForm($sammlung->url('teilen', ['a' => $artikel->slug]), 'post') ?>
+                        <label for="nx-ws-teilen-ziel"><?= Html::encode(Texte::t('teilen_kreis_waehlen')) ?></label>
+                        <select id="nx-ws-teilen-ziel" name="kreis" class="form-control" required>
+                            <?php foreach ($teilenKreise as $k) : ?>
+                                <option value="<?= (int)$k['id'] ?>"><?= Html::encode($k['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <label for="nx-ws-teilen-text"><?= Html::encode(Texte::t('teilen_satz')) ?></label>
+                        <textarea id="nx-ws-teilen-text" name="text" class="form-control" maxlength="1000"></textarea>
+                        <p class="nx-ws-leise"><?= Html::encode(Texte::t('teilen_hinweis')) ?></p>
+                        <div class="nx-ws-knoepfe">
+                            <button type="submit" class="btn btn-primary"><?= Html::encode(Texte::t('teilen_senden')) ?></button>
+                            <button type="button" class="btn btn-light" data-nx-ws-schliesse><?= Html::encode(Texte::t('abbrechen')) ?></button>
+                        </div>
+                    <?= Html::endForm() ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($artikel->istOeffentlich() && $darfBearbeiten) : ?>
+                <?php /* Nur die Redaktion sieht den geheimen Link; alle anderen sehen nichts davon */ ?>
+                <div class="nx-ws-oeffentlich">
+                    <span><i class="fa fa-globe"></i> <?= Html::encode(Texte::t('oeffentlich_ist')) ?></span>
+                    <label class="nx-ws-linkzeile"><?= Html::encode(Texte::t('oeffentlich_link')) ?>
+                        <input type="text" class="form-control" readonly value="<?= Html::encode($artikel->oeffentlicheAdresse()) ?>">
+                    </label>
+                    <button type="button" class="btn btn-default btn-sm" data-nx-ws-kopieren="<?= Html::encode($artikel->oeffentlicheAdresse()) ?>"
+                            data-nx-ws-titel="<?= Html::encode($artikel->titel) ?>" data-nx-ws-kopiert="<?= Html::encode(Texte::t('link_kopiert')) ?>">
+                        <i class="fa fa-share-alt"></i> <span><?= Html::encode(Texte::t('weitergeben')) ?></span>
+                    </button>
+                    <?= Html::beginForm($sammlung->url('oeffentlich', ['a' => $artikel->slug]), 'post', ['style' => 'display:inline']) ?>
+                        <?= Html::hiddenInput('an', '0') ?>
+                        <button type="submit" class="btn btn-light btn-sm" data-nx-ws-bestaetigen="<?= Html::encode(Texte::t('oeffentlich_beenden_frage')) ?>"><i class="fa fa-lock"></i> <?= Html::encode(Texte::t('oeffentlich_beenden')) ?></button>
+                    <?= Html::endForm() ?>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
 
         <div class="nx-ws-raster">

@@ -42,13 +42,25 @@ class Darstellung
         return self::bauen($markdown, null, $sammlung)['html'];
     }
 
+    /**
+     * Fuer die oeffentliche Leseseite (ohne Anmeldung): Verweise auf andere Artikel werden zu reinem Text
+     * (die gibt es nur im Portal), und Bilder kommen ueber $bildUrl -- die Adresse der Bilder der Sammlung
+     * verlangt eine Anmeldung.
+     *
+     * @param callable(string): string $bildUrl Bildname => oeffentliche Adresse
+     */
+    public static function oeffentlich(string $markdown, Sammlung $sammlung, callable $bildUrl): string
+    {
+        return self::bauen($markdown, null, $sammlung, $bildUrl, true)['html'];
+    }
+
     /** Aendert sich, sobald irgendein Artikel der Sammlung geaendert wird. */
     public static function stand(string $sammlung): string
     {
         return $sammlung . '|' . Artikel::inSammlung($sammlung)->max('updated_at') . '|' . Artikel::inSammlung($sammlung)->count();
     }
 
-    private static function bauen(string $markdown, ?Artikel $artikel, Sammlung $sammlung): array
+    private static function bauen(string $markdown, ?Artikel $artikel, Sammlung $sammlung, ?callable $bildUrl = null, bool $oeffentlich = false): array
     {
         $html = HtmlPurifier::process((new GithubMarkdown())->parse($markdown));
         $doc = new DOMDocument('1.0', 'UTF-8');
@@ -83,7 +95,7 @@ class Darstellung
                 continue;
             }
             $datei = basename(explode('#', $href)[0]);
-            if (str_ends_with(strtolower($datei), '.md') && isset($dateien[$datei])) {
+            if (!$oeffentlich && str_ends_with(strtolower($datei), '.md') && isset($dateien[$datei])) {
                 $a->setAttribute('href', $sammlung->url('artikel', ['a' => $dateien[$datei]]));
             } else {
                 // Verweis auf etwas, das es im Portal nicht gibt: Text behalten, Link entfernen
@@ -97,7 +109,7 @@ class Darstellung
             /** @var DOMElement $img */
             $name = Bilder::nameAus($img->getAttribute('src'));
             if ($name !== null) {
-                $img->setAttribute('src', $sammlung->url('bild', ['d' => $name]));
+                $img->setAttribute('src', $bildUrl !== null ? $bildUrl($name) : $sammlung->url('bild', ['d' => $name]));
             } elseif (!preg_match('#^https://#i', $img->getAttribute('src'))) {
                 $img->parentNode->replaceChild($doc->createTextNode($img->getAttribute('alt')), $img);
                 continue;

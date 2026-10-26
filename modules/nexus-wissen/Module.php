@@ -56,6 +56,15 @@ class Module extends \humhub\components\Module
         return $modul instanceof self ? $modul : null;
     }
 
+    /**
+     * Oeffentlich lesbare Artikel (ohne Anmeldung) nutzen Rahmen, Fusszeile und Texte des Moduls nexus-teilen.
+     * Fehlt es, gibt es diese Funktion nicht (kein eigener, halber Rahmen).
+     */
+    public static function oeffentlichMoeglich(): bool
+    {
+        return \Yii::$app->getModule('nexus-teilen') !== null && \Yii::getAlias('@nexus-teilen', false) !== false;
+    }
+
     public function getName()
     {
         return 'N.E.X.U.S. Knowledge Base';

@@ -27,6 +27,9 @@ use nexus\modules\wissen\services\Slug;
  * @property int|null $updated_by
  * @property int $entwurf       1: im Portal neu geschrieben, noch nicht veroeffentlicht -- nur die Redaktion sieht ihn
  * @property int|null $created_by
+ * @property string|null $oeffentlich_schluessel  128 Bit Zufall; gesetzt = der Artikel ist ohne Anmeldung lesbar
+ * @property string|null $oeffentlich_am
+ * @property int|null $oeffentlich_von
  */
 class Artikel extends ActiveRecord
 {
@@ -122,5 +125,38 @@ class Artikel extends ActiveRecord
     public function url(Sammlung $sammlung, bool $absolut = false): string
     {
         return $sammlung->url('artikel', ['a' => $this->slug], $absolut);
+    }
+
+    // ── Oeffentlich lesbar (ohne Anmeldung) ────────────────────────────────
+
+    public function istOeffentlich(): bool
+    {
+        return !empty($this->oeffentlich_schluessel);
+    }
+
+    /** Gibt den Artikel frei. Ein Entwurf kann nicht oeffentlich sein. updateAttributes: aendert weder "zuletzt geaendert" noch die Darstellung. */
+    public function oeffentlichMachen(int $userId): void
+    {
+        if ($this->istOeffentlich() || $this->entwurf) {
+            return;
+        }
+        $this->updateAttributes([
+            'oeffentlich_schluessel' => bin2hex(random_bytes(16)),
+            'oeffentlich_am' => date('Y-m-d H:i:s'),
+            'oeffentlich_von' => $userId,
+        ]);
+    }
+
+    /** Nimmt die Freigabe zurueck; die alte Adresse fuehrt ins Leere, eine neue Freigabe bekommt eine NEUE Adresse. */
+    public function oeffentlichBeenden(): void
+    {
+        if ($this->istOeffentlich()) {
+            $this->updateAttributes(['oeffentlich_schluessel' => null, 'oeffentlich_am' => null, 'oeffentlich_von' => null]);
+        }
+    }
+
+    public function oeffentlicheAdresse(): string
+    {
+        return $this->istOeffentlich() ? \yii\helpers\Url::to(['/nexus-wissen/oeffentlich/index', 't' => $this->oeffentlich_schluessel], true) : '';
     }
 }

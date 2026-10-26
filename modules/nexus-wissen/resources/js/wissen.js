@@ -234,6 +234,40 @@
         return Promise.resolve(window.confirm(text));
     }
 
+    // ── Link weitergeben ──────────────────────────────────────────────────
+    // Handy: das Teilen-Menue des Geraets (Signal, WhatsApp, E-Mail ...). PC: Link in die Zwischenablage.
+    // Klappt beides nicht (aeltere Browser, kein https), erscheint der Link zum Selbst-Kopieren -- ohne Dialog,
+    // denn Browser koennen Dialoge fuer eine Seite abschalten.
+    function linkWeitergeben(knopf) {
+        var adresse = knopf.getAttribute('data-nx-ws-kopieren');
+        var titel = knopf.getAttribute('data-nx-ws-titel') || '';
+        var beschriftung = knopf.querySelector('span');
+        function bestaetigen() {
+            if (!beschriftung) { return; }
+            var vorher = beschriftung.textContent;
+            beschriftung.textContent = knopf.getAttribute('data-nx-ws-kopiert') || vorher;
+            setTimeout(function () { beschriftung.textContent = vorher; }, 2500);
+        }
+        function feldZeigen() {
+            var id = knopf.getAttribute('data-nx-ws-feld');
+            var zeile = id ? document.getElementById(id) : null;
+            if (!zeile) { return; }
+            zeile.hidden = false;
+            var feld = zeile.querySelector('input');
+            if (feld) { feld.focus(); feld.select(); }
+        }
+        var handy = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        if (handy && navigator.share) {
+            navigator.share({ title: titel, url: adresse }).catch(function () { /* abgebrochen */ });
+            return;
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(adresse).then(bestaetigen, feldZeigen);
+            return;
+        }
+        feldZeigen();
+    }
+
     document.addEventListener('click', function (e) {
         var frage = e.target.closest('[data-nx-ws-bestaetigen]');
         if (frage && frage.getAttribute('data-nx-ws-bestaetigt') !== '1') {
@@ -245,6 +279,12 @@
                 frage.click();
                 frage.removeAttribute('data-nx-ws-bestaetigt');
             });
+            return;
+        }
+        var kopieren = e.target.closest('[data-nx-ws-kopieren]');
+        if (kopieren) {
+            e.preventDefault();
+            linkWeitergeben(kopieren);
             return;
         }
         var format = e.target.closest('[data-nx-ws-format]');

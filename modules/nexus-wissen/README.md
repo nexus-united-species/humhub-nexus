@@ -13,6 +13,8 @@
 - **Article pages** with a table of contents, automatic cross-links (when an article mentions another article's title, the first mention becomes a link), an info box (topic, keywords, review date, number of references) and "See also" (articles sharing keywords).
 - **An optional notice** under every article, e.g. "does not replace medical advice".
 - **"I would like to add / change something"**: space members send a suggestion to the editors. **"Talk about it in the space"** creates a regular post linking to the article.
+- **Sharing:** **"Share link"** (the device's share menu on phones, copy on desktops) and **"Share in another space"**: a post from the member in a space of their choice (where they are a member and may write) with title, short excerpt and link; all signed-in members can read the article. Drafts cannot be shared.
+- **Publicly readable articles (editors only):** **"Make publicly readable"** gives one article its own secret address that anyone can open without signing in. Only the text is shown, with no names, comments, suggestions, space, or links to other articles; images are included. Revocable at any time (a new release gets a new address); setting an article back to draft ends it. Requires the module `nexus-teilen` (its public page frame, footer and texts); without it the option is not offered.
 
 ### What editors get
 
@@ -151,6 +153,8 @@ Suggestions, decisions and review reminders are sent as private messages through
 - **Artikelseiten** mit Inhaltsverzeichnis, automatischen Querverweisen, Infokasten und „Siehe auch“.
 - **Hinweis** unter jedem Artikel (frei wählbar, z. B. „ersetzt keinen ärztlichen Rat“).
 - **„Ich möchte etwas ergänzen / ändern“** schickt einen Vorschlag an die Redaktion. **„Im Kreis darüber sprechen“** legt einen Beitrag im Kreis an.
+- **Teilen:** **„Link weitergeben“** (am Handy das Teilen-Menü, am PC Kopieren) und **„In einen anderen Kreis teilen“**: ein Beitrag der Person in einem Kreis ihrer Wahl (in dem sie Mitglied ist und schreiben darf) mit Titel, Kurzauszug und Link; den Artikel können alle angemeldeten Mitglieder lesen. Entwürfe lassen sich nicht teilen.
+- **Öffentlich lesbare Artikel (nur Redaktion):** **„Öffentlich lesbar machen“** gibt einem Artikel eine eigene geheime Adresse, die jeder ohne Anmeldung öffnen kann. Gezeigt wird nur der Text – ohne Namen, Kommentare, Vorschläge, Kreis und ohne Verweise auf andere Artikel; Bilder sind dabei. Jederzeit zurücknehmbar (eine neue Freigabe bekommt eine neue Adresse); wird der Artikel wieder Entwurf, endet sie. Braucht das Modul `nexus-teilen` (Rahmen, Fußzeile und Texte der öffentlichen Seite); ohne es wird die Möglichkeit nicht angeboten.
 
 **Für die Redaktion** (Systemadmins sowie Besitzer und Admins des Kreises):
 - Wissensbereich selbst anlegen: im Kreis oben rechts im Einstellungsmenü „Wissensbereich anlegen“ (solange der Kreis noch keinen hat).

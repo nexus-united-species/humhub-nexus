@@ -2,6 +2,12 @@
 .nx-ws { --nx-ws-rand: var(--bs-border-color, #dee2e6); --nx-ws-leise: var(--bs-secondary-color, #6c757d); }
 .nx-ws .nx-ws-kopf h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
 .nx-ws .nx-ws-leise { color: var(--nx-ws-leise); font-size: .9rem; }
+.nx-ws .nx-ws-teilen { display: flex; flex-wrap: wrap; gap: .4rem; margin: .2rem 0 .8rem; }
+.nx-ws .nx-ws-linkzeile { margin: .2rem 0 .8rem; }
+.nx-ws .nx-ws-linkzeile label, .nx-ws label.nx-ws-linkzeile { display: flex; flex-direction: column; font-size: .85rem; font-weight: 600; gap: .2rem; }
+.nx-ws .nx-ws-oeffentlich { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .5rem .8rem; border: 1px solid var(--nx-ws-rand); border-radius: 8px; padding: .6rem .8rem; margin: 0 0 1rem; }
+.nx-ws .nx-ws-oeffentlich > span { flex: 1 1 100%; }
+.nx-ws .nx-ws-oeffentlich .nx-ws-linkzeile { flex: 1 1 18rem; margin: 0; }
 .nx-ws .nx-ws-suche { display: flex; gap: .5rem; margin: 1rem 0; }
 .nx-ws .nx-ws-suche input { flex: 1; font-size: 1.05rem; }
 .nx-ws .nx-ws-themen { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .6rem; margin: .5rem 0 1.25rem; }

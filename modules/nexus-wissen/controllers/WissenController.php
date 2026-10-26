@@ -5,6 +5,8 @@ namespace nexus\modules\wissen\controllers;
 use humhub\components\access\ControllerAccess;
 use humhub\modules\content\components\ContentContainerController;
 use humhub\modules\post\models\Post;
+use humhub\modules\post\permissions\CreatePost;
+use humhub\modules\space\models\Membership;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\wissen\assets\WissenAsset;
@@ -47,7 +49,7 @@ class WissenController extends ContentContainerController
     {
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
-            [ControllerAccess::RULE_POST => ['vorschlag', 'sprechen', 'speichern', 'wiederherstellen', 'erledigen', 'freigabe', 'vorschau']],
+            [ControllerAccess::RULE_POST => ['vorschlag', 'sprechen', 'teilen', 'oeffentlich', 'speichern', 'wiederherstellen', 'erledigen', 'freigabe', 'vorschau']],
         ];
     }
 
@@ -150,8 +152,92 @@ class WissenController extends ContentContainerController
             'verwandt' => Suche::verwandt($this->sammlung->kennung, $artikel->id),
             'darfBearbeiten' => $this->sammlung->darfBearbeiten($this->ich()),
             'darfVorschlagen' => $this->sammlung->darfVorschlagen($this->ich()),
+            'teilenKreise' => $artikel->entwurf ? [] : array_map(fn(Space $k) => ['id' => (int)$k->id, 'name' => (string)$k->name], $this->teilenKreise($this->ich())),
+            'oeffentlichMoeglich' => Module::oeffentlichMoeglich(),
             'meldung' => Yii::$app->session->getFlash(self::FLASH),
         ]);
+    }
+
+    // ── Teilen ─────────────────────────────────────────────────────────────
+
+    /**
+     * In einen anderen Kreis teilen: ein Beitrag DER PERSON im gewaehlten Kreis, mit Titel, Kurzauszug und Link.
+     * Die Person muss in dem Kreis Mitglied sein und dort schreiben duerfen. Lesen koennen den Artikel alle
+     * angemeldeten Menschen (siehe Sammlung::darfLesen), der Link funktioniert also in jedem Kreis.
+     */
+    public function actionTeilen(string $a)
+    {
+        $artikel = $this->artikel($a);
+        $ich = $this->ich();
+        if ($artikel->entwurf) {
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('teilen_entwurf'));
+            return $this->redirect($artikel->url($this->sammlung));
+        }
+        $ziel = null;
+        $gewaehlt = (int)Yii::$app->request->post('kreis');
+        foreach ($this->teilenKreise($ich) as $kreis) {
+            if ((int)$kreis->id === $gewaehlt) {
+                $ziel = $kreis;
+            }
+        }
+        if ($ziel === null) {
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('teilen_fehler'));
+            return $this->redirect($artikel->url($this->sammlung));
+        }
+        $satz = trim(mb_substr((string)Yii::$app->request->post('text'), 0, 1000));
+        $anriss = trim(Darstellung::anriss($artikel->inhalt, 240));
+        $post = new Post($ziel);
+        $post->message = $this->sammlung->emoji() . ' **' . $artikel->titel . '** · ' . $this->sammlung->name() . "\n\n"
+            . ($satz !== '' ? $satz . "\n\n" : '')
+            . ($anriss !== '' ? '> ' . str_replace("\n", "\n> ", $anriss) . "\n\n" : '')
+            . '[' . Texte::t('artikel_lesen') . '](' . $artikel->url($this->sammlung, true) . ')';
+        if (!$post->save()) {
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('teilen_fehler'));
+            return $this->redirect($artikel->url($this->sammlung));
+        }
+        return $this->redirect($post->content->getUrl());
+    }
+
+    /** @return Space[] Kreise, in denen die Person Mitglied ist und schreiben darf -- ohne den Kreis dieser Sammlung */
+    protected function teilenKreise(?User $ich): array
+    {
+        if ($ich === null) {
+            return [];
+        }
+        $liste = [];
+        $kreise = Space::find()
+            ->innerJoin('space_membership m', 'm.space_id = space.id')
+            ->where(['m.user_id' => (int)$ich->id, 'm.status' => Membership::STATUS_MEMBER, 'space.status' => Space::STATUS_ENABLED])
+            ->andWhere(['<>', 'space.id', (int)$this->contentContainer->id])
+            ->orderBy(['space.sort_order' => SORT_ASC, 'space.name' => SORT_ASC])
+            ->all();
+        foreach ($kreise as $kreis) {
+            if ($kreis->getPermissionManager()->can(new CreatePost())) {
+                $liste[] = $kreis;
+            }
+        }
+        return $liste;
+    }
+
+    /** Einen Artikel ohne Anmeldung lesbar machen oder zuruecknehmen -- nur die Redaktion. */
+    public function actionOeffentlich(string $a)
+    {
+        $this->nurBearbeitende();
+        $artikel = $this->artikel($a);
+        if (Yii::$app->request->post('an') === '1') {
+            if (!Module::oeffentlichMoeglich()) {
+                Yii::$app->session->setFlash(self::FLASH, Texte::t('oeffentlich_fehlt'));
+            } elseif ($artikel->entwurf) {
+                Yii::$app->session->setFlash(self::FLASH, Texte::t('oeffentlich_entwurf'));
+            } else {
+                $artikel->oeffentlichMachen((int)$this->ich()->id);
+                Yii::$app->session->setFlash(self::FLASH, Texte::t('oeffentlich_an'));
+            }
+        } else {
+            $artikel->oeffentlichBeenden();
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('oeffentlich_aus'));
+        }
+        return $this->redirect($artikel->url($this->sammlung));
     }
 
     // ── Mitglieder des Kreises ─────────────────────────────────────────────

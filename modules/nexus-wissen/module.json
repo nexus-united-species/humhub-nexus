@@ -3,6 +3,6 @@
     "name": "N.E.X.U.S. Knowledge Base",
     "description": "Wikipedia-style reference collections inside spaces: articles imported from Markdown, search with everyday words, topics and keywords, table of contents and cross-links, version history, suggestions from space members to the admins.",
     "keywords": ["knowledge base", "wiki", "reference", "markdown", "import", "nexus"],
-    "version": "2.0.0",
+    "version": "2.1.0",
     "humhub": { "minVersion": "1.18" }
 }

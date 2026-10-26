@@ -132,6 +132,7 @@ class RedaktionController extends WissenController
         if (!$artikel->entwurf) {
             $artikel->entwurf = 1;
             $artikel->updated_by = $this->ich()->id;
+            $artikel->oeffentlichBeenden();   // ein Entwurf ist fuer niemanden lesbar -- auch nicht ueber einen oeffentlichen Link
             $artikel->save(false);
             Version::speichern($artikel, 'Zurück zum Entwurf', $this->ich()->id);
             // Ueber den Knopf "Löschen" gekommen: sagen, wo der zweite Schritt ist
