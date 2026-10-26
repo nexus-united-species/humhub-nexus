@@ -32,6 +32,10 @@ class Stand
     /** @var array<int, array<string, array{betrag: int, geschaetzt: bool, von: int[]}>> kachel_id => monat ('' = einmalig) */
     private array $vorgestreckt = [];
     private int $vorgestrecktGesamt = 0;
+    /** @var array<int, array<string, int>> kachel_id => Monat => alles Bezahlte (Topf + vorgestreckt) */
+    private array $bezahltMonat = [];
+    /** @var array<int, array<string, int>> kachel_id => Monat => davon vorgestreckt */
+    private array $vorgestrecktMonat = [];
     /** @var array<int, string> user_id => Anzeigename */
     private array $namen = [];
 
@@ -56,6 +60,13 @@ class Stand
             $this->vorgestreckt[(int)$r['kachel_id']][$r['m']] = $eintrag;
             $this->vorgestrecktGesamt += (int)$r['s'];
             $this->namen[(int)$r['v']] ??= (\humhub\modules\user\models\User::findOne((int)$r['v'])?->displayName ?? '?');
+        }
+        // Alles Bezahlte je Kachel und Monat (nach Datum der Zahlung), egal ob aus dem Topf oder vorgestreckt
+        foreach ($db->createCommand('SELECT kachel_id, LEFT(datum, 7) m, (vorgestreckt_von IS NOT NULL) v, SUM(betrag) s FROM nexus_fin_ausgabe WHERE status = \'freigegeben\' GROUP BY kachel_id, m, v')->queryAll() as $r) {
+            $this->bezahltMonat[(int)$r['kachel_id']][$r['m']] = ($this->bezahltMonat[(int)$r['kachel_id']][$r['m']] ?? 0) + (int)$r['s'];
+            if ((int)$r['v'] === 1) {
+                $this->vorgestrecktMonat[(int)$r['kachel_id']][$r['m']] = (int)$r['s'];
+            }
         }
         foreach ($db->createCommand('SELECT waehrung, zweck_kachel_id IS NULL frei, LEFT(datum, 7) m, SUM(betrag) s, COUNT(*) n FROM nexus_fin_eingang GROUP BY waehrung, frei, m')->queryAll() as $r) {
             if ($r['waehrung'] !== 'EUR') {
@@ -182,7 +193,16 @@ class Stand
             $zugewiesen += array_sum($je);
         }
         $ausgegeben = array_sum($this->ausgegeben);
+        $bezahltMonat = $vorgestrecktMonat = 0;
+        foreach ($this->bezahltMonat as $je) {
+            $bezahltMonat += $je[$monat] ?? 0;
+        }
+        foreach ($this->vorgestrecktMonat as $je) {
+            $vorgestrecktMonat += $je[$monat] ?? 0;
+        }
         return [
+            'bezahlt_monat' => $bezahltMonat,
+            'vorgestreckt_monat' => $vorgestrecktMonat,
             'eingegangen' => $this->eingangGesamt,
             'im_monat' => $this->eingangMonat[$monat] ?? 0,
             'reserviert' => max(0, $zugewiesen - $ausgegeben),
@@ -195,15 +215,17 @@ class Stand
     /**
      * Ziel und Deckung eines Bereichs. "ziel" = alle Kacheln (auch die noch grauen), damit der geplante
      * Bedarf sichtbar ist; "freigegeben" = nur die beschlossenen; gedeckt zaehlt je Kachel hoechstens ihren Bedarf.
-     * @return array{ziel: int, freigegeben: int, gedeckt: int, prozent: int}
+     * "bezahlt" = was in diesem Monat tatsaechlich bezahlt wurde (Topf + vorgestreckt), unabhaengig von Ampel und Freigabe.
+     * @return array{ziel: int, freigegeben: int, gedeckt: int, prozent: int, bezahlt: int}
      */
     public function bereich(string $bereich, string $monat, bool $nurOeffentlich = false): array
     {
-        $ziel = $frei = $gedeckt = 0;
+        $ziel = $frei = $gedeckt = $bezahlt = 0;
         foreach ($this->kacheln($bereich) as $k) {
             if ($nurOeffentlich && !$k->oeffentlich) {
                 continue;
             }
+            $bezahlt += $this->bezahltMonat[(int)$k->id][$monat] ?? 0;
             $ziel += (int)$k->betrag;
             if ($k->freigegeben) {
                 $frei += (int)$k->betrag;
@@ -211,7 +233,7 @@ class Stand
             }
         }
         return ['ziel' => $ziel, 'freigegeben' => $frei, 'gedeckt' => $gedeckt,
-            'prozent' => $frei > 0 ? (int)floor(100 * $gedeckt / $frei) : 0];
+            'prozent' => $frei > 0 ? (int)floor(100 * $gedeckt / $frei) : 0, 'bezahlt' => $bezahlt];
     }
 
     /**

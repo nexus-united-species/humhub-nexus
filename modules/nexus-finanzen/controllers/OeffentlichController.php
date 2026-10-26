@@ -77,6 +77,8 @@ class OeffentlichController extends Controller
                 'ausgegeben_cent' => $summen['ausgegeben'],
                 'frei_cent' => $summen['frei'],
                 'vorgestreckt_cent' => $summen['vorgestreckt'],
+                'bezahlt_monat_cent' => $summen['bezahlt_monat'],
+                'vorgestreckt_monat_cent' => $summen['vorgestreckt_monat'],
             ],
             'entwicklungsdeckel_cent' => Module::instanz()->entwicklungsDeckel(),
             'bereiche' => $bereiche,

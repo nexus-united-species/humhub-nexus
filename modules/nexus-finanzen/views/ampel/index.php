@@ -38,7 +38,7 @@ $summen = $stand->summen($monat);
         </nav>
 
         <div class="nx-fin-summen">
-            <?php foreach (['im_monat', 'eingegangen', 'reserviert', 'ausgegeben', 'frei', 'vorgestreckt'] as $s) : ?>
+            <?php foreach (['im_monat', 'bezahlt_monat', 'eingegangen', 'reserviert', 'ausgegeben', 'frei', 'vorgestreckt'] as $s) : ?>
                 <?php if ($s === 'vorgestreckt' && $summen[$s] === 0) { continue; } ?>
                 <div><span><?= Html::encode(Texte::t($s)) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s])) ?></strong></div>
             <?php endforeach; ?>
@@ -51,6 +51,9 @@ $summen = $stand->summen($monat);
                 <p class="nx-fin-leise"><?= Html::encode(Texte::t('bereich_' . $bereich . '_text')) ?></p>
                 <div class="nx-fin-ziel">
                     <strong><?= Html::encode(sprintf(Texte::t('ziel_geplant'), Geld::zeigen($b['ziel']))) ?></strong>
+                    <?php if ($b['bezahlt'] > 0) : ?>
+                        · <strong><?= Html::encode(sprintf(Texte::t('ziel_bezahlt'), Geld::zeigen($b['bezahlt'], true))) ?></strong>
+                    <?php endif; ?>
                     <?php if ($b['freigegeben'] > 0) : ?>
                         · <?= Html::encode(sprintf(Texte::t('ziel_freigegeben'), Geld::zeigen($b['freigegeben']), Geld::zeigen($b['gedeckt']))) ?>
                         <div class="nx-fin-balken nx-fin-gross"><span style="width:<?= (int)$b['prozent'] ?>%"></span></div>
