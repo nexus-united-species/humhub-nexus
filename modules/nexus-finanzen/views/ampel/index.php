@@ -38,7 +38,8 @@ $summen = $stand->summen($monat);
         </nav>
 
         <div class="nx-fin-summen">
-            <?php foreach (['im_monat', 'eingegangen', 'reserviert', 'ausgegeben', 'frei'] as $s) : ?>
+            <?php foreach (['im_monat', 'eingegangen', 'reserviert', 'ausgegeben', 'frei', 'vorgestreckt'] as $s) : ?>
+                <?php if ($s === 'vorgestreckt' && $summen[$s] === 0) { continue; } ?>
                 <div><span><?= Html::encode(Texte::t($s)) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s])) ?></strong></div>
             <?php endforeach; ?>
         </div>

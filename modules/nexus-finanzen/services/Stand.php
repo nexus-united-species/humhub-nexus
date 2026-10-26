@@ -29,6 +29,11 @@ class Stand
     private int $ausTopf = 0;
     private int $fremdwaehrung = 0;
     private array $eingangMonat = [];
+    /** @var array<int, array<string, array{betrag: int, geschaetzt: bool, von: int[]}>> kachel_id => monat ('' = einmalig) */
+    private array $vorgestreckt = [];
+    private int $vorgestrecktGesamt = 0;
+    /** @var array<int, string> user_id => Anzeigename */
+    private array $namen = [];
 
     public function __construct()
     {
@@ -39,8 +44,18 @@ class Stand
         foreach ($db->createCommand('SELECT kachel_id, COALESCE(monat, \'\') m, SUM(betrag) s FROM nexus_fin_zuweisung GROUP BY kachel_id, m')->queryAll() as $r) {
             $this->zugewiesen[(int)$r['kachel_id']][$r['m']] = (int)$r['s'];
         }
-        foreach ($db->createCommand('SELECT kachel_id, SUM(betrag) s FROM nexus_fin_ausgabe WHERE status = \'freigegeben\' GROUP BY kachel_id')->queryAll() as $r) {
+        // Nur Ausgaben aus dem Spendentopf; Vorgestrecktes steht getrennt (verkleinert den Topf nicht)
+        foreach ($db->createCommand('SELECT kachel_id, SUM(betrag) s FROM nexus_fin_ausgabe WHERE status = \'freigegeben\' AND vorgestreckt_von IS NULL GROUP BY kachel_id')->queryAll() as $r) {
             $this->ausgegeben[(int)$r['kachel_id']] = (int)$r['s'];
+        }
+        foreach ($db->createCommand('SELECT kachel_id, COALESCE(monat, \'\') m, vorgestreckt_von v, SUM(betrag) s, MAX(geschaetzt) g FROM nexus_fin_ausgabe WHERE status = \'freigegeben\' AND vorgestreckt_von IS NOT NULL GROUP BY kachel_id, m, v')->queryAll() as $r) {
+            $eintrag = $this->vorgestreckt[(int)$r['kachel_id']][$r['m']] ?? ['betrag' => 0, 'geschaetzt' => false, 'von' => []];
+            $eintrag['betrag'] += (int)$r['s'];
+            $eintrag['geschaetzt'] = $eintrag['geschaetzt'] || (int)$r['g'] === 1;
+            $eintrag['von'][] = (int)$r['v'];
+            $this->vorgestreckt[(int)$r['kachel_id']][$r['m']] = $eintrag;
+            $this->vorgestrecktGesamt += (int)$r['s'];
+            $this->namen[(int)$r['v']] ??= (\humhub\modules\user\models\User::findOne((int)$r['v'])?->displayName ?? '?');
         }
         foreach ($db->createCommand('SELECT waehrung, zweck_kachel_id IS NULL frei, LEFT(datum, 7) m, SUM(betrag) s, COUNT(*) n FROM nexus_fin_eingang GROUP BY waehrung, frei, m')->queryAll() as $r) {
             if ($r['waehrung'] !== 'EUR') {
@@ -121,6 +136,30 @@ class Stand
         return $this->ausgegeben[(int)$k->id] ?? 0;
     }
 
+    /**
+     * Aus eigener Tasche vorgestreckt: im Monat (laufend) bzw. insgesamt (einmalig). Leer = nichts.
+     * @return array{betrag: int, geschaetzt: bool, von: string[]}|null
+     */
+    public function vorgestreckt(Kachel $k, string $monat): ?array
+    {
+        $je = $this->vorgestreckt[(int)$k->id] ?? [];
+        $treffer = $k->istLaufend() ? array_filter([$je[$monat] ?? null]) : $je;
+        if ($treffer === []) {
+            return null;
+        }
+        $betrag = 0;
+        $geschaetzt = false;
+        $von = [];
+        foreach ($treffer as $t) {
+            $betrag += $t['betrag'];
+            $geschaetzt = $geschaetzt || $t['geschaetzt'];
+            foreach ($t['von'] as $id) {
+                $von[$id] = $this->namen[$id] ?? '?';
+            }
+        }
+        return ['betrag' => $betrag, 'geschaetzt' => $geschaetzt, 'von' => array_values($von)];
+    }
+
     /** Freies Geld im Topf (nur EUR) */
     public function topf(): int
     {
@@ -134,7 +173,7 @@ class Stand
 
     /**
      * Uebersicht: eingegangen, reserviert (zugewiesen, noch nicht ausgegeben), ausgegeben, frei verfuegbar.
-     * @return array{eingegangen: int, im_monat: int, reserviert: int, ausgegeben: int, frei: int}
+     * @return array{eingegangen: int, im_monat: int, reserviert: int, ausgegeben: int, frei: int, vorgestreckt: int}
      */
     public function summen(string $monat): array
     {
@@ -149,6 +188,7 @@ class Stand
             'reserviert' => max(0, $zugewiesen - $ausgegeben),
             'ausgegeben' => $ausgegeben,
             'frei' => $this->topf(),
+            'vorgestreckt' => $this->vorgestrecktGesamt,
         ];
     }
 

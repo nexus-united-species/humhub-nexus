@@ -145,10 +145,18 @@ $quellen = ['ueberweisung' => 'Überweisung', 'stripe' => 'Stripe (direkt, nicht
             <label>Kachel <select class="form-control" name="kachel" required><?php foreach ($stand->kacheln() as $k) : ?><option value="<?= (int)$k->id ?>"><?= Html::encode($k->titel) ?></option><?php endforeach; ?></select></label>
             <label>Datum <input class="form-control" type="date" name="datum" value="<?= date('Y-m-d') ?>" required></label>
             <label>Betrag (€) <input class="form-control" name="betrag" inputmode="decimal" required></label>
+            <label>Bezahlt aus
+                <select class="form-control" name="bezahlt">
+                    <option value="topf">dem Spendentopf</option>
+                    <option value="vorgestreckt">meiner eigenen Tasche (vorgestreckt)</option>
+                </select>
+            </label>
+            <label class="nx-fin-haken-zeile"><span><input type="checkbox" name="geschaetzt" value="1"> Betrag ist geschätzt</span></label>
             <label>Beleg (intern) <input class="form-control" name="beleg" maxlength="190" placeholder="z. B. Rechnung Nr."></label>
             <label>Notiz (intern) <input class="form-control" name="notiz" maxlength="255"></label>
             <button type="submit" class="btn btn-primary btn-sm">Ausgabe erfassen</button>
         <?= Html::endForm() ?>
+        <p class="nx-fin-leise">„Vorgestreckt“ heißt: du hast es selbst bezahlt, der Spendentopf bleibt unberührt. Es erscheint auf der Ampel als „vorgestreckt“, bis es einmal erstattet wird. Eine Vergütung kann nicht vorgestreckt gebucht werden.</p>
         <div class="nx-fin-tabelle"><table class="table table-sm">
             <thead><tr><th>Datum</th><th>Kachel</th><th>Betrag</th><th>Status</th><th>Beleg / Notiz</th><th></th></tr></thead>
             <tbody>
@@ -156,12 +164,33 @@ $quellen = ['ueberweisung' => 'Überweisung', 'stripe' => 'Stripe (direkt, nicht
                 <tr>
                     <td><?= Html::encode(Yii::$app->formatter->asDate($a->datum)) ?></td>
                     <td><?= Html::encode($a->kachel?->titel ?? '?') ?></td>
-                    <td><?= Html::encode(Geld::zeigen((int)$a->betrag, true)) ?></td>
-                    <td><?= $a->status === 'offen' ? '<span class="nx-fin-marke nx-fin-offen">wartet auf zweite Freigabe</span>' : 'freigegeben von ' . Html::encode($name((int)$a->freigegeben_von)) ?><br><span class="nx-fin-leise">eingetragen von <?= Html::encode($name((int)$a->erfasst_von)) ?></span></td>
+                    <td><?= Html::encode(Geld::zeigen((int)$a->betrag, true)) ?><?= $a->geschaetzt ? ' <span class="nx-fin-marke">geschätzt</span>' : '' ?></td>
+                    <td>
+                        <?php if ($a->vorgestreckt_von !== null) : ?>
+                            <span class="nx-fin-marke nx-fin-vorgestreckt">vorgestreckt von <?= Html::encode($name((int)$a->vorgestreckt_von)) ?></span>
+                        <?php elseif ($a->status === 'offen') : ?>
+                            <span class="nx-fin-marke nx-fin-offen">wartet auf zweite Freigabe</span>
+                        <?php else : ?>
+                            freigegeben von <?= Html::encode($name((int)$a->freigegeben_von)) ?>
+                        <?php endif; ?>
+                        <br><span class="nx-fin-leise">eingetragen von <?= Html::encode($name((int)$a->erfasst_von)) ?></span>
+                    </td>
                     <td class="nx-fin-leise"><?= Html::encode(trim(($a->beleg ?? '') . ' ' . ($a->notiz ?? ''))) ?></td>
                     <td>
                         <?php if ($a->status === 'offen' && (int)$a->erfasst_von !== (int)$ich->id && (int)$a->kachel?->beguenstigt_id !== (int)$ich->id) : ?>
                             <?= $knopf('ausgabe-freigeben', ['id' => $a->id], 'Freigeben', 'btn btn-primary btn-sm', 'Diese Auszahlung als zweite Person freigeben?') ?>
+                        <?php endif; ?>
+                        <?php if ($a->vorgestreckt_von !== null) : ?>
+                            <details class="nx-fin-aendern"><summary>ändern</summary>
+                                <?= Html::beginForm(Url::to(['ausgabe-aendern', 'id' => $a->id]), 'post', ['class' => 'nx-fin-formular']) ?>
+                                    <?= Html::hiddenInput('monat', $monat) ?>
+                                    <label>Datum <input class="form-control" type="date" name="datum" value="<?= Html::encode($a->datum) ?>" required></label>
+                                    <label>Betrag (€) <input class="form-control" name="betrag" inputmode="decimal" value="<?= Html::encode(number_format((int)$a->betrag / 100, 2, ',', '')) ?>" required></label>
+                                    <label>Notiz <input class="form-control" name="notiz" maxlength="255" value="<?= Html::encode((string)$a->notiz) ?>"></label>
+                                    <label class="nx-fin-haken-zeile"><span><input type="checkbox" name="geschaetzt" value="1"<?= $a->geschaetzt ? ' checked' : '' ?>> geschätzt</span></label>
+                                    <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+                                <?= Html::endForm() ?>
+                            </details>
                         <?php endif; ?>
                         <?= $knopf('ausgabe-loeschen', ['id' => $a->id], '×', 'btn btn-link btn-sm', 'Diese Ausgabe löschen?') ?>
                     </td>

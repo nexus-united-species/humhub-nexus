@@ -58,6 +58,9 @@ class OeffentlichController extends Controller
                     'ampel' => $stand->farbe($k, $monat),
                     'einordnung' => $k->einordnung,
                     'zusatz' => $k->zusatz,
+                    // Vorgestreckt = aus eigener Tasche bezahlt, noch nicht erstattet (ohne Namen)
+                    'vorgestreckt_cent' => $stand->vorgestreckt($k, $monat)['betrag'] ?? 0,
+                    'vorgestreckt_geschaetzt' => $stand->vorgestreckt($k, $monat)['geschaetzt'] ?? false,
                 ];
             }
             $bereiche[$b] = $stand->bereich($b, $monat, true) + ['kacheln' => $kacheln];
@@ -73,6 +76,7 @@ class OeffentlichController extends Controller
                 'reserviert_cent' => $summen['reserviert'],
                 'ausgegeben_cent' => $summen['ausgegeben'],
                 'frei_cent' => $summen['frei'],
+                'vorgestreckt_cent' => $summen['vorgestreckt'],
             ],
             'entwicklungsdeckel_cent' => Module::instanz()->entwicklungsDeckel(),
             'bereiche' => $bereiche,

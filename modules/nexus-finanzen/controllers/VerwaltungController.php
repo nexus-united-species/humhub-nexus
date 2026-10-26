@@ -32,7 +32,7 @@ class VerwaltungController extends Controller
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
             [ControllerAccess::RULE_POST => ['kachel-speichern', 'kachel-loeschen', 'eingang', 'eingang-loeschen', 'vorschlagen',
-                'bestaetigen', 'verwerfen', 'ausgabe', 'ausgabe-freigeben', 'ausgabe-loeschen', 'rueckblick', 'einstellungen-speichern']],
+                'bestaetigen', 'verwerfen', 'ausgabe', 'ausgabe-aendern', 'ausgabe-freigeben', 'ausgabe-loeschen', 'rueckblick', 'einstellungen-speichern']],
         ];
     }
 
@@ -63,7 +63,7 @@ class VerwaltungController extends Controller
             'offeneVerteilung' => Verteilung::find()->where(['status' => ['vorgeschlagen', 'wartet_zweite']])->orderBy(['id' => SORT_DESC])->one(),
             'verteilungen' => Verteilung::find()->where(['status' => 'gebucht'])->orderBy(['id' => SORT_DESC])->limit(12)->all(),
             'eingaenge' => Eingang::find()->orderBy(['datum' => SORT_DESC, 'id' => SORT_DESC])->limit(60)->all(),
-            'ausgaben' => Ausgabe::find()->orderBy(['datum' => SORT_DESC, 'id' => SORT_DESC])->limit(60)->all(),
+            'ausgaben' => Ausgabe::find()->orderBy(['datum' => SORT_DESC, 'id' => SORT_DESC])->limit(300)->all(),
             'rueckblick' => (string)Yii::$app->db->createCommand('SELECT text FROM nexus_fin_rueckblick WHERE monat = :m', [':m' => $monat])->queryScalar(),
             'ich' => $this->ich(),
             'meldung' => Yii::$app->session->getFlash(self::FLASH),
@@ -170,8 +170,22 @@ class VerwaltungController extends Controller
                 throw new RuntimeException('Den Betrag konnte ich nicht lesen.');
             }
             Buchung::ausgabe($this->ich(), $this->kachel((int)$r->post('kachel')), (string)$r->post('datum'), $betrag,
-                (string)$r->post('notiz'), (string)$r->post('beleg'));
+                (string)$r->post('notiz'), (string)$r->post('beleg'), (string)$r->post('bezahlt') === 'vorgestreckt',
+                (string)$r->post('geschaetzt') === '1');
         }, 'Ausgabe erfasst ✓', '#ausgaben');
+    }
+
+    public function actionAusgabeAendern(int $id)
+    {
+        $a = Ausgabe::findOne($id) ?? throw new NotFoundHttpException();
+        $r = Yii::$app->request;
+        $betrag = Geld::lesen((string)$r->post('betrag'));
+        return $this->versuche(function () use ($a, $r, $betrag) {
+            if ($betrag === null) {
+                throw new RuntimeException('Den Betrag konnte ich nicht lesen.');
+            }
+            Buchung::ausgabeAendern($this->ich(), $a, (string)$r->post('datum'), $betrag, (string)$r->post('notiz'), (string)$r->post('geschaetzt') === '1');
+        }, 'Ausgabe geändert ✓', '#ausgaben');
     }
 
     public function actionAusgabeFreigeben(int $id)

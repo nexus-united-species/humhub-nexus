@@ -15,6 +15,7 @@ use nexus\modules\finanzen\services\Texte;
 $farbe = $stand->farbe($k, $monat);
 $gedeckt = min((int)$k->betrag, $stand->gedeckt($k, $monat));
 $uebertrag = $k->istLaufend() ? $stand->uebertrag($k, $monat) : 0;
+$vorgestreckt = $stand->vorgestreckt($k, $monat);
 ?>
 <div class="nx-fin-kachel nx-fin-<?= $farbe ?>">
     <div class="nx-fin-kopf">
@@ -33,4 +34,11 @@ $uebertrag = $k->istLaufend() ? $stand->uebertrag($k, $monat) : 0;
         <span class="nx-fin-marke"><?= Html::encode(Texte::t('einordnung_' . $k->einordnung)) ?></span>
         <?php if ($k->zusatz) : ?><span class="nx-fin-marke nx-fin-zusatz"><?= Html::encode(Texte::t('zusatz_' . $k->zusatz)) ?></span><?php endif; ?>
     </div>
+    <?php if ($vorgestreckt !== null) : ?>
+        <div class="nx-fin-vorgestreckt-zeile">
+            <?= Html::encode(sprintf(Texte::t($k->istLaufend() ? 'bezahlt_im_monat' : 'bezahlt_bisher'), Geld::zeigen($vorgestreckt['betrag'], true), Geld::monatName($monat))) ?>
+            – <?= Html::encode(sprintf(Texte::t('vorgestreckt_von'), implode(', ', $vorgestreckt['von']))) ?>
+            <?php if ($vorgestreckt['geschaetzt']) : ?><span class="nx-fin-marke"><?= Html::encode(Texte::t('geschaetzt')) ?></span><?php endif; ?>
+        </div>
+    <?php endif; ?>
 </div>

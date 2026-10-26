@@ -47,5 +47,9 @@
 .nx-fin .nx-fin-felder label { display: flex; flex-direction: column; font-weight: 600; font-size: .88rem; }
 .nx-fin .nx-fin-felder .nx-fin-ganz, .nx-fin .nx-fin-felder .nx-fin-haken { grid-column: 1 / -1; }
 .nx-fin .nx-fin-felder .nx-fin-haken { flex-direction: row; gap: .5rem; align-items: center; font-weight: normal; }
+.nx-fin .nx-fin-vorgestreckt-zeile { font-size: .88rem; margin-top: .35rem; padding-top: .3rem; border-top: 1px dashed var(--nx-fin-rand); }
+.nx-fin .nx-fin-marke.nx-fin-vorgestreckt { border-color: var(--nx-fin-gelb); color: inherit; }
+.nx-fin .nx-fin-haken-zeile { flex: 0 1 auto; flex-direction: row; align-items: center; font-weight: normal; }
+.nx-fin .nx-fin-aendern summary { cursor: pointer; color: var(--nx-fin-leise); font-size: .85rem; }
 .nx-fin .nx-fin-tabelle { overflow-x: auto; }
 .nx-fin .nx-fin-tabelle td { vertical-align: top; }

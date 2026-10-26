@@ -19,6 +19,8 @@ use humhub\modules\user\models\User;
  * @property string $status offen|freigegeben
  * @property int|null $erfasst_von
  * @property int|null $freigegeben_von
+ * @property int|null $vorgestreckt_von wer es aus eigener Tasche bezahlt hat (NULL = aus dem Spendentopf)
+ * @property bool $geschaetzt Betrag ist eine Schaetzung, kein Rechnungsbetrag
  */
 class Ausgabe extends ActiveRecord
 {

@@ -194,7 +194,11 @@ class Buchung
 
     // ── Ausgaben ────────────────────────────────────────────────────────────
 
-    public static function ausgabe(User $ich, Kachel $k, string $datum, int $betrag, string $notiz, string $beleg): Ausgabe
+    /**
+     * @param bool $vorgestreckt aus eigener Tasche der erfassenden Person bezahlt (zaehlt nicht als Ausgabe aus dem Topf)
+     * @param bool $geschaetzt   Betrag ist eine Schaetzung
+     */
+    public static function ausgabe(User $ich, Kachel $k, string $datum, int $betrag, string $notiz, string $beleg, bool $vorgestreckt = false, bool $geschaetzt = false): Ausgabe
     {
         self::pruefe($ich);
         if ($betrag <= 0) {
@@ -202,11 +206,16 @@ class Buchung
         }
         $datum = preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum) ? $datum : date('Y-m-d');
         $verguetung = $k->beguenstigt_id !== null;
+        if ($vorgestreckt && $verguetung) {
+            // Eine Verguetung laeuft immer ueber die Vier-Augen-Freigabe -- "vorgestreckt" waere ein Umweg daran vorbei.
+            throw new RuntimeException('Bei einer Vergütungs-Kachel geht „vorgestreckt“ nicht – Vergütungen brauchen die Freigabe einer zweiten Person.');
+        }
         $a = new Ausgabe([
             'kachel_id' => $k->id, 'monat' => $k->istLaufend() ? substr($datum, 0, 7) : null, 'datum' => $datum, 'betrag' => $betrag,
             'notiz' => mb_substr(trim($notiz), 0, 255) ?: null, 'beleg' => mb_substr(trim($beleg), 0, 190) ?: null,
             'status' => $verguetung ? 'offen' : 'freigegeben', 'erfasst_von' => $ich->id,
             'freigegeben_von' => $verguetung ? null : $ich->id, 'created_at' => date('Y-m-d H:i:s'),
+            'vorgestreckt_von' => $vorgestreckt ? $ich->id : null, 'geschaetzt' => $geschaetzt ? 1 : 0,
         ]);
         $a->save(false);
         if ($verguetung) {
@@ -214,6 +223,27 @@ class Buchung
                 $ich->displayName, Geld::zeigen($betrag, true), $k->titel, self::link()));
         }
         return $a;
+    }
+
+    /**
+     * Betrag, Datum, Notiz und "geschaetzt" einer VORGESTRECKTEN Ausgabe korrigieren. Nur dort: Ausgaben aus dem
+     * Topf und Verguetungen haben Folgen fuer die Verteilung bzw. die Freigabe und werden geloescht und neu erfasst.
+     */
+    public static function ausgabeAendern(User $ich, Ausgabe $a, string $datum, int $betrag, string $notiz, bool $geschaetzt): void
+    {
+        self::pruefe($ich);
+        if ($a->vorgestreckt_von === null) {
+            throw new RuntimeException('Ändern geht nur bei vorgestreckten Ausgaben. Andere bitte löschen und neu erfassen.');
+        }
+        if ($betrag <= 0) {
+            throw new RuntimeException('Bitte einen Betrag über 0 eingeben.');
+        }
+        $datum = preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum) ? $datum : $a->datum;
+        $a->updateAttributes([
+            'datum' => $datum, 'betrag' => $betrag, 'geschaetzt' => $geschaetzt ? 1 : 0,
+            'monat' => $a->kachel?->istLaufend() ? substr($datum, 0, 7) : null,
+            'notiz' => mb_substr(trim($notiz), 0, 255) ?: null,
+        ]);
     }
 
     public static function ausgabeFreigeben(User $ich, Ausgabe $a): void
