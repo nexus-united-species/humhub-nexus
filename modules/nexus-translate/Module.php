@@ -19,11 +19,13 @@ class Module extends \humhub\components\Module
     /**
      * Laengere Markdown-Texte werden in Stuecke dieser Groesse (Zeichen) zerlegt und gleichzeitig uebersetzt.
      * Eine Wiki-Seite mit 13.000 Zeichen ueberschritt am 26.10.2026 in EINER Anfrage die 60 Sekunden
-     * (Gemini lieferte nichts, "Operation timed out"); ein Stueck von 3.500 Zeichen braucht ~7 s.
+     * (Gemini lieferte nichts, "Operation timed out"); ein Stueck von 3.500 Zeichen braucht 7-25 s.
+     * Gemessen: 5 Stuecke a ~3.300 Zeichen in zwei Runden zu je 4 liefen 46-53 s -- kleinere Stuecke, alle
+     * auf einmal, sind schneller (die Dauer haengt an der Laenge der Antwort).
      */
-    private const TEILGROESSE = 3500;
-    /** So viele Stuecke laufen gleichzeitig (schont das Anfragelimit des Dienstes). */
-    private const GLEICHZEITIG = 4;
+    private const TEILGROESSE = 2000;
+    /** So viele Stuecke laufen gleichzeitig. */
+    private const GLEICHZEITIG = 8;
 
     public function getName()
     {
