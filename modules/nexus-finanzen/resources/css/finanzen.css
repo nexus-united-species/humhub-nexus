@@ -5,6 +5,13 @@
 .nx-fin h2 { font-size: 1.2rem; margin: 1.6rem 0 .3rem; scroll-margin-top: 80px; }
 .nx-fin h3 { font-size: 1rem; margin: .8rem 0 .4rem; }
 .nx-fin h3 small { color: var(--nx-fin-leise); font-weight: normal; }
+.nx-fin h4 { font-size: .95rem; margin: .7rem 0 .35rem; }
+.nx-fin h4 small { color: var(--nx-fin-leise); font-weight: normal; }
+.nx-fin .nx-fin-teil { margin-top: 1rem; }
+.nx-fin .nx-fin-teilkopf { font-size: 1.05rem; margin: 0 0 .5rem; padding: .35rem .6rem; border-radius: 6px; background: var(--nx-fin-flaeche); display: flex; justify-content: space-between; gap: .5rem; }
+.nx-fin .nx-fin-teilkopf small { font-size: 1rem; font-weight: 600; color: inherit; }
+.nx-fin .nx-fin-teil-bezahlt .nx-fin-teilkopf::before { content: "✓"; margin-right: .4rem; }
+.nx-fin .nx-fin-teil-plan .nx-fin-kachel { border-style: dashed; border-left-style: solid; }
 .nx-fin .nx-fin-leise { color: var(--nx-fin-leise); font-size: .88rem; }
 .nx-fin .nx-fin-titelzeile { display: flex; justify-content: space-between; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .6rem; }
 .nx-fin .nx-fin-monate { display: flex; gap: 1rem; align-items: center; margin: .6rem 0 1rem; }

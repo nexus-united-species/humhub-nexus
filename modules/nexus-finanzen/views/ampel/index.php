@@ -70,21 +70,38 @@ $summen = $stand->summen($monat);
                     <?php if ($bereich === 'entwicklung' && $deckel > 0) : ?><div class="nx-fin-leise"><?= Html::encode(sprintf(Texte::t('deckel'), Geld::zeigen($deckel))) ?></div><?php endif; ?>
                 </div>
                 <?php
-                // Anzeige-Bloecke: eine Gruppe steht geschlossen an der Stelle ihrer ersten Kachel (Verteilung bleibt nach Rang)
-                $bloecke = [];
+                // Zwei Teile je Bereich: oben, was in diesem Monat bezahlt wurde; darunter, was noch im Plan steht.
+                $teile = ['bezahlt' => [], 'plan' => []];
                 foreach ($kacheln as $k) {
-                    $schluessel = $k->gruppe === null ? 'k' . $k->id : 'g' . $k->gruppe;
-                    $bloecke[$schluessel][] = $k;
+                    $teile[$stand->bezahlt($k, $monat) !== null ? 'bezahlt' : 'plan'][] = $k;
                 }
+                $betragIn = static fn(string $teil, $x): int => $teil === 'bezahlt' ? (int)($stand->bezahlt($x, $monat)['betrag'] ?? 0) : (int)$x->betrag;
                 ?>
-                <?php foreach ($bloecke as $schluessel => $liste) : ?>
-                    <?php if ($schluessel[0] === 'g') : ?>
-                        <div class="nx-fin-gruppe"><h3><?= Html::encode($liste[0]->gruppe) ?> <small><?= Html::encode(Geld::zeigen(array_sum(array_map(fn($x) => (int)$x->betrag, $liste)))) ?></small></h3>
-                    <?php endif; ?>
-                    <?php foreach ($liste as $k) : ?>
-                        <?= $this->render('_kachel', ['k' => $k, 'stand' => $stand, 'monat' => $monat]) ?>
-                    <?php endforeach; ?>
-                    <?php if ($schluessel[0] === 'g') : ?></div><?php endif; ?>
+                <?php foreach ($teile as $teil => $teilKacheln) : ?>
+                    <?php if ($teilKacheln === []) { continue; } ?>
+                    <div class="nx-fin-teil nx-fin-teil-<?= $teil ?>">
+                        <h3 class="nx-fin-teilkopf">
+                            <?= Html::encode($teil === 'bezahlt' ? sprintf(Texte::t('teil_bezahlt'), Geld::monatName($monat)) : Texte::t('teil_plan')) ?>
+                            <small><?= Html::encode(Geld::zeigen(array_sum(array_map(fn($x) => $betragIn($teil, $x), $teilKacheln)), $teil === 'bezahlt')) ?></small>
+                        </h3>
+                        <?php
+                        // Anzeige-Bloecke: eine Gruppe steht geschlossen an der Stelle ihrer ersten Kachel (Verteilung bleibt nach Rang)
+                        $bloecke = [];
+                        foreach ($teilKacheln as $k) {
+                            $schluessel = $k->gruppe === null ? 'k' . $k->id : 'g' . $k->gruppe;
+                            $bloecke[$schluessel][] = $k;
+                        }
+                        ?>
+                        <?php foreach ($bloecke as $schluessel => $liste) : ?>
+                            <?php if ($schluessel[0] === 'g') : ?>
+                                <div class="nx-fin-gruppe"><h4><?= Html::encode($liste[0]->gruppe) ?> <small><?= Html::encode(Geld::zeigen(array_sum(array_map(fn($x) => $betragIn($teil, $x), $liste)), $teil === 'bezahlt')) ?></small></h4>
+                            <?php endif; ?>
+                            <?php foreach ($liste as $k) : ?>
+                                <?= $this->render('_kachel', ['k' => $k, 'stand' => $stand, 'monat' => $monat]) ?>
+                            <?php endforeach; ?>
+                            <?php if ($schluessel[0] === 'g') : ?></div><?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endforeach; ?>
             </section>
         <?php endforeach; ?>
