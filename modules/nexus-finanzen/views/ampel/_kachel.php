@@ -21,7 +21,12 @@ $vorgestreckt = $stand->vorgestreckt($k, $monat);
     <div class="nx-fin-kopf">
         <span class="nx-fin-punkt" aria-hidden="true"></span>
         <strong><?= Html::encode($k->titel) ?></strong>
-        <span class="nx-fin-betrag"><?= Html::encode(Geld::zeigen((int)$k->betrag)) ?> <small><?= Html::encode(Texte::t($k->istLaufend() ? 'je_monat' : 'einmalig')) ?></small></span>
+        <?php if ($vorgestreckt !== null) : ?>
+            <?php /* Der tatsaechlich bezahlte Betrag steht vorn; weicht er vom Plan ab, steht der Plan klein dahinter */ ?>
+            <span class="nx-fin-betrag"><?= Html::encode(Geld::zeigen($vorgestreckt['betrag'])) ?> <small><?= Html::encode(Texte::t('bezahlt_klein')) ?><?= $vorgestreckt['betrag'] !== (int)$k->betrag ? ' · ' . Html::encode(sprintf(Texte::t('plan_klein'), Geld::zeigen((int)$k->betrag))) : '' ?></small></span>
+        <?php else : ?>
+            <span class="nx-fin-betrag"><?= Html::encode(Geld::zeigen((int)$k->betrag)) ?> <small><?= Html::encode(Texte::t($k->istLaufend() ? 'je_monat' : 'einmalig')) ?></small></span>
+        <?php endif; ?>
     </div>
     <?php if ($k->beschreibung) : ?><div class="nx-fin-leise"><?= Html::encode($k->beschreibung) ?></div><?php endif; ?>
     <div class="nx-fin-balken" role="img" aria-label="<?= Html::encode(Texte::t('farbe_' . $farbe)) ?>"><span style="width:<?= $farbe === 'grau' ? 0 : $stand->prozent($k, $monat) ?>%"></span></div>
