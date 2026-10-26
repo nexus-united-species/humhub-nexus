@@ -4,6 +4,7 @@ namespace nexus\modules\projekte\services;
 
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
+use nexus\modules\projekte\models\Datei;
 use nexus\modules\projekte\models\Karte;
 use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\Module;
@@ -61,6 +62,17 @@ class Rechte
     public static function darfAbhaken(Karte $karte, ?User $mensch): bool
     {
         return $mensch !== null && (self::darfKarteBearbeiten($karte, $mensch) || $karte->istHelfer((int)$mensch->id));
+    }
+
+    /**
+     * Eine hochgeladene Datei einer Kachel loeschen: wer sie hochgeladen hat sowie Verantwortliche und Leitung
+     * (Rueckmeldung eines Mitglieds, 26.10.2026) -- nicht bei Vorschlaegen (die Fassungen gehoeren zur Entscheidung),
+     * nicht bei der Bild-Auswahl (eigene Entwuerfe) und nicht bei fertigen Kacheln.
+     */
+    public static function darfDateiLoeschen(Karte $karte, Datei $datei, ?User $mensch): bool
+    {
+        return $mensch !== null && !$karte->istVorschlag() && !$karte->istAuswahl() && $karte->spalte !== 'fertig'
+            && ((int)$datei->created_by === (int)$mensch->id || self::darfKarteBearbeiten($karte, $mensch));
     }
 
     public static function darfUebernehmen(Karte $karte, ?User $mensch): bool

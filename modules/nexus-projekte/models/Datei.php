@@ -50,6 +50,8 @@ class Datei extends ActiveRecord
         }
         return [
             'name' => (string)$basis->file_name,
+            // Ohne das "F2 - " vorn, das nur dazu dient, Fassungen im Dateibereich auseinanderzuhalten
+            'anzeige' => (string)preg_replace('/^F\d+ - /', '', (string)$basis->file_name),
             'url' => $basis->getUrl(),
             'bild' => str_starts_with((string)$basis->mime_type, 'image/'),
             'groesse' => (int)$basis->size,

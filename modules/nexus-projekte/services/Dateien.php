@@ -85,6 +85,24 @@ class Dateien
         return [$gespeichert > 0 ? $fassung : 0, $fehler];
     }
 
+    /**
+     * Eine Datei loeschen: der Eintrag an der Kachel UND die Datei im Dateibereich des Kreises (weich geloescht --
+     * HumHub raeumt sie in der Nacht endgueltig weg, bis dahin laesst sie sich im Kreis aus dem Papierkorb holen).
+     * Ein Fehler beim Dateibereich haelt das Entfernen an der Kachel nicht auf.
+     */
+    public static function loeschen(Datei $datei): void
+    {
+        $kreisDatei = $datei->kreisDatei;
+        $datei->delete();
+        if ($kreisDatei !== null && (int)$kreisDatei->content->state !== Content::STATE_DELETED) {
+            try {
+                $kreisDatei->content->delete();
+            } catch (Throwable $e) {
+                Yii::warning('Datei ' . $datei->id . ' im Dateibereich nicht geloescht: ' . $e->getMessage(), 'nexus-projekte');
+            }
+        }
+    }
+
     private static function ordner(Karte $karte): Folder
     {
         $kreis = $karte->projekt->kreis;

@@ -85,6 +85,29 @@
 .nx-pj .nx-pj-entwuerfe { margin-top: .8rem; padding: .6rem .7rem; border: 1px dashed var(--nx-pj-rand); border-radius: 8px; }
 .nx-pj .nx-pj-entwuerfe .nx-pj-bild { max-width: 320px; }
 .nx-pj .nx-pj-entwuerfe .nx-pj-bild img { max-height: 260px; }
+/* Dateien einer Kachel: Vorschaubilder im Raster, uebrige Dateien als Liste, Papierkorb an jeder Datei */
+.nx-pj .nx-pj-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .5rem; margin: .4rem 0 .6rem; }
+.nx-pj .nx-pj-vorschau { position: relative; margin: 0; border: 1px solid var(--nx-pj-rand); border-radius: 6px; overflow: hidden; background: var(--nx-pj-flaeche); }
+.nx-pj .nx-pj-vorschau a { display: block; }
+.nx-pj .nx-pj-vorschau img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; max-height: none; }
+.nx-pj .nx-pj-vorschau figcaption { display: flex; flex-direction: column; padding: .2rem .4rem .3rem; font-size: .78rem; line-height: 1.25; }
+.nx-pj .nx-pj-dname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nx-pj .nx-pj-dateiliste { list-style: none; margin: .3rem 0 .6rem; padding: 0; }
+.nx-pj .nx-pj-dateiliste li { padding: .15rem 0; font-size: .9rem; }
+.nx-pj .nx-pj-fassungskopf { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; }
+.nx-pj .nx-pj-datei-loeschen { display: inline; margin: 0; }
+.nx-pj .nx-pj-x { background: none; border: 0; padding: .1rem .35rem; color: var(--nx-pj-leise); cursor: pointer; border-radius: 4px; }
+.nx-pj .nx-pj-x:hover, .nx-pj .nx-pj-x:focus { color: #c0392b; background: var(--nx-pj-flaeche); }
+.nx-pj .nx-pj-vorschau .nx-pj-datei-loeschen { position: absolute; top: .2rem; right: .2rem; }
+.nx-pj .nx-pj-vorschau .nx-pj-x { background: rgba(255, 255, 255, .88); color: #333; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.nx-pj .nx-pj-x-text { font-size: .85rem; }
+/* Hochladen: Auswahl und Fortschritt */
+.nx-pj .nx-pj-gewaehlt { flex: 1 0 100%; font-size: .85rem; overflow-wrap: anywhere; }
+.nx-pj .nx-pj-fortschritt { flex: 1 0 100%; margin-top: .3rem; }
+.nx-pj .nx-pj-balken { height: 10px; background: var(--nx-pj-flaeche); border: 1px solid var(--nx-pj-rand); border-radius: 5px; overflow: hidden; }
+.nx-pj .nx-pj-balken span { display: block; height: 100%; width: 0; background: var(--bs-primary, #2b6cb0); transition: width .15s linear; }
+.nx-pj .nx-pj-fortschritt-text { font-size: .85rem; margin-top: .2rem; }
+.nx-pj .nx-pj-fortschritt.nx-pj-fehler .nx-pj-fortschritt-text { color: #c0392b; font-weight: 600; }
 .nx-pj .nx-pj-hochladen { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .4rem; }
 .nx-pj .nx-pj-hochladen label { flex: 1 0 100%; margin: 0; font-weight: 600; font-size: .9rem; }
 .nx-pj .nx-pj-hochladen input[type=file] { flex: 1 1 16rem; width: auto; }

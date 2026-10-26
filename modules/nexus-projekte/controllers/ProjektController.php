@@ -7,6 +7,7 @@ use humhub\modules\content\components\ContentContainerController;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\assets\ProjekteAsset;
+use nexus\modules\projekte\models\Datei;
 use nexus\modules\projekte\models\Karte;
 use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Schritt;
@@ -40,7 +41,7 @@ class ProjektController extends ContentContainerController
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
             [ControllerAccess::RULE_POST => ['speichern', 'loeschen', 'mitmachen', 'karte-speichern', 'karte-loeschen',
-                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'dateien']],
+                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'dateien', 'datei-loeschen', 'fassung-loeschen']],
         ];
     }
 
@@ -314,6 +315,44 @@ class ProjektController extends ContentContainerController
             $meldung .= ($meldung !== '' ? ' ' : '') . sprintf(Texte::t('datei_fehler'), implode('; ', $fehler));
         }
         Yii::$app->session->setFlash(self::FLASH, $meldung);
+        // Das Hochladen mit Fortschrittsanzeige (projekte.js) schickt die Dateien per XHR und fragt JSON ab; die Meldung
+        // steht schon in der Sitzung und erscheint, wenn die Seite danach neu geladen wird.
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return ['ok' => $fassung > 0, 'url' => $karte->url(true), 'fehler' => $fehler];
+        }
+        return $this->redirect($karte->url());
+    }
+
+    /** Eine hochgeladene Datei einer Kachel loeschen (Rechte::darfDateiLoeschen). */
+    public function actionDateiLoeschen(int $k, int $d)
+    {
+        $karte = $this->karteImKreis($k);
+        $datei = Datei::findOne(['id' => $d, 'karte_id' => $karte->id]) ?? throw new NotFoundHttpException();
+        $this->pruefe(Rechte::darfDateiLoeschen($karte, $datei, $this->ich()));
+        Dateien::loeschen($datei);
+        $karte->updateAttributes(['updated_at' => date('Y-m-d H:i:s')]);
+        Yii::$app->session->setFlash(self::FLASH, Texte::t('datei_geloescht'));
+        return $this->redirect($karte->url());
+    }
+
+    /** Alle Dateien einer Fassung loeschen -- nur die, die die Person loeschen darf (die uebrigen bleiben). */
+    public function actionFassungLoeschen(int $k, int $f)
+    {
+        $karte = $this->karteImKreis($k);
+        $ich = $this->ich();
+        $anzahl = 0;
+        foreach (Datei::findAll(['karte_id' => $karte->id, 'fassung' => $f]) as $datei) {
+            if (Rechte::darfDateiLoeschen($karte, $datei, $ich)) {
+                Dateien::loeschen($datei);
+                $anzahl++;
+            }
+        }
+        if ($anzahl === 0) {
+            throw new NotFoundHttpException();
+        }
+        $karte->updateAttributes(['updated_at' => date('Y-m-d H:i:s')]);
+        Yii::$app->session->setFlash(self::FLASH, sprintf(Texte::t('fassung_geloescht'), $f, $anzahl));
         return $this->redirect($karte->url());
     }
 

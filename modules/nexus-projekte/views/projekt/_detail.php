@@ -97,16 +97,28 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         <div class="nx-pj-entwuerfe">
             <div class="nx-pj-label"><i class="fa fa-picture-o"></i> <?= Html::encode(Texte::t('entwuerfe')) ?></div>
             <?php if ($fassungen !== []) : ?>
-                <?= $this->render('_dateien', ['fassungen' => $fassungen]) ?>
+                <?= $this->render('_dateien', ['fassungen' => $fassungen, 'karte' => $karte, 'ich' => $ich, 'url' => $url]) ?>
             <?php else : ?>
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('entwuerfe_leer')) ?></div>
             <?php endif; ?>
             <?php if ($darfHochladen) : ?>
-                <?= Html::beginForm($url('dateien'), 'post', ['enctype' => 'multipart/form-data', 'class' => 'nx-pj-hochladen']) ?>
+                <?php /* Texte fuer die Fortschrittsanzeige (projekte.js): {n} Anzahl, {mb} Groesse, {p} Prozent, {a}/{b} MB, {max} je Fassung */ ?>
+                <?= Html::beginForm($url('dateien'), 'post', [
+                    'enctype' => 'multipart/form-data', 'class' => 'nx-pj-hochladen',
+                    'data-nx-pj-max' => \nexus\modules\projekte\models\Datei::MAX_JE_FASSUNG,
+                    'data-nx-pj-t-gewaehlt' => Texte::t('upload_gewaehlt'), 'data-nx-pj-t-zuviele' => Texte::t('upload_zuviele'),
+                    'data-nx-pj-t-laeuft' => Texte::t('upload_laeuft'), 'data-nx-pj-t-verarbeite' => Texte::t('upload_verarbeite'),
+                    'data-nx-pj-t-fehler' => Texte::t('upload_fehler'),
+                ]) ?>
                     <label for="nx-pj-entwurf-datei"><?= Html::encode(Texte::t($fassungen === [] ? 'entwuerfe_hochladen' : 'neue_fassung')) ?></label>
                     <input id="nx-pj-entwurf-datei" type="file" name="dateien[]" multiple required class="form-control">
+                    <div class="nx-pj-gewaehlt nx-pj-leise" hidden></div>
                     <input type="text" name="fassung_hinweis" maxlength="255" class="form-control" placeholder="<?= Html::encode(Texte::t('fassung_hinweis')) ?>" aria-label="<?= Html::encode(Texte::t('fassung_hinweis')) ?>">
                     <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-upload"></i> <?= Html::encode(Texte::t('hochladen')) ?></button>
+                    <div class="nx-pj-fortschritt" role="status" aria-live="polite" hidden>
+                        <div class="nx-pj-balken"><span></span></div>
+                        <div class="nx-pj-fortschritt-text"></div>
+                    </div>
                 <?= Html::endForm() ?>
             <?php endif; ?>
         </div>

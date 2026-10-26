@@ -51,6 +51,78 @@
         } catch (x) { /* weiter mit dem Browser-Fenster */ }
         return Promise.resolve(window.confirm(frage));
     }
+    // ── Hochladen mit Fortschritt (Rueckmeldung eines Mitglieds, 26.10.2026: "den Hochladeprozess nicht verfolgen") ──
+    // Zeigt vorher, was ausgewaehlt ist, und beim Hochladen einen Balken mit Prozent; danach laedt die Seite neu.
+    function mb(bytes) { return (bytes / 1048576).toFixed(1).replace('.', ','); }
+    function vorlage(text, werte) {
+        return (text || '').replace(/\{(\w+)\}/g, function (all, name) { return werte[name] !== undefined ? werte[name] : all; });
+    }
+    document.addEventListener('change', function (e) {
+        var feld = e.target;
+        if (!feld.matches || !feld.matches('form.nx-pj-hochladen input[type=file]')) { return; }
+        var form = feld.closest('form');
+        var anzeige = form.querySelector('.nx-pj-gewaehlt');
+        if (!anzeige) { return; }
+        var dateien = Array.prototype.slice.call(feld.files || []);
+        if (dateien.length === 0) { anzeige.hidden = true; anzeige.textContent = ''; return; }
+        var summe = dateien.reduce(function (s, d) { return s + d.size; }, 0);
+        var max = parseInt(form.getAttribute('data-nx-pj-max') || '10', 10);
+        var text = vorlage(form.getAttribute('data-nx-pj-t-gewaehlt'), { n: dateien.length, mb: mb(summe) })
+            + ': ' + dateien.slice(0, 12).map(function (d) { return d.name; }).join(', ') + (dateien.length > 12 ? ' …' : '');
+        if (dateien.length > max) { text += ' ' + vorlage(form.getAttribute('data-nx-pj-t-zuviele'), { max: max }); }
+        anzeige.textContent = text;
+        anzeige.hidden = false;
+    });
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form.classList || !form.classList.contains('nx-pj-hochladen') || !window.XMLHttpRequest || !window.FormData) { return; }
+        var feld = form.querySelector('input[type=file]');
+        if (!feld || !feld.files || feld.files.length === 0) { return; }
+        e.preventDefault();
+        var knopf = form.querySelector('button[type=submit]');
+        var kasten = form.querySelector('.nx-pj-fortschritt');
+        var balken = kasten && kasten.querySelector('.nx-pj-balken span');
+        var text = kasten && kasten.querySelector('.nx-pj-fortschritt-text');
+        function melden(t, fehler) {
+            if (!kasten) { return; }
+            kasten.hidden = false;
+            kasten.classList.toggle('nx-pj-fehler', !!fehler);
+            if (text) { text.textContent = t; }
+        }
+        function zurueck() {
+            if (knopf) { knopf.disabled = false; }
+        }
+        if (knopf) { knopf.disabled = true; }
+        melden(vorlage(form.getAttribute('data-nx-pj-t-laeuft'), { p: 0, a: '0,0', b: '…' }));
+        if (balken) { balken.style.width = '0%'; }
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', form.getAttribute('action') || window.location.href);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.upload.onprogress = function (ev) {
+            if (!ev.lengthComputable) { return; }
+            var p = Math.min(100, Math.round(100 * ev.loaded / ev.total));
+            if (balken) { balken.style.width = p + '%'; }
+            melden(p >= 100
+                ? form.getAttribute('data-nx-pj-t-verarbeite')
+                : vorlage(form.getAttribute('data-nx-pj-t-laeuft'), { p: p, a: mb(ev.loaded), b: mb(ev.total) }));
+        };
+        xhr.onload = function () {
+            var antwort = null;
+            try { antwort = JSON.parse(xhr.responseText); } catch (x) { /* keine JSON-Antwort */ }
+            if (xhr.status === 200 && antwort && antwort.url) {
+                // Die Meldung ("Fassung 2 hochgeladen") steht schon in der Sitzung und erscheint nach dem Neuladen
+                var ziel = String(antwort.url);
+                if (ziel.split('#')[0] === window.location.href.split('#')[0]) { window.location.reload(); }
+                else { window.location.href = ziel; }
+                return;
+            }
+            melden(form.getAttribute('data-nx-pj-t-fehler'), true);
+            zurueck();
+        };
+        xhr.onerror = xhr.ontimeout = function () { melden(form.getAttribute('data-nx-pj-t-fehler'), true); zurueck(); };
+        xhr.send(new FormData(form));
+    });
     document.addEventListener('submit', function (e) {
         var form = e.target;
         var frage = form.getAttribute('data-nx-pj-frage');
