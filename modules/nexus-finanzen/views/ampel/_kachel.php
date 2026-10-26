@@ -36,7 +36,7 @@ $bezahlt = $stand->bezahlt($k, $monat);
         <?php if ($farbe !== 'grau') : ?>
             <span><?= Html::encode(sprintf(Texte::t('gedeckt_von'), Geld::zeigen($gedeckt), Geld::zeigen((int)$k->betrag))) ?></span>
         <?php endif; ?>
-        <?php if ($uebertrag > 0) : ?><span class="nx-fin-leise"><?= Html::encode(sprintf(Texte::t('uebertrag'), Geld::zeigen($uebertrag))) ?></span><?php endif; ?>
+        <?php if ($uebertrag > 0 && $farbe !== 'grau') : ?><span class="nx-fin-leise"><?= Html::encode(sprintf(Texte::t('uebertrag'), Geld::zeigen($uebertrag))) ?></span><?php endif; ?>
         <span class="nx-fin-marke"><?= Html::encode(Texte::t('einordnung_' . $k->einordnung)) ?></span>
         <?php if ($k->zusatz) : ?><span class="nx-fin-marke nx-fin-zusatz"><?= Html::encode(Texte::t('zusatz_' . $k->zusatz)) ?></span><?php endif; ?>
     </div>
@@ -44,8 +44,14 @@ $bezahlt = $stand->bezahlt($k, $monat);
         <?php $ausSpenden = $bezahlt['betrag'] - ($vorgestreckt['betrag'] ?? 0); ?>
         <div class="nx-fin-vorgestreckt-zeile">
             <?= Html::encode(sprintf(Texte::t($k->istLaufend() ? 'bezahlt_im_monat' : 'bezahlt_bisher'), Geld::zeigen($bezahlt['betrag'], true), Geld::monatName($monat))) ?>
-            <?php if ($ausSpenden > 0) : ?>– <?= Html::encode(sprintf(Texte::t('davon_spenden'), Geld::zeigen($ausSpenden, true))) ?><?php endif; ?>
-            <?php if ($vorgestreckt !== null) : ?><?= $ausSpenden > 0 ? '·' : '–' ?> <?= Html::encode(sprintf(Texte::t('davon_vorgestreckt'), Geld::zeigen($vorgestreckt['betrag'], true), implode(', ', $vorgestreckt['von']))) ?><?php endif; ?>
+            <?php if ($vorgestreckt === null) : ?>
+                – <?= Html::encode(Texte::t('nur_spenden')) ?>
+            <?php elseif ($ausSpenden <= 0) : ?>
+                – <?= Html::encode(sprintf(Texte::t('vorgestreckt_von'), implode(', ', $vorgestreckt['von']))) ?>
+            <?php else : ?>
+                – <?= Html::encode(sprintf(Texte::t('davon_spenden'), Geld::zeigen($ausSpenden, true))) ?>
+                · <?= Html::encode(sprintf(Texte::t('davon_vorgestreckt'), Geld::zeigen($vorgestreckt['betrag'], true), implode(', ', $vorgestreckt['von']))) ?>
+            <?php endif; ?>
             <?php if ($bezahlt['geschaetzt']) : ?><span class="nx-fin-marke"><?= Html::encode(Texte::t('geschaetzt')) ?></span><?php endif; ?>
         </div>
     <?php endif; ?>
