@@ -49,7 +49,7 @@ $quellen = ['ueberweisung' => 'Überweisung', 'stripe' => 'Stripe (direkt, nicht
             <a href="<?= Html::encode(Url::to(['index', 'monat' => Geld::nachMonat($monat)])) ?>">später →</a>
         </nav>
         <div class="nx-fin-summen">
-            <?php foreach (['im_monat', 'eingegangen', 'reserviert', 'ausgegeben', 'frei'] as $s) : ?>
+            <?php foreach (['im_monat', 'bezahlt_monat', 'eingegangen', 'bezahlt_gesamt', 'ausgegeben', 'vorgestreckt', 'frei', 'reserviert'] as $s) : ?>
                 <div><span><?= Html::encode(Texte::t($s, 'de')) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s], true)) ?></strong></div>
             <?php endforeach; ?>
         </div>
