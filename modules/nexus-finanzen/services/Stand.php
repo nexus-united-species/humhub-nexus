@@ -209,6 +209,20 @@ class Stand
         return ['betrag' => $betrag, 'geschaetzt' => $geschaetzt, 'von' => array_values($von)];
     }
 
+    /** Vornamen derer, die etwas vorgestreckt haben (fuer "davon von X bezahlt") */
+    public function vorgestrecktNamen(): string
+    {
+        $vornamen = array_unique(array_map(fn(string $n) => explode(' ', trim($n))[0], $this->namen));
+        return $vornamen === [] ? '?' : implode(', ', $vornamen);
+    }
+
+    /** Beschriftung eines Summenfelds; "vorgestreckt" nennt den Menschen, der gezahlt hat */
+    public function summenText(string $feld, ?string $sprache = null): string
+    {
+        $text = Texte::t($feld, $sprache);
+        return in_array($feld, ['vorgestreckt', 'vorgestreckt_monat'], true) ? sprintf($text, $this->vorgestrecktNamen()) : $text;
+    }
+
     /** Freies Geld im Topf (nur EUR) */
     public function topf(): int
     {

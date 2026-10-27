@@ -48,7 +48,7 @@ $summen = $stand->summen($monat);
             <div class="nx-fin-summen">
                 <?php foreach ($felder as $s) : ?>
                     <?php if (in_array($s, $nurWennNichtNull, true) && $summen[$s] === 0) { continue; } ?>
-                    <div><span><?= Html::encode(Texte::t($s)) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s])) ?></strong></div>
+                    <div><span><?= Html::encode($stand->summenText($s)) ?></span><strong><?= Html::encode(Geld::zeigen($summen[$s])) ?></strong></div>
                 <?php endforeach; ?>
             </div>
         <?php endforeach; ?>
