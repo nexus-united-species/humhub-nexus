@@ -38,7 +38,8 @@ $bezahlt = $stand->bezahlt($k, $monat);
             <span><?= Html::encode(sprintf(Texte::t('gedeckt_von'), Geld::zeigen($gedeckt), Geld::zeigen((int)$k->betrag))) ?></span>
         <?php endif; ?>
         <?php if ($uebertrag > 0 && $farbe !== 'grau') : ?><span class="nx-fin-leise"><?= Html::encode(sprintf(Texte::t('uebertrag'), Geld::zeigen($uebertrag))) ?></span><?php endif; ?>
-        <span class="nx-fin-marke"><?= Html::encode(Texte::t('einordnung_' . $k->einordnung)) ?></span>
+        <?php /* "geschaetzter Verbrauch" & Co. nur bei Kacheln, die noch nicht bezahlt sind -- bei bezahlten steht der echte Betrag */ ?>
+        <?php if ($bezahlt === null) : ?><span class="nx-fin-marke"><?= Html::encode(Texte::t('einordnung_' . $k->einordnung)) ?></span><?php endif; ?>
         <?php if ($k->zusatz) : ?><span class="nx-fin-marke nx-fin-zusatz"><?= Html::encode(Texte::t('zusatz_' . $k->zusatz)) ?></span><?php endif; ?>
     </div>
     <?php if ($bezahlt !== null) : ?>
