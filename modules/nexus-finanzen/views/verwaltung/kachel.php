@@ -52,6 +52,7 @@ foreach (array_merge($verantwortliche, $k->beguenstigt_id ? [User::findOne($k->b
             <label>Einordnung <?= $auswahl('einordnung', $einordnungen, $k->einordnung) ?></label>
             <label>Gruppe (nur Anzeige, z. B. „Dienste und Werkzeuge“) <input class="form-control" name="gruppe" maxlength="80" value="<?= Html::encode((string)$k->gruppe) ?>"></label>
             <label>Rang (klein = wird zuerst gedeckt) <input class="form-control" type="number" name="rang" min="0" value="<?= (int)$k->rang ?>"></label>
+            <label>Gilt ab Monat (JJJJ-MM, leer = von Anfang an) <input class="form-control" name="ab_monat" maxlength="7" placeholder="2026-10" pattern="\d{4}-(0[1-9]|1[0-2])" value="<?= Html::encode((string)$k->ab_monat) ?>"></label>
             <label>Zusatz <?= $auswahl('zusatz', $zusaetze, (string)$k->zusatz) ?></label>
             <label>Vergütung für (Vier-Augen-Prinzip) <?= $auswahl('beguenstigt', $personen, (string)(int)$k->beguenstigt_id) ?></label>
             <label class="nx-fin-haken"><input type="checkbox" name="freigegeben" value="1" <?= $k->freigegeben ? 'checked' : '' ?>> Freigegeben (sonst grau: „geplant / zu prüfen“ – bekommt kein Geld aus dem Topf)</label>

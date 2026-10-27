@@ -38,7 +38,7 @@ class OeffentlichController extends Controller
         $antwort->headers->set('X-Robots-Tag', 'noindex');
 
         $monat = Geld::monat($monat);
-        $stand = new Stand();
+        $stand = new Stand($monat);
         $summen = $stand->summen($monat);
         $bereiche = [];
         foreach (\nexus\modules\finanzen\models\Kachel::BEREICHE as $b) {

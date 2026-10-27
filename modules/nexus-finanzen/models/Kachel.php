@@ -23,6 +23,7 @@ use humhub\modules\user\models\User;
  * @property int $rang Reihenfolge der Verteilung (klein = zuerst)
  * @property bool $oeffentlich
  * @property int|null $beguenstigt_id wer aus dieser Kachel verguetet wird (Vier-Augen-Pflicht)
+ * @property string|null $ab_monat JJJJ-MM: erst ab diesem Monat gueltig (leer = von Anfang an)
  */
 class Kachel extends ActiveRecord
 {
@@ -51,6 +52,7 @@ class Kachel extends ActiveRecord
             [['betrag', 'rang'], 'integer', 'min' => 0],
             [['freigegeben', 'oeffentlich'], 'boolean'],
             ['beguenstigt_id', 'integer'],
+            ['ab_monat', 'match', 'pattern' => '/^\d{4}-(0[1-9]|1[0-2])$/', 'skipOnEmpty' => true],
         ];
     }
 

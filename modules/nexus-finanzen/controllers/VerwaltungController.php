@@ -93,6 +93,7 @@ class VerwaltungController extends Controller
         $k->freigegeben = (string)$r->post('freigegeben') === '1' ? 1 : 0;
         $k->zusatz = (string)$r->post('zusatz') ?: null;
         $k->rang = max(0, (int)$r->post('rang'));
+        $k->ab_monat = trim((string)$r->post('ab_monat')) ?: null;
         $k->oeffentlich = (string)$r->post('oeffentlich') === '1' ? 1 : 0;
         $b = (int)$r->post('beguenstigt');
         $k->beguenstigt_id = $b > 0 && User::findOne($b) !== null ? $b : null;

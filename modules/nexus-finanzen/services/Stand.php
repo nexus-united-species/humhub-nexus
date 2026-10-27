@@ -41,9 +41,13 @@ class Stand
     /** @var array<int, string> user_id => Anzeigename */
     private array $namen = [];
 
-    public function __construct()
+    /** @param string|null $monat JJJJ-MM: Kacheln, die erst spaeter beginnen (ab_monat), bleiben dann weg */
+    public function __construct(?string $monat = null)
     {
         foreach (Kachel::find()->orderBy(['rang' => SORT_ASC, 'id' => SORT_ASC])->all() as $k) {
+            if ($monat !== null && $k->ab_monat !== null && $k->ab_monat > $monat) {
+                continue;
+            }
             $this->kacheln[(int)$k->id] = $k;
         }
         $db = \Yii::$app->db;
@@ -273,7 +277,7 @@ class Stand
             if ($topf <= 0) {
                 break;
             }
-            if (!$k->freigegeben || $k->zusatz === 'pausiert') {
+            if (!$k->freigegeben || $k->zusatz === 'pausiert' || ($k->ab_monat !== null && $k->ab_monat > $monat)) {
                 continue;
             }
             $betrag = min($topf, $this->fehlt($k, $monat));

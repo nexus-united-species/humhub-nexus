@@ -29,7 +29,7 @@ class AmpelController extends Controller
         $monat = Geld::monat($monat);
         $rueckblick = Yii::$app->db->createCommand('SELECT text FROM nexus_fin_rueckblick WHERE monat = :m', [':m' => $monat])->queryScalar();
         return $this->render('index', [
-            'stand' => new Stand(),
+            'stand' => new Stand($monat),
             'monat' => $monat,
             'rueckblick' => $rueckblick ?: null,
             'darfVerwalten' => Module::instanz()->istVerantwortlich(Yii::$app->user->getIdentity()),
