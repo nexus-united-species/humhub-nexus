@@ -53,7 +53,7 @@ $summen = $stand->summen($monat);
             </div>
         <?php endforeach; ?>
 
-        <?php foreach (['grund', 'optional', 'entwicklung'] as $bereich) : ?>
+        <?php foreach (\nexus\modules\finanzen\models\Kachel::BEREICHE as $bereich) : ?>
             <?php $kacheln = $stand->kacheln($bereich); if ($kacheln === []) { continue; } $b = $stand->bereich($bereich, $monat); ?>
             <section class="nx-fin-bereich">
                 <h2><?= Html::encode(Texte::t('bereich_' . $bereich)) ?></h2>

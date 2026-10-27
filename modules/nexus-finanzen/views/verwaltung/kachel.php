@@ -46,7 +46,7 @@ foreach (array_merge($verantwortliche, $k->beguenstigt_id ? [User::findOne($k->b
         <?= Html::beginForm(Url::to(['kachel-speichern', 'id' => $k->id ?: 0]), 'post', ['class' => 'nx-fin-felder']) ?>
             <label class="nx-fin-ganz">Titel <input class="form-control" name="titel" maxlength="120" required value="<?= Html::encode($k->titel) ?>"></label>
             <label class="nx-fin-ganz">Beschreibung (für alle sichtbar) <textarea class="form-control" name="beschreibung" rows="2" maxlength="5000"><?= Html::encode((string)$k->beschreibung) ?></textarea></label>
-            <label>Bereich <?= $auswahl('bereich', ['grund' => 'Monatlicher Grundbetrieb', 'optional' => 'Zusätzlicher Dienst (optional)', 'entwicklung' => 'Entwicklungsfonds (einmalig)'], $k->bereich) ?></label>
+            <label>Bereich <?= $auswahl('bereich', ['grund' => 'Monatlicher Grundbetrieb', 'optional' => 'Zusätzlicher Dienst (optional)', 'entwicklung' => 'Entwicklungsfonds (einmalig)', 'koordination' => 'Projektkoordination und Aufbauarbeit'], $k->bereich) ?></label>
             <label>Art <?= $auswahl('art', ['laufend' => 'laufend (je Monat)', 'einmalig' => 'einmalig'], $k->art) ?></label>
             <label>Betrag (€) <input class="form-control" name="betrag" inputmode="decimal" required value="<?= Html::encode($k->betrag ? number_format($k->betrag / 100, 2, ',', '') : '') ?>"></label>
             <label>Einordnung <?= $auswahl('einordnung', $einordnungen, $k->einordnung) ?></label>

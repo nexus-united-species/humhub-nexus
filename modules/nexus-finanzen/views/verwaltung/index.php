@@ -98,7 +98,7 @@ $quellen = ['ueberweisung' => 'Überweisung', 'stripe' => 'Stripe (direkt, nicht
                 <tr>
                     <td><?= (int)$k->rang ?></td>
                     <td><strong><?= Html::encode($k->titel) ?></strong><?= $k->gruppe ? '<br><span class="nx-fin-leise">' . Html::encode($k->gruppe) . '</span>' : '' ?><?= $k->beguenstigt_id ? '<br><span class="nx-fin-marke">Vergütung ' . Html::encode($name((int)$k->beguenstigt_id)) . '</span>' : '' ?><?= $k->oeffentlich ? '' : '<br><span class="nx-fin-marke">nicht öffentlich</span>' ?></td>
-                    <td><?= Html::encode(['grund' => 'Grundbetrieb', 'optional' => 'Optional', 'entwicklung' => 'Entwicklung'][$k->bereich]) ?></td>
+                    <td><?= Html::encode(['grund' => 'Grundbetrieb', 'optional' => 'Zusätzliche Dienste', 'entwicklung' => 'Entwicklungsfonds', 'koordination' => 'Projektkoordination'][$k->bereich]) ?></td>
                     <td><?= Html::encode(Geld::zeigen((int)$k->betrag, true)) ?><br><span class="nx-fin-leise"><?= $k->istLaufend() ? 'je Monat' : 'einmalig' ?></span></td>
                     <td><?= Html::encode(Texte::t('einordnung_' . $k->einordnung, 'de')) ?><?= $k->zusatz ? '<br>' . Html::encode(Texte::t('zusatz_' . $k->zusatz, 'de')) : '' ?></td>
                     <td><span class="nx-fin-punkt nx-fin-<?= $f ?>"></span> <?= Html::encode(Texte::t('farbe_' . $f, 'de')) ?><br><span class="nx-fin-leise"><?= Html::encode(Geld::zeigen($stand->gedeckt($k, $monat), true)) ?> gedeckt<?= $stand->ausgegeben($k) ? ', ' . Html::encode(Geld::zeigen($stand->ausgegeben($k), true)) . ' ausgegeben' : '' ?></span></td>

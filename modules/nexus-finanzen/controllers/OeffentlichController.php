@@ -41,7 +41,7 @@ class OeffentlichController extends Controller
         $stand = new Stand();
         $summen = $stand->summen($monat);
         $bereiche = [];
-        foreach (['grund', 'optional', 'entwicklung'] as $b) {
+        foreach (\nexus\modules\finanzen\models\Kachel::BEREICHE as $b) {
             $kacheln = [];
             foreach ($stand->kacheln($b) as $k) {
                 if (!$k->oeffentlich) {

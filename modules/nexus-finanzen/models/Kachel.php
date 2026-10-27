@@ -11,7 +11,7 @@ use humhub\modules\user\models\User;
  * selbst keine Kachel und wird nie zusaetzlich gezaehlt.
  *
  * @property int $id
- * @property string $bereich grund|optional|entwicklung
+ * @property string $bereich grund|optional|entwicklung|koordination
  * @property string|null $gruppe
  * @property string $titel
  * @property string|null $beschreibung
@@ -26,7 +26,8 @@ use humhub\modules\user\models\User;
  */
 class Kachel extends ActiveRecord
 {
-    public const BEREICHE = ['grund', 'optional', 'entwicklung'];
+    /** Reihenfolge = Reihenfolge der Bereiche auf der Seite */
+    public const BEREICHE = ['grund', 'optional', 'entwicklung', 'koordination'];
     public const ARTEN = ['laufend', 'einmalig'];
     public const EINORDNUNGEN = ['bestaetigt', 'geschaetzt', 'planung', 'rueckstellung', 'reserve'];
     public const ZUSAETZE = ['in_umsetzung', 'bezahlt', 'abgeschlossen', 'pausiert'];
