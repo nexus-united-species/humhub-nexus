@@ -4,6 +4,7 @@ namespace nexus\modules\projekte\services;
 
 use humhub\modules\post\models\Post;
 use humhub\modules\user\models\User;
+use nexus\modules\projekte\models\Antwort;
 use nexus\modules\projekte\models\Karte;
 use nexus\modules\projekte\models\Option;
 use nexus\modules\projekte\models\Projekt;
@@ -99,6 +100,31 @@ class Nachrichten
             if ((int)$mensch->id !== (int)$von->id) {
                 self::senden($mensch, $karte->projekt, $text);
             }
+        }
+    }
+
+    /**
+     * Antwort auf eine Rueckmeldung: an die Person, die sie geschrieben hat, an Verantwortliche und Leitung
+     * und an alle, die schon in diesem Gespraech geantwortet haben (nicht an die antwortende Person selbst).
+     */
+    public static function antwort(Karte $karte, Stimme $stimme, Antwort $antwort, User $von): void
+    {
+        $ids = [(int)$stimme->user_id];
+        foreach (Antwort::find()->select('user_id')->where(['stimme_id' => $stimme->id])->column() as $id) {
+            $ids[] = (int)$id;
+        }
+        foreach (self::verantwortlicheUndLeitung($karte) as $mensch) {
+            $ids[] = (int)$mensch->id;
+        }
+        $ids = array_diff(array_unique($ids), [(int)$von->id]);
+        if ($ids === []) {
+            return;
+        }
+        $autor = $stimme->autor ? $stimme->autor->displayName : 'jemandem';
+        $text = sprintf("💬 %s antwortet auf die Rückmeldung von %s zu **%s**:\n\n> %s\n\n%s",
+            $von->displayName, $autor, $karte->titel, str_replace("\n", "\n> ", trim($antwort->text)), $karte->url(true));
+        foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
+            self::senden($mensch, $karte->projekt, $text);
         }
     }
 

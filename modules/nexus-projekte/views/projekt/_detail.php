@@ -166,7 +166,9 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                         <div class="<?= $farbe ?>" style="margin-top:.25rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
                             <?= Html::encode(implode(', ', array_map($name, $nachArtFrueher[$art]))) ?></div>
                         <?php foreach ($nachArtFrueher[$art] as $s) : ?>
-                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote><?php endif; ?>
+                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote>
+                                <?= $this->render('_antworten', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich, 's' => $s]) ?>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                     <?php /* Stimmen einer Art, die die heutige Regel nicht mehr kennt (Regel des Projekts geaendert): trotzdem zeigen */ ?>
@@ -194,7 +196,9 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 <div class="<?= $farbe ?>" style="margin-top:.3rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
                     <?= Html::encode($nachArt[$art] === [] ? '–' : implode(', ', array_map($name, $nachArt[$art]))) ?></div>
                 <?php foreach ($nachArt[$art] as $s) : ?>
-                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote><?php endif; ?>
+                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote>
+                        <?= $this->render('_antworten', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich, 's' => $s]) ?>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             <?php endforeach; ?>
             <?php if ($fehlen !== []) : ?>

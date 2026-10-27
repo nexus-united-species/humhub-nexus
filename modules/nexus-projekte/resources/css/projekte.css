@@ -36,6 +36,9 @@
 .nx-pj .nx-pj-frueher { background: var(--nx-pj-flaeche); border-radius: 8px; padding: .6rem .85rem; margin-top: .8rem; font-size: .92rem; }
 .nx-pj .nx-pj-frueher summary { cursor: pointer; }
 .nx-pj .nx-pj-frueher blockquote { margin: .3rem 0 .5rem; padding-left: .7rem; border-left: 3px solid var(--nx-pj-rand); white-space: pre-wrap; font-size: .9rem; }
+.nx-pj .nx-pj-antworten { margin: -.2rem 0 .3rem 1.2rem; padding-left: .7rem; border-left: 2px solid var(--nx-pj-rand); font-size: .88rem; }
+.nx-pj .nx-pj-antwort { margin: .2rem 0; white-space: pre-wrap; }
+.nx-pj .nx-pj-antwort-knopf { margin: 0 0 .3rem 1.2rem; }
 .nx-pj .nx-pj-frueher .nx-pj-runde { margin-top: .6rem; padding-top: .4rem; border-top: 1px dashed var(--nx-pj-rand); }
 .nx-pj .nx-pj-abstimmung { background: var(--nx-pj-flaeche); border-radius: 8px; padding: .7rem .85rem; margin-top: .8rem; font-size: .92rem; }
 .nx-pj .nx-pj-abstimmung blockquote { margin: .3rem 0 .5rem; padding-left: .7rem; border-left: 3px solid var(--nx-pj-rand); white-space: pre-wrap; font-size: .9rem; }

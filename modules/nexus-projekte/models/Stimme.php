@@ -33,4 +33,10 @@ class Stimme extends ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
+
+    /** Antworten auf diese Rueckmeldung, aelteste zuerst */
+    public function getAntworten()
+    {
+        return $this->hasMany(Antwort::class, ['stimme_id' => 'id'])->orderBy('id')->with('autor');
+    }
 }

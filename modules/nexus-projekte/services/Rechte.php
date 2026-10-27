@@ -86,6 +86,12 @@ class Rechte
         return $karte->spalte === 'abstimmung' && self::istMitglied($karte->projekt->kreis, $mensch);
     }
 
+    /** Auf eine Rueckmeldung antworten: jedes Kreismitglied, in jeder Spalte (auch spaeter, in frueheren Runden) */
+    public static function darfAntworten(Karte $karte, ?User $mensch): bool
+    {
+        return self::istMitglied($karte->projekt->kreis, $mensch);
+    }
+
     /** Vorschlaege bringt jedes Kreismitglied ein -- es wird damit verantwortlich fuer den eigenen Vorschlag */
     public static function darfVorschlagen(Projekt $projekt, ?User $mensch): bool
     {

@@ -7,6 +7,7 @@ use humhub\modules\content\components\ContentContainerController;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\assets\ProjekteAsset;
+use nexus\modules\projekte\models\Antwort;
 use nexus\modules\projekte\models\Datei;
 use nexus\modules\projekte\models\Karte;
 use nexus\modules\projekte\models\Projekt;
@@ -41,7 +42,7 @@ class ProjektController extends ContentContainerController
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
             [ControllerAccess::RULE_POST => ['speichern', 'loeschen', 'mitmachen', 'karte-speichern', 'karte-loeschen',
-                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'dateien', 'datei-loeschen', 'fassung-loeschen']],
+                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'antwort', 'dateien', 'datei-loeschen', 'fassung-loeschen']],
         ];
     }
 
@@ -383,6 +384,29 @@ class ProjektController extends ContentContainerController
             Nachrichten::rueckmeldungMitText($karte, $stimme, $ich);
         }
         Yii::$app->session->setFlash(self::FLASH, Texte::t('stimme_danke'));
+        return $this->redirect($karte->url());
+    }
+
+    /** Antwort auf eine Rueckmeldung (Stimme mit Text) dieser Kachel -- jedes Kreismitglied, in jeder Runde */
+    public function actionAntwort(int $k, int $s)
+    {
+        $karte = $this->karteImKreis($k);
+        $ich = $this->ich();
+        $this->pruefe(Rechte::darfAntworten($karte, $ich));
+        $stimme = Stimme::findOne(['id' => $s, 'karte_id' => $karte->id]);
+        if ($stimme === null) {
+            throw new NotFoundHttpException();
+        }
+        $text = trim((string)Yii::$app->request->post('text'));
+        if (mb_strlen($text) < Antwort::MIN_ZEICHEN) {
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('antwort_zu_kurz'));
+            return $this->redirect($karte->url());
+        }
+        $antwort = new Antwort(['stimme_id' => $stimme->id, 'user_id' => $ich->id, 'text' => mb_substr($text, 0, Antwort::MAX_ZEICHEN), 'created_at' => date('Y-m-d H:i:s')]);
+        $antwort->save(false);
+        $karte->updateAttributes(['updated_at' => date('Y-m-d H:i:s')]);
+        Nachrichten::antwort($karte, $stimme, $antwort, $ich);
+        Yii::$app->session->setFlash(self::FLASH, Texte::t('antwort_danke'));
         return $this->redirect($karte->url());
     }
 
