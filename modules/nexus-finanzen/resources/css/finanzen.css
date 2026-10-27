@@ -53,6 +53,9 @@
 .nx-fin .nx-fin-mithelfen { background: var(--nx-fin-flaeche); border-radius: 8px; padding: .7rem .9rem; margin-top: .6rem; }
 .nx-fin .nx-fin-mithelfen a { margin-left: .4rem; font-weight: 600; }
 .nx-fin .nx-fin-meldung { background: var(--bs-success-bg-subtle, #e8f5e9); border-radius: 8px; padding: .5rem .8rem; margin-bottom: .8rem; }
+.nx-fin .nx-fin-hilfe { background: var(--nx-fin-flaeche); border-left: 4px solid var(--nx-fin-gruen); border-radius: 8px; padding: .6rem .9rem; margin: .6rem 0 1rem; font-size: .92rem; }
+.nx-fin .nx-fin-hilfe ul { margin: .35rem 0 0; padding-left: 1.2rem; }
+.nx-fin .nx-fin-hilfe li { margin-bottom: .3rem; }
 .nx-fin .nx-fin-hinweis { background: var(--bs-warning-bg-subtle, #fff3cd); border-radius: 8px; padding: .45rem .75rem; margin: .4rem 0; font-size: .9rem; }
 .nx-fin .nx-fin-kasten { border: 1px solid var(--nx-fin-rand); border-radius: 8px; padding: .7rem .9rem; }
 .nx-fin .nx-fin-formular { display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-end; margin: .5rem 0 .8rem; }

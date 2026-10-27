@@ -30,6 +30,12 @@ $summen = $stand->summen($monat);
         </div>
         <?php if (!$fuerAlle) : ?><div class="nx-fin-hinweis"><?= Html::encode(Texte::t('nur_intern')) ?></div><?php endif; ?>
         <p><?= Html::encode(Texte::t('einleitung')) ?></p>
+        <div class="nx-fin-hilfe">
+            <strong><?= Html::encode(Texte::t('hilfe_titel')) ?></strong>
+            <ul>
+                <?php foreach (['hilfe_1', 'hilfe_2', 'hilfe_3', 'hilfe_4'] as $h) : ?><li><?= Html::encode(Texte::t($h)) ?></li><?php endforeach; ?>
+            </ul>
+        </div>
 
         <nav class="nx-fin-monate" aria-label="<?= Html::encode(Texte::t('monat')) ?>">
             <a href="<?= Html::encode(Url::to(['index', 'monat' => Geld::vorMonat($monat)])) ?>"><?= Html::encode(Texte::t('vorher')) ?></a>
