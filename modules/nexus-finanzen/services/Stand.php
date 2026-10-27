@@ -177,12 +177,14 @@ class Stand
     public function bezahlt(Kachel $k, string $monat): ?array
     {
         $je = $this->bezahltMonat[(int)$k->id] ?? [];
-        $betrag = $k->istLaufend() ? ($je[$monat] ?? 0) : array_sum($je);
+        // Einmalige Kacheln: alles, was bis einschliesslich dieses Monats bezahlt wurde (spaetere Zahlungen zaehlen noch nicht)
+        $bisher = static fn(array $liste): array => array_filter($liste, static fn($m) => $m <= $monat, ARRAY_FILTER_USE_KEY);
+        $betrag = $k->istLaufend() ? ($je[$monat] ?? 0) : array_sum($bisher($je));
         if ($betrag <= 0) {
             return null;
         }
         $g = $this->bezahltGeschaetzt[(int)$k->id] ?? [];
-        return ['betrag' => $betrag, 'geschaetzt' => $k->istLaufend() ? ($g[$monat] ?? false) : in_array(true, $g, true)];
+        return ['betrag' => $betrag, 'geschaetzt' => $k->istLaufend() ? ($g[$monat] ?? false) : in_array(true, $bisher($g), true)];
     }
 
     /**
@@ -192,7 +194,7 @@ class Stand
     public function vorgestreckt(Kachel $k, string $monat): ?array
     {
         $je = $this->vorgestreckt[(int)$k->id] ?? [];
-        $treffer = $k->istLaufend() ? array_filter([$je[$monat] ?? null]) : $je;
+        $treffer = $k->istLaufend() ? array_filter([$je[$monat] ?? null]) : array_filter($je, static fn($m) => $m <= $monat, ARRAY_FILTER_USE_KEY);
         if ($treffer === []) {
             return null;
         }
