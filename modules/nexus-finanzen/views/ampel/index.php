@@ -39,10 +39,10 @@ $summen = $stand->summen($monat);
 
         <?php /* Zwei getrennte Zeilen, damit klar ist, was zum Monat und was zur Gesamtbilanz gehoert. Leere Zusatzfelder bleiben weg. */
         $zeilen = [
-            sprintf(Texte::t('zeile_monat'), Geld::monatName($monat)) => ['im_monat', 'bezahlt_monat', 'vorgestreckt_monat'],
+            sprintf(Texte::t('zeile_monat'), Geld::monatName($monat)) => ['im_monat', 'bezahlt_monat', 'spenden_monat', 'rest_vormonate', 'vorgestreckt_monat'],
             Texte::t('zeile_gesamt') => ['eingegangen', 'bezahlt_gesamt', 'ausgegeben', 'vorgestreckt', 'frei', 'reserviert'],
         ];
-        $nurWennNichtNull = ['vorgestreckt_monat', 'vorgestreckt', 'reserviert']; ?>
+        $nurWennNichtNull = ['rest_vormonate', 'vorgestreckt_monat', 'vorgestreckt', 'reserviert']; ?>
         <?php foreach ($zeilen as $kopf => $felder) : ?>
             <h3 class="nx-fin-summenkopf"><?= Html::encode($kopf) ?></h3>
             <div class="nx-fin-summen">
@@ -55,7 +55,7 @@ $summen = $stand->summen($monat);
 
         <?php foreach (\nexus\modules\finanzen\models\Kachel::BEREICHE as $bereich) : ?>
             <?php $kacheln = $stand->kacheln($bereich); if ($kacheln === []) { continue; } $b = $stand->bereich($bereich, $monat); ?>
-            <section class="nx-fin-bereich">
+            <section class="nx-fin-bereich nx-fin-b-<?= $bereich ?>">
                 <h2><?= Html::encode(Texte::t('bereich_' . $bereich)) ?></h2>
                 <p class="nx-fin-leise"><?= Html::encode(Texte::t('bereich_' . $bereich . '_text')) ?></p>
                 <div class="nx-fin-ziel">

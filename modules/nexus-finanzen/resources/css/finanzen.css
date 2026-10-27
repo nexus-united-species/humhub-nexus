@@ -20,7 +20,13 @@
 .nx-fin .nx-fin-summen > div { background: var(--nx-fin-flaeche); border-radius: 8px; padding: .5rem .7rem; display: flex; flex-direction: column; }
 .nx-fin .nx-fin-summen span { font-size: .82rem; color: var(--nx-fin-leise); }
 .nx-fin .nx-fin-summen strong { font-size: 1.15rem; }
-.nx-fin .nx-fin-bereich { border-top: 1px solid var(--nx-fin-rand); margin-top: 1rem; }
+/* Jeder Bereich hat seine eigene Farbe: dicke Linie oben, getoentes Kopfband, grosser Abstand davor */
+.nx-fin .nx-fin-bereich { --nx-fin-b: #3b6ea5; margin-top: 2.6rem; border-top: 5px solid var(--nx-fin-b); }
+.nx-fin .nx-fin-b-optional { --nx-fin-b: #2a9d8f; }
+.nx-fin .nx-fin-b-entwicklung { --nx-fin-b: #7b5ea7; }
+.nx-fin .nx-fin-b-koordination { --nx-fin-b: #d98324; }
+.nx-fin .nx-fin-bereich > h2 { margin: 0 0 .5rem; padding: .7rem .9rem; font-size: 1.35rem; background: color-mix(in srgb, var(--nx-fin-b) 14%, transparent); border-radius: 0 0 8px 8px; }
+.nx-fin .nx-fin-bereich > h2::before { content: ""; display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; background: var(--nx-fin-b); margin-right: .55rem; }
 .nx-fin .nx-fin-ziel { margin: .3rem 0 .8rem; }
 .nx-fin .nx-fin-gruppe { border-left: 3px solid var(--nx-fin-rand); padding-left: .7rem; margin: .4rem 0 .8rem; }
 .nx-fin .nx-fin-kachel { border: 1px solid var(--nx-fin-rand); border-left: 6px solid var(--nx-fin-grau); border-radius: 8px; padding: .55rem .75rem; margin-bottom: .5rem; }

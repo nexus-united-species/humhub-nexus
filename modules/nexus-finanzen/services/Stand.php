@@ -219,9 +219,13 @@ class Stand
         foreach ($this->vorgestrecktMonat as $je) {
             $vorgestrecktMonat += $je[$monat] ?? 0;
         }
+        $spendenMonat = $bezahltMonat - $vorgestrecktMonat;
         return [
             'bezahlt_monat' => $bezahltMonat,
             'vorgestreckt_monat' => $vorgestrecktMonat,
+            'spenden_monat' => $spendenMonat,
+            // Aus den Spenden bezahlt, aber nicht in diesem Monat eingegangen: Rest aus frueheren Monaten
+            'rest_vormonate' => max(0, $spendenMonat - ($this->eingangMonat[$monat] ?? 0)),
             'bezahlt_gesamt' => $bezahltGesamt,
             'eingegangen' => $this->eingangGesamt,
             'im_monat' => $this->eingangMonat[$monat] ?? 0,
