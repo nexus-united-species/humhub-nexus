@@ -126,6 +126,22 @@ class Stand
         return $carry;
     }
 
+    /**
+     * Fuer die ANZEIGE (Ampelfarbe, Balken): zugewiesenes Spendengeld plus das, was jemand vorgestreckt hat. Was
+     * bezahlt ist, ist erledigt -- egal ob die Spenden oder ein Mensch es getragen haben. Die Verteilung des Topfs
+     * (fehlt/vorschlag) rechnet bewusst ohne das Vorgestreckte weiter, damit eine spaetere Erstattung moeglich bleibt.
+     */
+    public function gedecktAnzeige(Kachel $k, string $monat): int
+    {
+        return $this->gedeckt($k, $monat) + (int)($this->vorgestreckt($k, $monat)['betrag'] ?? 0);
+    }
+
+    /** Eine Kachel zaehlt mit, wenn sie freigegeben ist oder in diesem Monat schon etwas bezahlt wurde */
+    private function aktiv(Kachel $k, string $monat): bool
+    {
+        return (bool)$k->freigegeben || $this->bezahlt($k, $monat) !== null;
+    }
+
     public function fehlt(Kachel $k, string $monat): int
     {
         return max(0, (int)$k->betrag - $this->gedeckt($k, $monat));
@@ -134,10 +150,10 @@ class Stand
     /** grau|rot|gelb|gruen */
     public function farbe(Kachel $k, string $monat): string
     {
-        if (!$k->freigegeben) {
+        if (!$this->aktiv($k, $monat)) {
             return 'grau';
         }
-        $g = $this->gedeckt($k, $monat);
+        $g = $this->gedecktAnzeige($k, $monat);
         if ($g <= 0) {
             return (int)$k->betrag === 0 ? 'gruen' : 'rot';
         }
@@ -146,7 +162,7 @@ class Stand
 
     public function prozent(Kachel $k, string $monat): int
     {
-        return (int)$k->betrag > 0 ? (int)min(100, floor(100 * $this->gedeckt($k, $monat) / (int)$k->betrag)) : 100;
+        return (int)$k->betrag > 0 ? (int)min(100, floor(100 * $this->gedecktAnzeige($k, $monat) / (int)$k->betrag)) : 100;
     }
 
     public function ausgegeben(Kachel $k): int
@@ -255,9 +271,9 @@ class Stand
             }
             $bezahlt += $this->bezahltMonat[(int)$k->id][$monat] ?? 0;
             $ziel += (int)$k->betrag;
-            if ($k->freigegeben) {
+            if ($this->aktiv($k, $monat)) {
                 $frei += (int)$k->betrag;
-                $gedeckt += min((int)$k->betrag, $this->gedeckt($k, $monat));
+                $gedeckt += min((int)$k->betrag, $this->gedecktAnzeige($k, $monat));
             }
         }
         return ['ziel' => $ziel, 'freigegeben' => $frei, 'gedeckt' => $gedeckt,

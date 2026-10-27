@@ -13,7 +13,7 @@ use nexus\modules\finanzen\services\Geld;
 use nexus\modules\finanzen\services\Texte;
 
 $farbe = $stand->farbe($k, $monat);
-$gedeckt = min((int)$k->betrag, $stand->gedeckt($k, $monat));
+$gedeckt = min((int)$k->betrag, $stand->gedecktAnzeige($k, $monat));
 $uebertrag = $k->istLaufend() ? $stand->uebertrag($k, $monat) : 0;
 $vorgestreckt = $stand->vorgestreckt($k, $monat);
 $bezahlt = $stand->bezahlt($k, $monat);
@@ -32,7 +32,8 @@ $bezahlt = $stand->bezahlt($k, $monat);
     <?php if ($k->beschreibung) : ?><div class="nx-fin-leise"><?= Html::encode($k->beschreibung) ?></div><?php endif; ?>
     <div class="nx-fin-balken" role="img" aria-label="<?= Html::encode(Texte::t('farbe_' . $farbe)) ?>"><span style="width:<?= $farbe === 'grau' ? 0 : $stand->prozent($k, $monat) ?>%"></span></div>
     <div class="nx-fin-zeile">
-        <span class="nx-fin-status"><?= Html::encode(Texte::t('farbe_' . $farbe)) ?></span>
+        <?php /* Ist schon etwas bezahlt, heisst Gruen "bezahlt" statt "gedeckt" */ ?>
+        <span class="nx-fin-status"><?= Html::encode(Texte::t($bezahlt !== null && in_array($farbe, ['gruen', 'gelb'], true) ? 'farbe_bezahlt_' . $farbe : 'farbe_' . $farbe)) ?></span>
         <?php if ($farbe !== 'grau') : ?>
             <span><?= Html::encode(sprintf(Texte::t('gedeckt_von'), Geld::zeigen($gedeckt), Geld::zeigen((int)$k->betrag))) ?></span>
         <?php endif; ?>
