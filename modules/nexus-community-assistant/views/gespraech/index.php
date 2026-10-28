@@ -43,10 +43,23 @@ $this->registerCss(<<<CSS
 .nx-nova .nx-nova-denkt { display: none; margin-top: .5rem; }
 .nx-nova form.laeuft .nx-nova-denkt { display: block; }
 .nx-nova .nx-nova-hinweis { font-size: .82rem; opacity: .8; }
+.nx-nova .nx-nova-sprechen.nimmt-auf { background: #c0392b; border-color: #c0392b; color: #fff; }
+.nx-nova .nx-nova-sprechen.nimmt-auf .fa { animation: nx-nova-puls 1s infinite; }
+@keyframes nx-nova-puls { 50% { opacity: .35; } }
+.nx-nova .nx-nova-vorlesen { float: right; font-size: .8rem; padding: 0 .5rem; margin-left: .5rem; }
+.nx-nova .nx-nova-sprech-status { font-size: .9rem; margin-top: .4rem; min-height: 1.2rem; }
+@media (prefers-reduced-motion: reduce) { .nx-nova .nx-nova-sprechen.nimmt-auf .fa { animation: none; } }
 CSS);
 
+// Texte fuer die Sprachfunktion: als Daten an der Seite, damit im Skript kein PHP steckt
+$sprachTexte = [];
+foreach (['sprechen', 'sprechen_stopp', 'sprechen_laeuft', 'sprechen_schreibt', 'sprechen_nichts', 'sprechen_fehler',
+          'sprechen_keinmikro', 'vorlesen', 'vorlesen_stopp'] as $schluessel) {
+    $sprachTexte[$schluessel] = $t($schluessel);
+}
+
 // Kein Code im HTML (Sicherheitsregel des Portals): alles per registerJs, HumHub haengt den nonce an
-$this->registerJs(<<<JS
+$this->registerJs(<<<'JS'
 (function () {
     var form = document.getElementById('nx-nova-form');
     if (form) {
@@ -64,6 +77,161 @@ $this->registerJs(<<<JS
     }
     var ende = document.getElementById('nx-nova-ende');
     if (ende && window.location.hash === '#nx-nova-ende') { ende.scrollIntoView(); }
+    // ── Sprache (Josh, 28.10.2026): Diktieren ueber den eigenen Whisper-Dienst, Vorlesen ueber die Stimme des Geraets ──
+    var wurzel = document.querySelector('.nx-nova');
+    var T = {};
+    try { T = JSON.parse(wurzel.getAttribute('data-nx-sprache-texte') || '{}'); } catch (err) { T = {}; }
+    var MAX_AUFNAHME = 3 * 60;
+    var status = document.getElementById('nx-nova-sprech-status');
+
+    function melde(text) { if (status) { status.textContent = text || ''; } }
+    function zeit(s) { s = Math.floor(s); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+
+    var sprechen = document.getElementById('nx-nova-sprechen');
+    var kannAufnehmen = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    if (sprechen && !kannAufnehmen) { sprechen.style.display = 'none'; }
+    if (sprechen && kannAufnehmen && form) {
+        var aufnahme = null;
+        var formatWahl = function () {
+            var kandidaten = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+            for (var i = 0; i < kandidaten.length; i++) {
+                if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(kandidaten[i])) { return kandidaten[i]; }
+            }
+            return '';
+        };
+        var ruhe = function () {
+            sprechen.classList.remove('nimmt-auf');
+            sprechen.disabled = false;
+            sprechen.querySelector('span').textContent = T.sprechen;
+            sprechen.setAttribute('aria-pressed', 'false');
+        };
+        var textEinsetzen = function (text) {
+            var feld = document.getElementById('nx-nova-text');
+            var vorher = feld.value.replace(/\s+$/, '');
+            feld.value = (vorher ? vorher + ' ' : '') + text;
+            feld.focus();
+            feld.setSelectionRange(feld.value.length, feld.value.length);
+        };
+        var umwandeln = function (blob, endung) {
+            melde(T.sprechen_schreibt);
+            sprechen.disabled = true;
+            var daten = new FormData();
+            daten.append('audio', blob, 'nova-' + Date.now() + '.' + endung);
+            var meta = document.querySelector('meta[name="csrf-token"]');
+            fetch('/nexus-voice/mitschrift', {
+                method: 'POST',
+                headers: { 'X-CSRF-Token': meta ? meta.getAttribute('content') : '', 'X-Requested-With': 'XMLHttpRequest' },
+                body: daten
+            })
+                .then(function (a) { return a.ok ? a.json() : Promise.reject(new Error('HTTP ' + a.status)); })
+                .then(function (e) {
+                    var text = ((e && e.text) || '').trim();
+                    if (!text) { melde(T.sprechen_nichts); return; }
+                    melde('');
+                    textEinsetzen(text);
+                })
+                .catch(function () { melde(T.sprechen_fehler); })
+                .then(ruhe);
+        };
+        sprechen.addEventListener('click', function () {
+            if (aufnahme) { if (aufnahme.recorder.state !== 'inactive') { aufnahme.recorder.stop(); } return; }
+            melde('');
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+                var mime = formatWahl();
+                var recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+                var stuecke = [];
+                var beginn = Date.now();
+                var uhr = setInterval(function () {
+                    var s = (Date.now() - beginn) / 1000;
+                    melde(T.sprechen_laeuft + ' ' + zeit(s) + ' / ' + zeit(MAX_AUFNAHME));
+                    if (s >= MAX_AUFNAHME && recorder.state !== 'inactive') { recorder.stop(); }
+                }, 250);
+                aufnahme = { recorder: recorder };
+                recorder.ondataavailable = function (e) { if (e.data && e.data.size) { stuecke.push(e.data); } };
+                recorder.onstop = function () {
+                    clearInterval(uhr);
+                    stream.getTracks().forEach(function (t) { t.stop(); });
+                    aufnahme = null;
+                    var typ = mime ? mime.split(';')[0] : (stuecke[0] && stuecke[0].type) || 'audio/webm';
+                    var blob = new Blob(stuecke, { type: typ });
+                    sprechen.classList.remove('nimmt-auf');
+                    if (blob.size < 2000) { melde(T.sprechen_nichts); ruhe(); return; }
+                    umwandeln(blob, typ.indexOf('mp4') >= 0 ? 'm4a' : (typ.indexOf('ogg') >= 0 ? 'ogg' : 'webm'));
+                };
+                sprechen.classList.add('nimmt-auf');
+                sprechen.setAttribute('aria-pressed', 'true');
+                sprechen.querySelector('span').textContent = T.sprechen_stopp;
+                recorder.start(1000);
+            }).catch(function () { melde(T.sprechen_keinmikro); });
+        });
+        form.addEventListener('submit', function () {
+            if (aufnahme && aufnahme.recorder.state !== 'inactive') { aufnahme.recorder.stop(); }
+        });
+    }
+
+    // Vorlesen: Stimme des Geraets (Browser) -- nichts verlaesst das Geraet. Lange Texte in Stuecken, weil
+    // manche Browser sonst nach etwa 15 Sekunden abbrechen.
+    var kannVorlesen = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+    var liest = null;
+    var stuecke = function (text) {
+        var saetze = text.replace(/\s+/g, ' ').match(/[^.!?…]+[.!?…]*\s*/g) || [text];
+        var teile = [], akt = '';
+        saetze.forEach(function (s) {
+            if ((akt + s).length > 220 && akt) { teile.push(akt); akt = ''; }
+            akt += s;
+        });
+        if (akt.trim()) { teile.push(akt); }
+        return teile;
+    };
+    var stoppeLesen = function () {
+        if (!kannVorlesen) { return; }
+        window.speechSynthesis.cancel();
+        if (liest) { liest.knopf.querySelector('span').textContent = T.vorlesen; liest.knopf.setAttribute('aria-pressed', 'false'); }
+        liest = null;
+    };
+    if (kannVorlesen) {
+        var sprachcode = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
+        document.querySelectorAll('.nx-nova-nova').forEach(function (box) {
+            var kopf = box.querySelector('.nx-nova-wer');
+            if (!kopf) { return; }
+            var k = document.createElement('button');
+            k.type = 'button';
+            k.className = 'btn btn-light nx-nova-vorlesen';
+            k.setAttribute('aria-pressed', 'false');
+            k.innerHTML = '<i class="fa fa-volume-up" aria-hidden="true"></i> <span></span>';
+            k.querySelector('span').textContent = T.vorlesen;
+            k.addEventListener('click', function () {
+                var warSelbst = liest && liest.knopf === k;
+                stoppeLesen();
+                if (warSelbst) { return; }
+                var text = Array.prototype.map.call(box.children, function (el) {
+                    return (el.classList.contains('nx-nova-wer') || el.classList.contains('nx-nova-quellen')) ? '' : el.innerText;
+                }).join(' ').trim();
+                if (!text) { return; }
+                var teile = stuecke(text);
+                var stimmen = window.speechSynthesis.getVoices().filter(function (v) { return v.lang.toLowerCase().indexOf(sprachcode) === 0; });
+                var aktuell = { knopf: k };
+                liest = aktuell;
+                k.querySelector('span').textContent = T.vorlesen_stopp;
+                k.setAttribute('aria-pressed', 'true');
+                var naechstes = function (i) {
+                    if (liest !== aktuell) { return; }
+                    if (i >= teile.length) { stoppeLesen(); return; }
+                    var u = new SpeechSynthesisUtterance(teile[i]);
+                    u.lang = stimmen[0] ? stimmen[0].lang : sprachcode;
+                    if (stimmen[0]) { u.voice = stimmen[0]; }
+                    u.onend = function () { naechstes(i + 1); };
+                    u.onerror = function () { if (liest === aktuell) { stoppeLesen(); } };
+                    window.speechSynthesis.speak(u);
+                };
+                naechstes(0);
+            });
+            kopf.appendChild(k);
+        });
+        window.addEventListener('pagehide', stoppeLesen);
+        if (form) { form.addEventListener('submit', stoppeLesen); }
+    }
+
     document.querySelectorAll('form[data-nx-nova-frage]').forEach(function (f) {
         f.addEventListener('submit', function (e) {
             if (f.dataset.bestaetigt) { return; }
@@ -79,7 +247,7 @@ $this->registerJs(<<<JS
 })();
 JS);
 ?>
-<div class="container nx-nova">
+<div class="container nx-nova" data-nx-sprache-texte="<?= Html::encode(json_encode($sprachTexte, JSON_UNESCAPED_UNICODE)) ?>">
     <div class="nx-nova-seite">
         <div class="panel panel-default">
             <div class="panel-heading"><strong><i class="fa fa-comments"></i> <?= Html::encode($t('titel')) ?></strong>
@@ -167,8 +335,12 @@ JS);
                         <textarea id="nx-nova-text" name="text" class="form-control" required maxlength="<?= Gespraeche::MAX_NACHRICHT ?>" placeholder="<?= Html::encode($t('eingabe')) ?>"><?= Html::encode($vorlage ?? '') ?></textarea>
                         <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
                             <span class="nx-nova-hinweis"><?= Html::encode(sprintf($t('heute'), $rest, Gespraeche::tageslimit())) ?></span>
-                            <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> <?= Html::encode($t('senden')) ?></button>
+                            <span style="display:flex;gap:.5rem;flex-wrap:wrap">
+                                <button type="button" id="nx-nova-sprechen" class="btn btn-light nx-nova-sprechen" aria-pressed="false" title="<?= Html::encode($t('sprechen_hilfe')) ?>"><i class="fa fa-microphone" aria-hidden="true"></i> <span><?= Html::encode($t('sprechen')) ?></span></button>
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> <?= Html::encode($t('senden')) ?></button>
+                            </span>
                         </div>
+                        <div id="nx-nova-sprech-status" class="nx-nova-sprech-status" role="status" aria-live="polite"></div>
                         <div class="nx-nova-denkt alert alert-info"><i class="fa fa-spinner fa-spin"></i> <?= Html::encode($t('denkt')) ?></div>
                     <?= Html::endForm() ?>
                 <?php endif; ?>
