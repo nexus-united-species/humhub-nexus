@@ -102,8 +102,26 @@
     margin-top: 2px;
 }
 
+/* Lange Nachrichten: der Inhalt darf umbrechen, die Leiste bekommt eine eigene volle Zeile
+   (sonst wird sie als schmale Spalte rechts neben den Text gequetscht) */
+.conversation-entry-content:has(> .nx-nm) {
+    flex-wrap: wrap;
+}
+
+.conversation-entry-content > .nx-nm {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 .conversation-entry-content.own .nx-nm {
     justify-content: flex-end;
+}
+
+.nx-nm .nx-nm-antwort,
+.nx-nm .nx-re-knopf {
+    white-space: nowrap;
 }
 
 .nx-nm .nx-re-knopf,
