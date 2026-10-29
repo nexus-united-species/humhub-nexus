@@ -30,3 +30,9 @@
     .nx-tm .nx-tm-tabelle td { border: 0; padding: .25rem 0; }
     .nx-tm .nx-tm-tabelle td[data-spalte]::before { content: attr(data-spalte) ": "; color: var(--nx-tm-leise); font-size: .8rem; }
 }
+.nx-tm .nx-tm-blaettern { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: .6rem 0 .3rem; }
+.nx-tm .nx-tm-blaettern strong { min-width: 15rem; text-align: center; }
+.nx-tm .nx-tm-chips { line-height: 2; }
+.nx-tm .nx-tm-chip { display: inline-block; border: 1px solid #D4AF37; border-radius: 999px; padding: 0 .65rem; margin: 0 .2rem; font-size: .85rem; text-decoration: none; }
+.nx-tm .nx-tm-chip.aktiv { background: #D4AF37; color: #0A1628; font-weight: 700; }
+.nx-tm .nx-tm-woche-form { margin: .2rem 0 .6rem; }

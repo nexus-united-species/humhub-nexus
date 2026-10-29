@@ -23,20 +23,56 @@ class Daten
         return (int)getenv('ASSISTANT_USER_ID');
     }
 
+    /** Eine Woche zurueck: 0 = die letzten 7 Tage, 1 = die Woche davor usw. Liefert [von, bis) als Zeitstempel. */
+    public static function wochenFenster(int $woche): array
+    {
+        $bis = time() - $woche * 7 * 86400;
+        return [$bis - 7 * 86400, $bis];
+    }
+
     /**
-     * Neue Mitglieder der letzten Tage, neueste zuerst.
+     * Ueberblick ueber ALLE Wochen: wie viele Mitglieder sind noch nicht begruesst, und in welchen Wochen?
+     * @return array{aelteste: int, gesamt: int, unbegruesst: int, wochen: array<int, int>} wochen = Woche => Anzahl ohne Begruessung
+     */
+    public static function neueUebersicht(): array
+    {
+        $zeilen = Yii::$app->db->createCommand(
+            'SELECT u.created_at, (b.user_id IS NULL) AS offen
+               FROM user u LEFT JOIN nexus_team_begruesst b ON b.user_id = u.id
+              WHERE u.status = :s AND u.id <> :bot',
+            [':s' => User::STATUS_ENABLED, ':bot' => self::botId()]
+        )->queryAll();
+        $jetzt = time();
+        $aelteste = $jetzt;
+        $wochen = [];
+        $offen = 0;
+        foreach ($zeilen as $z) {
+            $t = strtotime((string)$z['created_at']) ?: $jetzt;
+            $aelteste = min($aelteste, $t);
+            if ((int)$z['offen'] === 1) {
+                $offen++;
+                $w = (int)floor(($jetzt - $t) / (7 * 86400));
+                $wochen[$w] = ($wochen[$w] ?? 0) + 1;
+            }
+        }
+        ksort($wochen);
+        return ['aelteste' => $aelteste, 'gesamt' => count($zeilen), 'unbegruesst' => $offen, 'wochen' => $wochen];
+    }
+
+    /**
+     * Neue Mitglieder EINER Woche, neueste zuerst.
      * @return array<int, array<string, mixed>>
      */
-    public static function neueMitglieder(int $tage): array
+    public static function neueMitglieder(int $woche): array
     {
         $db = Yii::$app->db;
-        $ab = date('Y-m-d H:i:s', time() - $tage * 86400);
+        [$von, $bis] = self::wochenFenster($woche);
         $zeilen = $db->createCommand(
             'SELECT u.id, u.guid, u.username, u.language, u.created_at, u.last_login, p.firstname, p.lastname
                FROM user u LEFT JOIN profile p ON p.user_id = u.id
-              WHERE u.status = :s AND u.created_at >= :ab AND u.id <> :bot
+              WHERE u.status = :s AND u.created_at >= :von AND u.created_at < :bis AND u.id <> :bot
               ORDER BY u.created_at DESC',
-            [':s' => User::STATUS_ENABLED, ':ab' => $ab, ':bot' => self::botId()]
+            [':s' => User::STATUS_ENABLED, ':von' => date('Y-m-d H:i:s', $von), ':bis' => date('Y-m-d H:i:s', $bis), ':bot' => self::botId()]
         )->queryAll();
         if ($zeilen === []) {
             return [];
@@ -182,8 +218,23 @@ class Daten
      */
     public static function beitraegeOhneAntwort(int $vonTage, int $bisTage, bool $ohneBot = true, ?int $kreisId = null, int $max = 15): array
     {
-        $von = date('Y-m-d H:i:s', time() - $vonTage * 86400);
-        $bis = date('Y-m-d H:i:s', time() - $bisTage * 86400);
+        return self::beitraegeOhneAntwortZeit(time() - $vonTage * 86400, time() - $bisTage * 86400, $ohneBot, $kreisId, $max);
+    }
+
+    /**
+     * Beitraege ohne Antwort EINER Woche (0 = die Beitraege der Tage 2 bis 7 vor heute -- juengere haben noch Zeit --,
+     * 1 = die Woche davor usw.).
+     */
+    public static function offeneBeitraege(int $woche, int $max = 25): array
+    {
+        [$von, $bis] = self::wochenFenster($woche);
+        return self::beitraegeOhneAntwortZeit($von, $woche === 0 ? time() - 2 * 86400 : $bis, true, null, $max);
+    }
+
+    private static function beitraegeOhneAntwortZeit(int $vonTs, int $bisTs, bool $ohneBot, ?int $kreisId, int $max): array
+    {
+        $von = date('Y-m-d H:i:s', $vonTs);
+        $bis = date('Y-m-d H:i:s', $bisTs);
         $bedingung = $kreisId !== null ? ' AND s.id = :kreis' : '';
         $bot = $ohneBot ? ' AND c.created_by <> :bot' : '';
         $params = [':post' => self::POST, ':space' => self::SPACE, ':von' => $von, ':bis' => $bis, ':st' => Content::STATE_PUBLISHED];
@@ -249,6 +300,19 @@ class Daten
         $text = preg_replace('/!?\[([^\]]*)\]\([^)]*\)/u', '$1', (string)$text);
         $text = trim((string)$text);
         return mb_strlen($text) > $max ? rtrim(mb_substr($text, 0, $max)) . ' …' : $text;
+    }
+
+    /** Alle noch nicht begruessten Mitglieder einer Woche auf einmal als begruesst eintragen. @return int Anzahl */
+    public static function markiereWocheBegruesst(int $woche, int $vonId): int
+    {
+        $anzahl = 0;
+        foreach (self::neueMitglieder($woche) as $m) {
+            if ($m['begruesst'] === null) {
+                self::markiereBegruesst((int)$m['id'], $vonId);
+                $anzahl++;
+            }
+        }
+        return $anzahl;
     }
 
     public static function markiereBegruesst(int $userId, int $vonId): void

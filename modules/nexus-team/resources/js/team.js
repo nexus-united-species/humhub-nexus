@@ -35,3 +35,27 @@
         });
     });
 })();
+
+/* Rueckfrage im Portal-Fenster statt window.confirm (Firefox kann Browser-Dialoge abschalten -- dann kaeme "Abbrechen"). */
+(function () {
+    'use strict';
+    document.addEventListener('submit', function (ev) {
+        var form = ev.target;
+        var knopf = ev.submitter || form.querySelector('[data-nx-team-frage]');
+        var frage = knopf && knopf.getAttribute ? knopf.getAttribute('data-nx-team-frage') : null;
+        if (!frage || form.getAttribute('data-nx-team-bestaetigt')) { return; }
+        ev.preventDefault();
+        var weiter = function () {
+            form.setAttribute('data-nx-team-bestaetigt', '1');
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
+        };
+        try {
+            var modal = window.humhub && window.humhub.require('ui.modal');
+            if (modal && modal.confirm) {
+                modal.confirm({ body: frage }).then(function (ok) { if (ok) { weiter(); } });
+                return;
+            }
+        } catch (e) { /* Rueckfall unten */ }
+        if (window.confirm(frage)) { weiter(); }
+    }, true);
+})();
