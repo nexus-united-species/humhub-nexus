@@ -4,6 +4,7 @@ namespace nexus\modules\communityAssistant\services;
 
 use humhub\modules\content\widgets\richtext\converter\RichTextToPlainTextConverter;
 use humhub\modules\mail\models\AbstractMessageEntry;
+use humhub\modules\mail\models\Message;
 use humhub\modules\mail\models\MessageEntry;
 use humhub\modules\mail\models\UserMessage;
 use humhub\modules\user\models\User;
@@ -95,6 +96,17 @@ class DirectMessageReplyService
             }
         }
 
+        // Automatische Benachrichtigungen (Projekt, Team, Finanzierung, neue Mitglieder, Wissen ...) sind
+        // Unterhaltungen, die der Assistent selbst angelegt hat. Antwortet ein Mitglied dort -- meist auf die
+        // Rueckmeldung, um die es geht --, ist das KEINE Frage an Nova. Eine KI-Antwort darauf wirkte, als
+        // werde mitgelesen und kontrolliert (Meldung eines Mitglieds, 29.10.2026). Nur ein fester Hinweis,
+        // wie man richtig antwortet. Die Willkommensnachricht (Titel endet auf 🌱) bleibt eine Gespraechs-
+        // einladung, dort antwortet Nova weiter.
+        if ($this->istSystemUnterhaltung((int)$entry->message_id, $assistentId)) {
+            $this->systemHinweis($assistentId, $entry, $absender);
+            return;
+        }
+
         try {
             $antwort = (new AiService())->frage($frage, AssistentPersona::systemAnweisung($frage));
         } catch (\Throwable $e) {
@@ -113,6 +125,55 @@ class DirectMessageReplyService
         (new PosterService($assistentId))->antwortenInKonversation((int)$entry->message_id, $antwort);
         if ($anMenschen) {
             Weitergabe::anMenschen($absender, $frage, $antwort, 'private Nachricht an Nova – die sehen nur die beiden');
+        }
+    }
+
+    private function istSystemUnterhaltung(int $nachrichtId, int $assistentId): bool
+    {
+        $nachricht = Message::findOne($nachrichtId);
+        if ($nachricht === null || (int)$nachricht->created_by !== $assistentId) {
+            return false;
+        }
+        return !str_ends_with(trim((string)$nachricht->title), '🌱');
+    }
+
+    /** Fester Hinweis (kein KI-Text), hoechstens einmal hintereinander je Unterhaltung. */
+    private function systemHinweis(int $assistentId, MessageEntry $entry, ?User $absender): void
+    {
+        $vorher = MessageEntry::find()
+            ->where(['message_id' => $entry->message_id, 'created_by' => $assistentId])
+            ->andWhere(['<', 'id', $entry->id])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+        if ($vorher !== null && str_starts_with(ltrim((string)$vorher->content), 'ℹ️')) {
+            return;
+        }
+        $url = rtrim((string)Yii::$app->settings->get('baseUrl'), '/') . '/nexus-community-assistant/gespraech/index';
+        $texte = [
+            'de' => "ℹ️ Das ist eine automatische Benachrichtigung. Hier antwortet niemand, auch Nova nicht. "
+                . "Wenn du auf eine Rückmeldung antworten möchtest, nutze den Knopf „Antworten“ direkt im Portal (der Link steht in der Nachricht oben). "
+                . "Wenn du Nova etwas fragen möchtest, nimm [Nova – Gespräche](%s) oder schreib ihr eine eigene Nachricht.",
+            'en' => "ℹ️ This is an automatic notification. Nobody answers here, not even Nova. "
+                . "To reply to a comment, use the “Reply” button directly in the portal (the link is in the message above). "
+                . "If you want to ask Nova something, use [Nova – Conversations](%s) or write her a message of your own.",
+            'es' => "ℹ️ Esto es una notificación automática. Aquí no responde nadie, tampoco Nova. "
+                . "Para responder a un comentario, usa el botón «Responder» directamente en el portal (el enlace está en el mensaje de arriba). "
+                . "Si quieres preguntarle algo a Nova, usa [Nova – Conversaciones](%s) o escríbele un mensaje propio.",
+            'ru' => "ℹ️ Это автоматическое уведомление. Здесь никто не отвечает, в том числе и Нова. "
+                . "Чтобы ответить на отзыв, используйте кнопку «Ответить» прямо в портале (ссылка — в сообщении выше). "
+                . "Если хотите о чём-то спросить Нову, воспользуйтесь разделом [Нова — беседы](%s) или напишите ей отдельное сообщение.",
+            'fr' => "ℹ️ Ceci est une notification automatique. Personne ne répond ici, pas même Nova. "
+                . "Pour répondre à un retour, utilise le bouton « Répondre » directement dans le portail (le lien se trouve dans le message ci-dessus). "
+                . "Si tu veux poser une question à Nova, utilise [Nova – Conversations](%s) ou écris-lui un message à part.",
+        ];
+        $sprache = substr((string)($absender->language ?? 'de'), 0, 2);
+        try {
+            (new PosterService($assistentId))->antwortenInKonversation(
+                (int)$entry->message_id,
+                sprintf($texte[$sprache] ?? $texte['de'], $url)
+            );
+        } catch (\Throwable $e) {
+            Yii::error('nexus-community-assistant: Systemhinweis fehlgeschlagen: ' . $e->getMessage());
         }
     }
 
