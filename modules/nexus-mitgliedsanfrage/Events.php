@@ -77,8 +77,20 @@ class Events
         }
 
         $text = self::nachricht($mensch, $sauber);
+        // Systemadmins UND das Community-Team (Modul nexus-team, seit 29.10.2026): wer neue Mitglieder
+        // begruesst, soll die Antworten auf die Kennenlern-Fragen auch bekommen.
+        $empfaenger = [];
         foreach (ZeitService::admins() as $admin) {
-            Benachrichtigung::senden((int)$admin->id, self::TITEL, $text);
+            $empfaenger[(int)$admin->id] = $admin;
+        }
+        $team = Yii::$app->getModule('nexus-team');
+        if ($team !== null && method_exists($team, 'teamMenschen')) {
+            foreach ($team->teamMenschen() as $teamMensch) {
+                $empfaenger[(int)$teamMensch->id] = $teamMensch;
+            }
+        }
+        foreach ($empfaenger as $id => $empfaengerMensch) {
+            Benachrichtigung::senden($id, self::TITEL, $text);
         }
         return true;
     }

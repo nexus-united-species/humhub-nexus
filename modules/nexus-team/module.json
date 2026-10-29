@@ -1,0 +1,8 @@
+{
+    "id": "nexus-team",
+    "name": "N.E.X.U.S. Community-Team",
+    "description": "Ueberblick fuer das Community-Team: neue Mitglieder (vorgestellt? begruesst?), Meldungen, Beitraege ohne Antwort, Support-Anfragen, ruhige Kreise -- plus Textvorschlaege zum Begruessen in fuenf Sprachen.",
+    "keywords": ["nexus", "community", "moderation", "willkommen"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}

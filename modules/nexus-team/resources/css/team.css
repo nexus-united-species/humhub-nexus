@@ -1,0 +1,32 @@
+/* Community-Team -- Farben aus dem Theme (Bootstrap-5-Variablen), damit hell und dunkel passen */
+.nx-tm { --nx-tm-rand: var(--bs-border-color, #dee2e6); --nx-tm-leise: var(--bs-secondary-color, #6c757d); --nx-tm-flaeche: var(--bs-tertiary-bg, #f4f5f7); }
+.nx-tm h1 { font-size: 1.6rem; margin: 0 0 .3rem; }
+.nx-tm h2 { font-size: 1.15rem; margin: 1.6rem 0 .3rem; }
+.nx-tm .nx-tm-leise { color: var(--nx-tm-leise); font-size: .92rem; }
+.nx-tm .nx-tm-kacheln { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .7rem; margin: 1rem 0 .4rem; }
+.nx-tm .nx-tm-kachel { border: 1px solid var(--nx-tm-rand); border-radius: 10px; padding: .75rem .9rem; background: var(--nx-tm-flaeche); }
+.nx-tm .nx-tm-kachel b { display: block; font-size: 1.9rem; line-height: 1.1; }
+.nx-tm .nx-tm-kachel span { color: var(--nx-tm-leise); font-size: .85rem; }
+.nx-tm .nx-tm-kachel.nx-tm-wichtig { border-color: #D4AF37; box-shadow: 0 0 0 1px #D4AF37 inset; }
+.nx-tm .nx-tm-tabelle { width: 100%; border-collapse: collapse; margin-top: .6rem; }
+.nx-tm .nx-tm-tabelle th { text-align: left; font-size: .8rem; font-weight: 600; color: var(--nx-tm-leise); padding: .35rem .5rem; border-bottom: 2px solid var(--nx-tm-rand); }
+.nx-tm .nx-tm-tabelle td { padding: .55rem .5rem; border-bottom: 1px solid var(--nx-tm-rand); vertical-align: top; }
+.nx-tm .nx-tm-ja { color: var(--bs-success, #198754); font-weight: 600; }
+.nx-tm .nx-tm-offen { color: var(--bs-warning-text-emphasis, #997404); font-weight: 600; }
+.nx-tm .nx-tm-aktion { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.nx-tm .nx-tm-aktion form { margin: 0; }
+.nx-tm .nx-tm-liste { list-style: none; padding: 0; margin: .6rem 0 0; }
+.nx-tm .nx-tm-liste li { border: 1px solid var(--nx-tm-rand); border-radius: 8px; padding: .6rem .8rem; margin-bottom: .5rem; display: flex; gap: .8rem; justify-content: space-between; align-items: flex-start; }
+.nx-tm .nx-tm-liste .nx-tm-vorschau { overflow-wrap: anywhere; }
+.nx-tm .nx-tm-leer { color: var(--nx-tm-leise); padding: .6rem 0; }
+.nx-tm .nx-tm-hilfe { border: 1px dashed var(--nx-tm-rand); border-radius: 10px; padding: .6rem 1rem; margin-top: 1.6rem; }
+.nx-tm .nx-tm-hilfe ol { margin: .4rem 0 0; padding-left: 1.2rem; }
+.nx-tm .nx-tm-hilfe li { margin-bottom: .3rem; }
+.nx-tm .nx-tm-hinweis { margin-top: 1rem; font-size: .85rem; color: var(--nx-tm-leise); }
+@media (max-width: 767px) {
+    .nx-tm .nx-tm-tabelle thead { display: none; }
+    .nx-tm .nx-tm-tabelle, .nx-tm .nx-tm-tabelle tbody, .nx-tm .nx-tm-tabelle tr, .nx-tm .nx-tm-tabelle td { display: block; width: 100%; }
+    .nx-tm .nx-tm-tabelle tr { border: 1px solid var(--nx-tm-rand); border-radius: 8px; margin-bottom: .6rem; padding: .3rem .5rem; }
+    .nx-tm .nx-tm-tabelle td { border: 0; padding: .25rem 0; }
+    .nx-tm .nx-tm-tabelle td[data-spalte]::before { content: attr(data-spalte) ": "; color: var(--nx-tm-leise); font-size: .8rem; }
+}
