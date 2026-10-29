@@ -11,6 +11,7 @@ use humhub\modules\content\widgets\richtext\converter\RichTextToShortTextConvert
 use humhub\modules\content\widgets\richtext\RichText;
 use humhub\modules\like\models\Like;
 use humhub\modules\nexusTranslate\SprachErkennung;
+use humhub\modules\nexusTranslate\PollUebersetzung;
 use humhub\modules\nexusTranslate\TerminUebersetzung;
 use humhub\modules\nexusTranslate\UebersetzungsSpeicher;
 use humhub\modules\nexusTranslate\WikiVorschau;
@@ -67,6 +68,14 @@ class TranslateController extends Controller
             if (!$record->content->canView()) {
                 throw new HttpException(403, 'Kein Zugriff auf diesen Termin.');
             }
+        } elseif ($type === 'poll') {
+            $record = class_exists(PollUebersetzung::KLASSE) ? (PollUebersetzung::KLASSE)::findOne(['id' => $id]) : null;
+            if (!$record) {
+                throw new HttpException(404, 'Umfrage nicht gefunden.');
+            }
+            if (!$record->content->canView()) {
+                throw new HttpException(403, 'Kein Zugriff auf diese Umfrage.');
+            }
         } else {
             $type = 'post';
             $record = Post::findOne(['id' => $id]);
@@ -85,6 +94,9 @@ class TranslateController extends Controller
         } elseif ($type === 'wikis') {
             $text = (string)($record->latestRevision->content ?? '');
             $von = SprachErkennung::erkenne($text);
+        } elseif ($type === 'poll') {
+            $text = PollUebersetzung::text($record);
+            $von = SprachErkennung::erkenne($text);
         } elseif ($type === 'cal') {
             // Beschreibung uebersetzen, Sprache an Titel + Beschreibung erkennen; wiederkehrende
             // Termine teilen sich EINE Uebersetzung (gespeichert am Serienanfang).
@@ -98,6 +110,10 @@ class TranslateController extends Controller
         $ziel = SprachErkennung::leser();
         if ($ziel === null || $von === null || $von === $ziel || trim($text) === '') {
             throw new HttpException(400, 'Keine Uebersetzung noetig.');
+        }
+
+        if ($type === 'poll') {
+            return $this->umfrageFassung($record, $von, $ziel);
         }
 
         $titel = null;
@@ -122,6 +138,43 @@ class TranslateController extends Controller
             // Nur Wiki: der Titel steht im Kopf des Eintrags und wird dort als Text getauscht.
             'titel' => $titel,
         ];
+    }
+
+    /**
+     * Frage (Titel), Beschreibung (fertiges HTML) und Antworten einer Umfrage in der Sprache des Lesers.
+     * Jeder Text wird einzeln und je Sprache nur EINMAL uebersetzt (Typen pollq, polld, polla; die
+     * Speicher-Id ist die der Umfrage bzw. der Antwort).
+     */
+    private function umfrageFassung($umfrage, string $von, string $ziel): array
+    {
+        $kurz = 'This is a short text from a poll: output only the translation.';
+        try {
+            $frage = trim((string)$umfrage->question);
+            $titel = $frage === '' ? null : UebersetzungsSpeicher::markdown('pollq', (int)$umfrage->id, $frage, $ziel, $kurz);
+            $beschreibung = trim((string)$umfrage->description);
+            $html = '';
+            if ($beschreibung !== '') {
+                $html = RichTextToHtmlConverter::process(
+                    $this->markdownFassung('polld', (int)$umfrage->id, $beschreibung, $ziel),
+                    ['record' => $umfrage]
+                );
+            }
+            $antworten = [];
+            foreach ($umfrage->answers as $antwort) {
+                $original = trim((string)$antwort->answer);
+                if ($original === '') {
+                    continue;
+                }
+                $antworten[] = [
+                    'original' => $original,
+                    'uebersetzt' => UebersetzungsSpeicher::markdown('polla', (int)$antwort->id, $original, $ziel, $kurz),
+                ];
+            }
+        } catch (Throwable $e) {
+            Yii::error('Umfrage-Uebersetzung fehlgeschlagen: ' . $e->getMessage(), 'nexus-translate');
+            throw new HttpException(502, $e->getMessage());
+        }
+        return ['html' => $html, 'von' => $von, 'titel' => $titel, 'antworten' => $antworten];
     }
 
     /**

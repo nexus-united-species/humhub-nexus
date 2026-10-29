@@ -35,7 +35,7 @@ class Events
         $wallEntryLinks = $event->sender;
         $record = $wallEntryLinks->object;
 
-        $istWiki = WikiVorschau::istWiki($record) || TerminUebersetzung::istTermin($record);
+        $istWiki = WikiVorschau::istWiki($record) || TerminUebersetzung::istTermin($record) || PollUebersetzung::istPoll($record);
         if (!$istWiki && (!($record instanceof Post) || trim((string)$record->message) === '')) {
             return;
         }

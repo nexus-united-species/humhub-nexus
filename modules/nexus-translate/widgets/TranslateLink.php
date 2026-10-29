@@ -5,6 +5,7 @@ namespace humhub\modules\nexusTranslate\widgets;
 use humhub\components\Widget;
 use humhub\helpers\Html;
 use humhub\modules\nexusTranslate\assets\Assets;
+use humhub\modules\nexusTranslate\PollUebersetzung;
 use humhub\modules\nexusTranslate\SprachErkennung;
 use humhub\modules\nexusTranslate\TerminUebersetzung;
 use humhub\modules\nexusTranslate\WikiVorschau;
@@ -46,6 +47,20 @@ class TranslateLink extends Widget
                 '<i class="fa fa-language" aria-hidden="true"></i> Translate',
                 '#',
                 ['data-nexus-cal-id' => $this->record->id] + $auto
+            );
+        }
+
+        // Umfrage (seit 29.10.2026): Frage, Beschreibung und Antworten, automatisch.
+        if (PollUebersetzung::istPoll($this->record)) {
+            $auto = self::autoAttribute(PollUebersetzung::text($this->record));
+            if ($auto === []) {
+                return '';
+            }
+            Assets::register($this->getView());
+            return Html::a(
+                '<i class="fa fa-language" aria-hidden="true"></i> Translate',
+                '#',
+                ['data-nexus-poll-id' => $this->record->id] + $auto
             );
         }
 

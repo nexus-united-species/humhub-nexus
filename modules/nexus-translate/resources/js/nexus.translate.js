@@ -93,6 +93,19 @@
                 url: '/nexus-translate/translate/auto?id=' + encodeURIComponent(sid) + '&type=wikis'
             } : null;
         }
+        if (link.hasAttribute('data-nexus-poll-id')) {
+            // Umfrage: Beschreibung + Antworten im Eintrag, die Frage steht im Kopf des Eintrags.
+            var pollId = link.getAttribute('data-nexus-poll-id');
+            var pollEl = document.querySelector('[data-poll="' + pollId + '"]');
+            var pollPanel = link.closest('.panel');
+            var pollBeschr = pollEl ? pollEl.querySelector('[data-ui-markdown]') : null;
+            return pollBeschr ? {
+                el: pollBeschr,
+                wurzel: pollEl,
+                titelEl: pollPanel ? pollPanel.querySelector('.wall-entry-header h4 > a') : null,
+                url: '/nexus-translate/translate/auto?id=' + encodeURIComponent(pollId) + '&type=poll'
+            } : null;
+        }
         if (link.hasAttribute('data-nexus-cal-id')) {
             // Kalendertermin: nur die Beschreibung (der Titel kommt schon uebersetzt vom Server).
             var cid2 = link.getAttribute('data-nexus-cal-id');
@@ -139,15 +152,32 @@
         }
     }
 
-    function zeigeAuto(link, ziel, html, titel) {
+    function zeigeAuto(link, ziel, html, titel, antworten) {
         var original = ziel.el.innerHTML;
         var titelOriginal = ziel.titelEl ? ziel.titelEl.textContent : null;
         function setzeTitel(uebersetzt) {
             if (ziel.titelEl && titel) { ziel.titelEl.textContent = uebersetzt ? titel : titelOriginal; }
         }
+        // Umfrage: die Antworten stehen als eigener Text je Zeile; getauscht wird nur, was genau passt.
+        var antwortZeilen = [];
+        if (antworten && antworten.length && ziel.wurzel) {
+            var spans = ziel.wurzel.querySelectorAll('.row .col-md-7 > span');
+            for (var s = 0; s < spans.length; s++) {
+                for (var a = 0; a < antworten.length; a++) {
+                    if (antworten[a].original === spans[s].textContent.trim()) {
+                        antwortZeilen.push({ el: spans[s], alt: spans[s].textContent, neu: antworten[a].uebersetzt });
+                        break;
+                    }
+                }
+            }
+        }
+        function setzeAntworten(uebersetzt) {
+            antwortZeilen.forEach(function (z) { z.el.textContent = uebersetzt ? z.neu : z.alt; });
+        }
         ziel.el.innerHTML = html;
         passeBilderAn(ziel.el);
         setzeTitel(true);
+        setzeAntworten(true);
         var leiste = document.createElement('div');
         leiste.className = 'nexus-auto-hinweis';
         leiste.style.cssText = 'font-size:12px;color:#8a8f98;margin:0 0 6px 0;';
@@ -164,6 +194,7 @@
             ziel.el.innerHTML = uebersetzt ? html : original;
             if (uebersetzt) { passeBilderAn(ziel.el); }
             setzeTitel(uebersetzt);
+            setzeAntworten(uebersetzt);
             umschalter.textContent = link.getAttribute(uebersetzt ? 'data-nexus-original' : 'data-nexus-uebersetzung');
         });
         ziel.el.parentNode.insertBefore(leiste, ziel.el);
@@ -184,9 +215,9 @@
                 .then(function (antwort) { return antwort.ok ? antwort.json() : null; })
                 .then((function (l, z) {
                     return function (daten) {
-                        if (daten && daten.html) {
-                            if (z.warten) { wennSichtbar(z.el, function () { zeigeAuto(l, z, daten.html, daten.titel); }); }
-                            else { zeigeAuto(l, z, daten.html, daten.titel); }
+                        if (daten && (daten.html || (daten.antworten && daten.antworten.length))) {
+                            if (z.warten) { wennSichtbar(z.el, function () { zeigeAuto(l, z, daten.html, daten.titel, daten.antworten); }); }
+                            else { zeigeAuto(l, z, daten.html, daten.titel, daten.antworten); }
                             return;
                         }
                         throw new Error('keine Uebersetzung');
@@ -283,7 +314,7 @@
     document.addEventListener('click', function (ev) {
         // Wiki-Seite: "Translate" erscheint nur, wenn uebersetzt werden soll -- ein Klick
         // (falls die automatische Uebersetzung noch laeuft oder scheiterte) stoesst sie erneut an.
-        var wikiLink = ev.target.closest('a[data-nexus-wiki-id], a[data-nexus-cal-id], a[data-nexus-wikiseite-id]');
+        var wikiLink = ev.target.closest('a[data-nexus-wiki-id], a[data-nexus-cal-id], a[data-nexus-poll-id], a[data-nexus-wikiseite-id]');
         if (wikiLink) {
             ev.preventDefault();
             warteschlange.push(wikiLink);
