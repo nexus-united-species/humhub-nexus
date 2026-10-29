@@ -9,7 +9,7 @@ namespace nexus\modules\abzeichen\services;
  *                    "arbeitsstunden" freigegebene Stunden aus dem Modul nexus-arbeitszeit (Summe)
  *   minutenProWoche  Schwelle fuer "aktivzeit", Vorgabe 120
  *   name             Name im eigenen Profil, z. B. "Im Portal unterwegs"
- *   einheit          Einzahl|Mehrzahl, z. B. "Woche|Wochen" (oder nur "Wochen")
+ *   einheit          Einzahl|Mehrzahl, z. B. "Woche|Wochen" (oder nur "Wochen"); fuer Russisch drei Formen "неделя|недели|недель"
  *   feier            Text der kurzen Feier. Platzhalter {wert}, {einheit}, {stufe}.
  *                    "aktivzeit" feiert jede erreichte Woche, "arbeitsstunden" nur jede neue Stufe.
  *   stufen           [Schwelle => Name], z. B. [4 => 'Regelmäßig dabei', 12 => ...] (Name als String oder je Sprache)
@@ -46,7 +46,16 @@ class Moment
 
     public function einheit(int $wert = 2): string
     {
-        $formen = explode('|', Texte::waehle($this->e['einheit'] ?? null), 2);
+        $formen = explode('|', Texte::waehle($this->e['einheit'] ?? null), 3);
+        // Drei Formen (Russisch: 1 Woche | 2-4 Wochen | 5 Wochen): 1, 21 ... / 2-4, 22-24 ... / alle anderen
+        if (isset($formen[2])) {
+            $rest10 = $wert % 10;
+            $rest100 = $wert % 100;
+            if ($rest10 === 1 && $rest100 !== 11) {
+                return $formen[0];
+            }
+            return $rest10 >= 2 && $rest10 <= 4 && ($rest100 < 12 || $rest100 > 14) ? $formen[1] : $formen[2];
+        }
         return $wert === 1 || !isset($formen[1]) ? $formen[0] : $formen[1];
     }
 
