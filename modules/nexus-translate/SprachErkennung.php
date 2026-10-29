@@ -17,7 +17,7 @@ use Yii;
  */
 class SprachErkennung
 {
-    public const SPRACHEN = ['de', 'en', 'es'];
+    public const SPRACHEN = ['de', 'en', 'es', 'ru'];
 
     private const WOERTER = [
         'de' => ['der', 'die', 'das', 'und', 'ist', 'nicht', 'mit', 'ich', 'wir', 'sie', 'ein', 'eine', 'auch', 'auf',
@@ -33,6 +33,9 @@ class SprachErkennung
             'como', 'pero', 'más', 'muy', 'del', 'al', 'en', 'su', 'mi', 'está', 'son', 'también', 'hay', 'todo',
             'yo', 'te', 'nos', 'gracias', 'sí', 'ya', 'este', 'esta', 'bien', 'hola', 'tengo', 'estoy', 'aquí', 'ahora',
             'mucho', 'cuando', 'porque'],
+        'ru' => ['и', 'в', 'не', 'на', 'я', 'что', 'он', 'с', 'как', 'это', 'мы', 'вы', 'они', 'по', 'но', 'для', 'из',
+            'от', 'так', 'все', 'вас', 'нас', 'есть', 'был', 'была', 'будет', 'или', 'да', 'нет', 'уже', 'очень', 'при',
+            'спасибо', 'пожалуйста', 'привет', 'здравствуйте', 'можно', 'нужно', 'если', 'тоже', 'только', 'здесь', 'сейчас', 'хорошо'],
     ];
 
     /** Erkennt de/en/es oder liefert null, wenn es nicht eindeutig ist. */
@@ -83,14 +86,16 @@ class SprachErkennung
     public static function beschriftung(string $von): array
     {
         $namen = [
-            'de' => ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch'],
-            'en' => ['de' => 'German', 'en' => 'English', 'es' => 'Spanish'],
-            'es' => ['de' => 'alemán', 'en' => 'inglés', 'es' => 'español'],
+            'de' => ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch'],
+            'en' => ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian'],
+            'es' => ['de' => 'alemán', 'en' => 'inglés', 'es' => 'español', 'ru' => 'ruso'],
+            'ru' => ['de' => 'немецкого', 'en' => 'английского', 'es' => 'испанского', 'ru' => 'русского'],
         ];
         $texte = [
             'de' => ['hinweis' => 'Automatisch übersetzt aus dem %s', 'original' => 'Original anzeigen', 'uebersetzung' => 'Übersetzung anzeigen'],
             'en' => ['hinweis' => 'Automatically translated from %s', 'original' => 'Show original', 'uebersetzung' => 'Show translation'],
             'es' => ['hinweis' => 'Traducido automáticamente del %s', 'original' => 'Ver original', 'uebersetzung' => 'Ver traducción'],
+            'ru' => ['hinweis' => 'Автоматический перевод с %s языка', 'original' => 'Показать оригинал', 'uebersetzung' => 'Показать перевод'],
         ];
         $leser = self::leser() ?? 'de';
         $t = $texte[$leser];

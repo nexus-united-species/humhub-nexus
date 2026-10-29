@@ -20,7 +20,7 @@ use humhub\helpers\Html;
 use nexus\modules\teilen\Module;
 use yii\helpers\Url;
 
-$namen = ['de' => 'Deutsch', 'en' => 'English', 'es' => 'Español'];
+$namen = ['de' => 'Deutsch', 'en' => 'English', 'es' => 'Español', 'ru' => 'Русский'];
 $zeit = strtotime($datum . ' UTC');
 $sprachLink = fn(string $code) => Url::to(['/nexus-teilen/lesen/index', 't' => $schluessel, 'sprache' => $code]);
 ?>

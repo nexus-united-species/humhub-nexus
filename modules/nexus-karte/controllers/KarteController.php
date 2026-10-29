@@ -88,7 +88,7 @@ class KarteController extends Controller
         $antwort->headers->set('Cache-Control', 'public, max-age=600');
         $antwort->headers->set('X-Robots-Tag', 'noindex');
 
-        $sprache = in_array($sprache, ['de', 'en', 'es'], true) ? $sprache : 'de';
+        $sprache = in_array($sprache, ['de', 'en', 'es', 'ru'], true) ? $sprache : 'de';
         $vorher = Yii::$app->language;
         Yii::$app->language = $sprache;
         try {

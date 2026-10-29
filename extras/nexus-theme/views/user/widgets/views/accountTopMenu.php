@@ -55,6 +55,7 @@ $nexusTexte = [
     'de' => ['anmelden' => 'Anmelden', 'registrieren' => 'Registrieren', 'profil' => 'Mein Profil', 'einstellungen' => 'Einstellungen', 'sprache' => 'Sprache', 'hilfe' => 'Hilfe'],
     'en' => ['anmelden' => 'Sign in', 'registrieren' => 'Register', 'profil' => 'My profile', 'einstellungen' => 'Settings', 'sprache' => 'Language', 'hilfe' => 'Help'],
     'es' => ['anmelden' => 'Iniciar sesión', 'registrieren' => 'Registrarse', 'profil' => 'Mi perfil', 'einstellungen' => 'Ajustes', 'sprache' => 'Idioma', 'hilfe' => 'Ayuda'],
+    'ru' => ['anmelden' => 'Войти', 'registrieren' => 'Регистрация', 'profil' => 'Мой профиль', 'einstellungen' => 'Настройки', 'sprache' => 'Язык', 'hilfe' => 'Помощь'],
 ];
 $nexusText = $nexusTexte[$nexusSprache] ?? $nexusTexte['en']; // andere Sprachen: Englisch, wie index_guest.php
 
@@ -127,7 +128,7 @@ $nexusText = $nexusTexte[$nexusSprache] ?? $nexusTexte['en']; // andere Sprachen
     </style>
     <div class="nexus-quick-links">
         <?= Html::beginForm(['/nexus-translate/sprache/setzen'], 'post', ['class' => 'nexus-sprache', 'title' => $nexusText['sprache'], 'aria-label' => $nexusText['sprache']]) ?>
-            <?php foreach (['de' => 'DE', 'en-US' => 'EN', 'es' => 'ES'] as $code => $kuerzel): ?>
+            <?php foreach (['de' => 'DE', 'en-US' => 'EN', 'es' => 'ES', 'ru' => 'RU'] as $code => $kuerzel): ?>
                 <?php $aktiv = strtolower(explode('-', $code)[0]) === $nexusSprache; ?>
                 <button type="<?= $aktiv ? 'button' : 'submit' ?>" name="sprache" value="<?= $code ?>"
                         class="<?= $aktiv ? 'aktiv' : '' ?>"><?= $kuerzel ?></button>
@@ -168,7 +169,7 @@ $nexusText = $nexusTexte[$nexusSprache] ?? $nexusTexte['en']; // andere Sprachen
             <li>
                 <?= Html::beginForm(['/nexus-translate/sprache/setzen'], 'post', ['class' => 'nexus-sprache-menue']) ?>
                     <span><?= Html::encode($nexusText['sprache']) ?>:</span>
-                    <?php foreach (['de' => 'DE', 'en-US' => 'EN', 'es' => 'ES'] as $code => $kuerzel): ?>
+                    <?php foreach (['de' => 'DE', 'en-US' => 'EN', 'es' => 'ES', 'ru' => 'RU'] as $code => $kuerzel): ?>
                         <?php $aktiv = strtolower(explode('-', $code)[0]) === $nexusSprache; ?>
                         <button type="<?= $aktiv ? 'button' : 'submit' ?>" name="sprache" value="<?= $code ?>"
                                 class="<?= $aktiv ? 'aktiv' : '' ?>"><?= $kuerzel ?></button>

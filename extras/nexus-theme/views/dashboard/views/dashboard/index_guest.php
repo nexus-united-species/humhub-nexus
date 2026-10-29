@@ -113,6 +113,23 @@ $texte = [
         'recht1' => 'El Blueprint, la Versión Popular y la Trilogía de Novelas son propiedad intelectual de Josh Richman (© 2024–2026).',
         'recht2' => 'Se fomenta encarecidamente la lectura y el intercambio. No está permitido su uso como base para proyectos propios sin autorización.',
     ],
+    'ru' => [
+        'titel' => 'Добро пожаловать в N.E.X.U.S.',
+        'intro' => 'Вместе мы строим новый образ совместной жизни — человечный, децентрализованный и основанный на настоящем сообществе. N.E.X.U.S. — это следующая ступень нашего развития: не ждать, а вместе создавать. Станьте её частью.',
+        'anmelden' => 'Войти',
+        'registrieren' => 'Регистрация',
+        'hilfe' => '❓ Проблемы со входом или регистрацией? Здесь вам помогут',
+        'hinweis' => 'Уже участник? Тогда слева <strong>Войти</strong>. Вы здесь впервые? Тогда справа <strong>Регистрация</strong> — всего несколько шагов, и вы с нами.',
+        'telegram' => ['Telegram-канал', 'https://t.me/nexus_canal_english'],
+        'amazon' => 'https://www.amazon.com/-/de/dp/B0HDTZ1QC9',
+        'datenschutz' => ['Конфиденциальность', 'https://www.nexus-terminal.org/ru/datenschutz.html'],
+        'impressum' => ['Выходные данные', 'https://www.nexus-terminal.org/ru/impressum.html'],
+        'webseite' => ['Сайт', 'https://www.nexus-terminal.org/ru/'],
+        'kontakt' => 'Контакт:',
+        'steht' => 'N.E.X.U.S. означает',
+        'recht1' => 'План (Blueprint), народная версия и романная трилогия являются интеллектуальной собственностью Джоша Ричмана (© 2024–2026).',
+        'recht2' => 'Чтение и распространение приветствуются. Использование в качестве основы для собственных проектов без разрешения не допускается.',
+    ],
 ];
 // Andere Sprachen (z. B. Franzoesisch) bekommen Englisch -- international verstaendlicher als Deutsch.
 $t = $texte[$sprache] ?? $texte['en'];
@@ -122,6 +139,7 @@ $t = $texte[$sprache] ?? $texte['en'];
 $vorschau = [
     'de' => ['Willkommen bei N.E.X.U.S. – Gemeinschaft in deiner Nähe', 'Menschen, die gemeinsam eine neue Art des Zusammenlebens aufbauen: menschlich, dezentral, mit echten Gemeinschaften vor Ort. Sieh dir auf der Karte an, wo es schon Gemeinschaften gibt – und mach mit.'],
     'en' => ['Welcome to N.E.X.U.S. – community near you', 'People building a new way of living together: human, decentralised, with real local communities. See on the map where communities already exist – and join in.'],
+    'ru' => ['Добро пожаловать в N.E.X.U.S. — сообщество рядом с вами', 'Люди, которые вместе строят новый образ совместной жизни: человечный, децентрализованный, с настоящими сообществами на местах. Посмотрите на карте, где уже есть сообщества, — и присоединяйтесь.'],
     'es' => ['Bienvenido a N.E.X.U.S. – comunidad cerca de ti', 'Personas que construyen juntas una nueva forma de convivencia: humana, descentralizada, con comunidades reales en su lugar. Mira en el mapa dónde ya existen comunidades – y únete.'],
 ][$sprache] ?? null;
 if ($vorschau === null) {

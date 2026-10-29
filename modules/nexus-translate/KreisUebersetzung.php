@@ -23,7 +23,7 @@ use Yii;
 class KreisUebersetzung
 {
     /** Zielsprachen neben dem deutschen Original. */
-    public const SPRACHEN = ['en' => 'English', 'es' => 'Spanish'];
+    public const SPRACHEN = ['en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian'];
 
     public const FELDER = ['name', 'description'];
 
@@ -37,6 +37,8 @@ class KreisUebersetzung
         'en' => 'Always translate "Kreis" as "Circle" and "Kreise" as "Circles", "Bauplan" as "Blueprint", "Unterstützer" as "Supporters". Keep these unchanged: '
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
         'es' => 'Always translate "Kreis" as "Círculo" and "Kreise" as "Círculos", "Bauplan" as "Plano" (never "Plano de construcción"), "Unterstützer" as "Colaboradores". Keep these unchanged: '
+            . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
+        'ru' => 'Always translate "Kreis" as "Круг" and "Kreise" as "Круги", "Bauplan" as "Проект-план", "Unterstützer" as "Сторонники". Keep these unchanged: '
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
     ];
 

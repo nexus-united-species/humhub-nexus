@@ -5,7 +5,7 @@ namespace nexus\modules\karte\services;
 use Yii;
 
 /**
- * Oberflaechentexte in Deutsch, Englisch, Spanisch -- gleiche kleine Tabelle wie im
+ * Oberflaechentexte in Deutsch, Englisch, Spanisch und Russisch -- gleiche kleine Tabelle wie im
  * Arbeitsstunden-Modul (drei Sprachen, ein Ort). Fehlt eine Sprache, gilt Englisch.
  */
 class Texte
@@ -125,10 +125,76 @@ class Texte
         'a_entfernt' => ['de' => 'Die Markierung ist entfernt.'],
     ];
 
+    /** Russisch (seit 29.10.2026): eigene Tabelle, damit die drei anderen Sprachen unberuehrt bleiben. */
+    private const RU = [
+        'nav' => 'Карта',
+        'titel' => 'Сообщества рядом с вами',
+        'einleitung' => 'Здесь вы видите, где уже существуют сообщества N.E.X.U.S. Нажмите на точку, чтобы узнать больше и открыть круг сообщества.',
+        'ort_hinweis' => 'Точки показывают только населённый пункт или регион — никогда адрес.',
+        'liste' => 'Все сообщества',
+        'zum_kreis' => 'Открыть круг',
+        'keine' => 'На карте пока нет ни одного сообщества.',
+        'gruenden_titel' => 'Рядом с вами пока нет сообщества?',
+        'gruenden_text' => 'Тогда создайте своё сообщество. Руководство покажет вам путь — от первого контакта до сообщества на местах.',
+        'gruenden_knopf' => '🌱 Создайте своё сообщество',
+        'hinweis_kreise' => 'Есть ли уже сообщество рядом с вами?',
+        'hinweis_link' => 'К карте сообществ →',
+        'karte_quelle' => 'Данные карты',
+        'web_finden' => 'Найти сообщество рядом с вами',
+        'web_gruenden' => 'Создать собственное сообщество',
+        'gast_titel' => 'Здесь уже есть сообщества',
+        'gast_text' => 'Возможно, одно из них уже рядом с вами. Зарегистрируйтесь, чтобы познакомиться с ним, или создайте своё.',
+        'gast_popup' => 'После входа вы сможете посетить это сообщество.',
+        'legende_gemeinschaft' => 'Сообщество',
+        'legende_sucht' => 'Ищет единомышленников',
+        'sucht_titel' => 'Ищут единомышленников для сообщества',
+        'sucht_liste' => 'Эти люди ищут единомышленников',
+        'zum_profil' => 'Открыть профиль',
+        'sucht_box_titel' => 'Ищете единомышленников в своём регионе?',
+        'sucht_box_text' => 'Отметьте себя на карте. Так другие участники увидят, что в вашем районе кто-то хочет создать сообщество, и смогут с вами связаться.',
+        'sucht_box_knopf' => 'Отметить меня на карте',
+        'sucht_box_aendern' => 'Изменить мою запись',
+        's_titel' => 'Я ищу единомышленников',
+        's_einleitung' => 'Хотите создать сообщество в своём районе и ищете тех, кто присоединится? Укажите здесь свой населённый пункт — и вы появитесь на карте.',
+        's_sichtbar_titel' => 'Кто это видит?',
+        's_sichtbar' => 'Все вошедшие участники видят ваше имя, населённый пункт и ваш текст. Посетители без входа вас не видят. Точка показывает только центр населённого пункта, никогда ваш адрес. Вы можете удалить запись в любой момент.',
+        's_mein' => 'Моя запись',
+        's_neu' => 'Где вы ищете?',
+        's_ort_aendern' => 'Изменить место',
+        's_ort_hilfe' => 'Только населённый пункт или регион, например «Розенхайм» — без улицы.',
+        's_nachricht' => 'Несколько слов (по желанию)',
+        's_nachricht_hilfe' => 'Например: «Ищу двух-трёх человек в районе Розенхайма для регулярных встреч».',
+        's_text_speichern' => 'Сохранить текст',
+        's_eintragen' => 'Сохранить с этим местом',
+        's_gespeichert' => 'Сохранено — теперь вы на карте.',
+        's_fehler' => 'Не получилось. Пожалуйста, найдите место ещё раз (текст — не более 300 символов).',
+        's_loeschen' => 'Удалить мою запись',
+        's_loeschen_frage' => 'Действительно убрать вашу запись с карты?',
+        's_geloescht' => 'Ваша запись удалена.',
+        'menue_standort' => 'Местоположение (карта)',
+        'verwalten' => '📍 Управление местами',
+        'v_titel' => 'Места сообществ',
+        'v_einleitung' => 'Укажите здесь место вашего сообщества. Пожалуйста, только населённый пункт или регион (например, «Траунштайн» или «Тенерифе») — без улицы и номера дома. Точка ставится в центре населённого пункта.',
+        'v_aktuell' => 'Текущее место',
+        'v_kein_ort' => 'места пока нет — на карте не отображается',
+        'v_suchfeld' => 'Населённый пункт или регион',
+        'v_suchen' => 'Найти место',
+        'v_treffer' => 'Какое место вы имеете в виду?',
+        'v_uebernehmen' => 'Выбрать это место',
+        'v_anzeigename' => 'Так место отображается на карте (можно изменить)',
+        'v_nichts' => 'Место не найдено. Пожалуйста, введите только населённый пункт или регион — без улицы.',
+        'v_suche_fehler' => 'Поиск мест сейчас недоступен. Пожалуйста, попробуйте снова через несколько минут.',
+        'v_gespeichert' => 'Место сохранено.',
+        'v_fehler' => 'Не получилось. Пожалуйста, найдите место ещё раз.',
+        'v_ort_entfernen' => 'Убрать место',
+        'v_ort_entfernt' => 'Место убрано — сообщество больше не отображается на карте.',
+        'v_zur_karte' => '← К карте',
+    ];
+
     public static function sprache(): string
     {
         $code = strtolower(explode('-', (string)Yii::$app->language)[0]);
-        return in_array($code, ['de', 'en', 'es'], true) ? $code : 'en';
+        return in_array($code, ['de', 'en', 'es', 'ru'], true) ? $code : 'en';
     }
 
     public static function t(string $schluessel): string
@@ -137,6 +203,10 @@ class Texte
         if ($eintrag === null) {
             return $schluessel;
         }
-        return $eintrag[self::sprache()] ?? $eintrag['en'] ?? $eintrag['de'];
+        $sprache = self::sprache();
+        if ($sprache === 'ru' && isset(self::RU[$schluessel])) {
+            return self::RU[$schluessel];
+        }
+        return $eintrag[$sprache] ?? $eintrag['en'] ?? $eintrag['de'];
     }
 }
