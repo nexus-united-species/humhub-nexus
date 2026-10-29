@@ -24,7 +24,7 @@ class Glossar
     public const BEGRIFFE = [
         ['de' => 'Kreis', 'en' => 'Circle', 'es' => 'Círculo', 'ru' => 'Круг'],
         ['de' => 'Kreise', 'en' => 'Circles', 'es' => 'Círculos', 'ru' => 'Круги'],
-        ['de' => 'Bauplan', 'en' => 'Blueprint', 'es' => 'Plano', 'ru' => 'Проект-план'],
+        ['de' => 'Bauplan', 'en' => 'Blueprint', 'es' => 'Plano', 'ru' => 'Генеральный план'],
         ['de' => 'Menschheitsfamilie', 'en' => 'Human Family', 'es' => 'Familia Humana', 'ru' => 'Человеческая семья'],
         ['de' => 'Gemeinschaft', 'en' => 'community', 'es' => 'comunidad', 'ru' => 'сообщество'],
         ['de' => 'Gemeinschaften', 'en' => 'communities', 'es' => 'comunidades', 'ru' => 'сообщества'],

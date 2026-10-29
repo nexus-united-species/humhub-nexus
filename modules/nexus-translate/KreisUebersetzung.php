@@ -38,7 +38,7 @@ class KreisUebersetzung
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
         'es' => 'Always translate "Kreis" as "Círculo" and "Kreise" as "Círculos", "Bauplan" as "Plano" (never "Plano de construcción"), "Unterstützer" as "Colaboradores". Keep these unchanged: '
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
-        'ru' => 'Always translate "Kreis" as "Круг" and "Kreise" as "Круги", "Bauplan" as "Проект-план", "Unterstützer" as "Сторонники". Keep these unchanged: '
+        'ru' => 'Always translate "Kreis" as "Круг" and "Kreise" as "Круги", "Bauplan" as "Генеральный план", "Unterstützer" as "Сторонники". Keep these unchanged: '
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
     ];
 
