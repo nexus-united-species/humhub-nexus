@@ -21,9 +21,9 @@ use Yii;
  */
 class AssistentErfassung
 {
-    private const ZEITANGABE = '/\d+(?:[.,]\d+)?\s*(?:h\b|std\b|std\.|stunde|stunden|hours?\b|hrs?\b|horas?\b)|halbe[n]?\s+stunde|dreiviertel\s*stunde|viertelstunde|half\s+an\s+hour|an\s+hour\b|media\s+hora|una\s+hora|eine\s+stunde|\d+(?:[.,]\d+)?\s*(?:ч\b|час(?:а|ов)?\b)|полчаса|пол\s+часа|час\s+работ/iu';
-    private const UEBERSICHT = '/\b(meine\s+(arbeits)?stunden|my\s+(working\s+)?hours|mis\s+horas|мои\s+(рабочие\s+)?часы)\b/iu';
-    private const ABBRUCH = '/^\s*(abbrechen|nein|stopp|cancel|no|cancelar|отмена|отменить|нет|стоп)\s*[.!]?\s*$/iu';
+    private const ZEITANGABE = '/\d+(?:[.,]\d+)?\s*(?:h\b|std\b|std\.|stunde|stunden|hours?\b|hrs?\b|horas?\b)|halbe[n]?\s+stunde|dreiviertel\s*stunde|viertelstunde|half\s+an\s+hour|an\s+hour\b|media\s+hora|una\s+hora|eine\s+stunde|\d+(?:[.,]\d+)?\s*(?:ч\b|час(?:а|ов)?\b)|полчаса|пол\s+часа|час\s+работ|\d+(?:[.,]\d+)?\s*(?:heures?\b)|demi[-\s]heure|une\s+heure|un\s+quart\s+d.heure/iu';
+    private const UEBERSICHT = '/\b(meine\s+(arbeits)?stunden|my\s+(working\s+)?hours|mis\s+horas|мои\s+(рабочие\s+)?часы|mes\s+heures)\b/iu';
+    private const ABBRUCH = '/^\s*(abbrechen|nein|stopp|cancel|no|cancelar|отмена|отменить|нет|стоп|annuler|non)\s*[.!]?\s*$/iu';
     private const ENTWURF_GUELTIG_STUNDEN = 48;
 
     public static function verarbeiten(User $user, string $text): ?string
@@ -96,7 +96,7 @@ class AssistentErfassung
         if (preg_match('/^\s*(\d{1,2})\s*[.)]?\s*$/u', $text, $m) && isset($ids[(int)$m[1] - 1])) {
             return $ids[(int)$m[1] - 1];
         }
-        $norm = fn(string $s) => preg_replace('/\b(circle|c[ií]rculo|круг)\b/u', 'kreis', mb_strtolower($s));
+        $norm = fn(string $s) => preg_replace('/\b(circle|c[ií]rculo|круг|cercle)\b/u', 'kreis', mb_strtolower($s));
         $antwort = $norm($text);
         if (preg_match('/kreis\s*(\d+)/u', $antwort, $m)) {
             foreach ($kreise as $id => $name) {
@@ -230,6 +230,25 @@ class AssistentErfassung
         ];
         if ($sprache === 'ru' && isset($ru[$schluessel])) {
             return $ru[$schluessel];
+        }
+        // Französisch (seit 29.10.2026)
+        $fr = [
+            'eingetragen' => "✅ Enregistré : **%s h** le %s – %s\n> %s",
+            'danach' => 'Un administrateur la validera et tu recevras un message. Ton récapitulatif :',
+            'welcher_kreis' => "Merci ! J’enregistre **%s h** le %s :\n> %s\n\nPour quel cercle était-ce ?",
+            'nummer' => 'Réponds simplement avec le **numéro** (p. ex. « 3 ») – ou avec « annuler ».',
+            'nicht_erkannt' => 'Désolé, je n’ai pas reconnu le cercle.',
+            'abgebrochen' => 'D’accord, je n’ai rien enregistré.',
+            'unklar' => 'Je n’ai malheureusement pas pu l’enregistrer :',
+            'beispiel' => 'Écris-le par exemple ainsi : « Aujourd’hui, 2 heures sur la lettre d’information du Cercle 7. »',
+            'uebersicht' => "⏱ Tes heures de travail :\n• validées au total : **%s h**\n• dont ce mois-ci : **%s h**\n• en attente de validation : **%s h**",
+            'fehler_stunden' => 'les heures (entre 0,25 et 16)',
+            'fehler_datum' => 'le jour (pas dans le futur)',
+            'fehler_text' => 'ce que tu as fait',
+            'fehler_kreis' => 'le cercle (tu dois en être membre)',
+        ];
+        if ($sprache === 'fr' && isset($fr[$schluessel])) {
+            return $fr[$schluessel];
         }
         return $t[$schluessel][$sprache] ?? $t[$schluessel]['de'] ?? $schluessel;
     }

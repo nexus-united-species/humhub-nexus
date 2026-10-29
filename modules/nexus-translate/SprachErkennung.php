@@ -17,7 +17,7 @@ use Yii;
  */
 class SprachErkennung
 {
-    public const SPRACHEN = ['de', 'en', 'es', 'ru'];
+    public const SPRACHEN = ['de', 'en', 'es', 'ru', 'fr'];
 
     private const WOERTER = [
         'de' => ['der', 'die', 'das', 'und', 'ist', 'nicht', 'mit', 'ich', 'wir', 'sie', 'ein', 'eine', 'auch', 'auf',
@@ -36,6 +36,12 @@ class SprachErkennung
         'ru' => ['и', 'в', 'не', 'на', 'я', 'что', 'он', 'с', 'как', 'это', 'мы', 'вы', 'они', 'по', 'но', 'для', 'из',
             'от', 'так', 'все', 'вас', 'нас', 'есть', 'был', 'была', 'будет', 'или', 'да', 'нет', 'уже', 'очень', 'при',
             'спасибо', 'пожалуйста', 'привет', 'здравствуйте', 'можно', 'нужно', 'если', 'тоже', 'только', 'здесь', 'сейчас', 'хорошо'],
+        // Franzoesisch (seit 29.10.2026). Bewusst ohne Woerter, die auch spanisch/englisch/deutsch haeufig sind
+        // (de, en, la, a, on, an, in ...), damit die Erkennung nicht kippt.
+        'fr' => ['le', 'les', 'des', 'du', 'est', 'et', 'pas', 'nous', 'vous', 'je', 'il', 'elle', 'ils', 'pour', 'dans',
+            'avec', 'sur', 'mais', 'où', 'une', 'ce', 'cette', 'ces', 'sont', 'être', 'très', 'merci', 'bonjour', 'oui',
+            'aussi', 'tout', 'comme', 'notre', 'votre', 'nos', 'vos', 'ici', 'plus', 'fait', 'faire', 'peut', 'tu', 'toi',
+            'ton', 'ta', 'tes', 'qu', 'c', 'l', 'd', 'j', 'ça', 'bien', 'maintenant', 'cercle', 'communauté'],
     ];
 
     /** Erkennt de/en/es oder liefert null, wenn es nicht eindeutig ist. */
@@ -86,16 +92,18 @@ class SprachErkennung
     public static function beschriftung(string $von): array
     {
         $namen = [
-            'de' => ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch'],
-            'en' => ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian'],
-            'es' => ['de' => 'alemán', 'en' => 'inglés', 'es' => 'español', 'ru' => 'ruso'],
-            'ru' => ['de' => 'немецкого', 'en' => 'английского', 'es' => 'испанского', 'ru' => 'русского'],
+            'de' => ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch', 'fr' => 'Französisch'],
+            'en' => ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French'],
+            'es' => ['de' => 'alemán', 'en' => 'inglés', 'es' => 'español', 'ru' => 'ruso', 'fr' => 'francés'],
+            'ru' => ['de' => 'немецкого', 'en' => 'английского', 'es' => 'испанского', 'ru' => 'русского', 'fr' => 'французского'],
+            'fr' => ['de' => 'de l’allemand', 'en' => 'de l’anglais', 'es' => 'de l’espagnol', 'ru' => 'du russe', 'fr' => 'du français'],
         ];
         $texte = [
             'de' => ['hinweis' => 'Automatisch übersetzt aus dem %s', 'original' => 'Original anzeigen', 'uebersetzung' => 'Übersetzung anzeigen'],
             'en' => ['hinweis' => 'Automatically translated from %s', 'original' => 'Show original', 'uebersetzung' => 'Show translation'],
             'es' => ['hinweis' => 'Traducido automáticamente del %s', 'original' => 'Ver original', 'uebersetzung' => 'Ver traducción'],
             'ru' => ['hinweis' => 'Автоматический перевод с %s языка', 'original' => 'Показать оригинал', 'uebersetzung' => 'Показать перевод'],
+            'fr' => ['hinweis' => 'Traduit automatiquement %s', 'original' => 'Afficher l’original', 'uebersetzung' => 'Afficher la traduction'],
         ];
         $leser = self::leser() ?? 'de';
         $t = $texte[$leser];

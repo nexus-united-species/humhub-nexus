@@ -17,7 +17,7 @@ use humhub\helpers\Html;
 use nexus\modules\teilen\Module;
 use yii\helpers\Url;
 
-$namen = ['de' => 'Deutsch', 'en' => 'English', 'es' => 'Español', 'ru' => 'Русский'];
+$namen = ['de' => 'Deutsch', 'en' => 'English', 'es' => 'Español', 'ru' => 'Русский', 'fr' => 'Français'];
 $seitenLink = fn(string $code, int $nr) => Url::to(['/nexus-teilen/lesen/schaufenster', 'sprache' => $code, 'seite' => $nr > 1 ? $nr : null]);
 ?>
 <section class="nsf-kopf">

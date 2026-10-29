@@ -80,7 +80,8 @@ class ZeitService
             ['de' => "✅ Deine Arbeitsstunden wurden freigegeben: **%s Std.** am %s – %s.\n\nDanke für deinen Einsatz für N.E.X.U.S.! 💛",
              'en' => "✅ Your working hours were approved: **%s h** on %s – %s.\n\nThank you for your work for N.E.X.U.S.! 💛",
              'es' => "✅ Tus horas de trabajo fueron aprobadas: **%s h** el %s – %s.\n\n¡Gracias por tu trabajo para N.E.X.U.S.! 💛",
-             'ru' => "✅ Ваши рабочие часы подтверждены: **%s ч** за %s – %s.\n\nСпасибо за ваш вклад в N.E.X.U.S.! 💛"][$sprache],
+             'ru' => "✅ Ваши рабочие часы подтверждены: **%s ч** за %s – %s.\n\nСпасибо за ваш вклад в N.E.X.U.S.! 💛",
+             'fr' => "✅ Tes heures de travail ont été validées : **%s h** le %s – %s.\n\nMerci pour ton engagement pour N.E.X.U.S. ! 💛"][$sprache],
             $eintrag->stundenText(), self::datumText($eintrag->datum), self::kurz($eintrag->beschreibung)
         ));
     }
@@ -94,14 +95,16 @@ class ZeitService
             ['de' => "💬 Zu deinem Eintrag **%s Std.** am %s (%s) hat %s eine Rückfrage",
              'en' => "💬 %4\$s has a question about your entry **%1\$s h** on %2\$s (%3\$s)",
              'es' => "💬 %4\$s tiene una consulta sobre tu entrada **%1\$s h** del %2\$s (%3\$s)",
-             'ru' => "💬 %4\$s задал(а) вопрос по вашей записи **%1\$s ч** за %2\$s (%3\$s)"][$sprache],
+             'ru' => "💬 %4\$s задал(а) вопрос по вашей записи **%1\$s ч** за %2\$s (%3\$s)",
+             'fr' => "💬 %4\$s a une question sur ton entrée **%1\$s h** du %2\$s (%3\$s)"][$sprache],
             $eintrag->stundenText(), self::datumText($eintrag->datum), self::kurz($eintrag->beschreibung), $admin->displayName
         );
         $text .= $grund !== '' ? ":\n\n> " . $grund : '.';
         $text .= ['de' => "\n\nAm besten schreibst du " . $admin->displayName . ' kurz eine Nachricht.',
                   'en' => "\n\nPlease send " . $admin->displayName . ' a short message.',
                   'es' => "\n\nLo mejor es que escribas un mensaje breve a " . $admin->displayName . '.',
-                  'ru' => "\n\nЛучше всего написать " . $admin->displayName . ' короткое сообщение.'][$sprache];
+                  'ru' => "\n\nЛучше всего написать " . $admin->displayName . ' короткое сообщение.',
+                  'fr' => "\n\nLe mieux est d’écrire un court message à " . $admin->displayName . '.'][$sprache];
         Benachrichtigung::senden($eintrag->user_id, Benachrichtigung::TITEL_MITGLIED, $text);
     }
 
@@ -155,7 +158,7 @@ class ZeitService
     public static function spracheVon(?User $user): string
     {
         $code = strtolower(explode('-', (string)($user->language ?? 'de'))[0]);
-        return in_array($code, ['de', 'en', 'es', 'ru'], true) ? $code : 'de';
+        return in_array($code, ['de', 'en', 'es', 'ru', 'fr'], true) ? $code : 'de';
     }
 
     public static function datumText(string $datum): string

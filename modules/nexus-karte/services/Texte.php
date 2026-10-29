@@ -191,10 +191,76 @@ class Texte
         'v_zur_karte' => '← К карте',
     ];
 
+    /** Französisch (seit 29.10.2026): eigene Tabelle, die anderen Sprachen bleiben unberührt. */
+    private const FR = [
+        'nav' => 'Carte',
+        'titel' => 'Des communautés près de chez toi',
+        'einleitung' => 'Ici, tu vois où il existe déjà des communautés N.E.X.U.S. Touche un point pour en savoir plus et ouvrir le cercle de la communauté.',
+        'ort_hinweis' => 'Les points n’indiquent que la localité ou la région – jamais une adresse.',
+        'liste' => 'Toutes les communautés',
+        'zum_kreis' => 'Ouvrir le cercle',
+        'keine' => 'Aucune communauté n’est encore enregistrée sur la carte.',
+        'gruenden_titel' => 'Pas encore de communauté près de chez toi ?',
+        'gruenden_text' => 'Alors fonde ta propre communauté. Le guide t’indique le chemin – du premier contact jusqu’à la communauté sur place.',
+        'gruenden_knopf' => '🌱 Fonder ta communauté',
+        'hinweis_kreise' => 'Y a-t-il déjà une communauté près de chez toi ?',
+        'hinweis_link' => 'Voir la carte des communautés →',
+        'karte_quelle' => 'Données cartographiques',
+        'web_finden' => 'Trouver une communauté près de chez toi',
+        'web_gruenden' => 'Fonder ta propre communauté',
+        'gast_titel' => 'Il existe déjà des communautés ici',
+        'gast_text' => 'Il y en a peut-être déjà une près de chez toi. Inscris-toi pour la découvrir – ou fonde la tienne.',
+        'gast_popup' => 'Après t’être connecté(e), tu pourras rendre visite à cette communauté.',
+        'legende_gemeinschaft' => 'Communauté',
+        'legende_sucht' => 'Cherche des personnes pour s’engager',
+        'sucht_titel' => 'Cherche des personnes pour fonder une communauté',
+        'sucht_liste' => 'Ces personnes cherchent des compagnons d’engagement',
+        'zum_profil' => 'Voir le profil',
+        'sucht_box_titel' => 'Tu cherches des personnes dans ta région ?',
+        'sucht_box_text' => 'Place-toi sur la carte. Les autres membres verront que quelqu’un dans ta région souhaite fonder une communauté – et pourront te contacter.',
+        'sucht_box_knopf' => 'Me placer sur la carte',
+        'sucht_box_aendern' => 'Modifier mon entrée',
+        's_titel' => 'Je cherche des personnes pour s’engager',
+        's_einleitung' => 'Tu souhaites fonder une communauté dans ta région et tu cherches d’autres personnes pour t’accompagner ? Indique ici ta localité – tu apparaîtras sur la carte.',
+        's_sichtbar_titel' => 'Qui peut le voir ?',
+        's_sichtbar' => 'Tous les membres connectés voient ton nom, la localité et ton texte. Les visiteurs non connectés ne te voient pas. Le point n’indique que le centre de la localité, jamais ton adresse. Tu peux supprimer l’entrée à tout moment.',
+        's_mein' => 'Mon entrée',
+        's_neu' => 'Où cherches-tu ?',
+        's_ort_aendern' => 'Changer de lieu',
+        's_ort_hilfe' => 'Uniquement la localité ou la région, p. ex. « Rosenheim » – pas de rue.',
+        's_nachricht' => 'Quelques mots (facultatif)',
+        's_nachricht_hilfe' => 'Par exemple : « Je cherche deux ou trois personnes dans la région de Rosenheim pour des rencontres régulières. »',
+        's_text_speichern' => 'Enregistrer le texte',
+        's_eintragen' => 'Enregistrer avec ce lieu',
+        's_gespeichert' => 'Enregistré – tu apparais maintenant sur la carte.',
+        's_fehler' => 'Ça n’a pas fonctionné. Cherche à nouveau le lieu (texte : 300 caractères au maximum).',
+        's_loeschen' => 'Supprimer mon entrée',
+        's_loeschen_frage' => 'Vraiment retirer ton entrée de la carte ?',
+        's_geloescht' => 'Ton entrée a été supprimée.',
+        'menue_standort' => 'Emplacement (carte)',
+        'verwalten' => '📍 Gérer les emplacements',
+        'v_titel' => 'Emplacements des communautés',
+        'v_einleitung' => 'Indique ici le lieu de ta communauté. Uniquement la localité ou la région (p. ex. « Traunstein » ou « Tenerife ») – pas de rue ni de numéro. Le point est placé au centre de la localité.',
+        'v_aktuell' => 'Lieu actuel',
+        'v_kein_ort' => 'pas encore de lieu – n’apparaît pas sur la carte',
+        'v_suchfeld' => 'Localité ou région',
+        'v_suchen' => 'Chercher le lieu',
+        'v_treffer' => 'De quel lieu s’agit-il ?',
+        'v_uebernehmen' => 'Utiliser ce lieu',
+        'v_anzeigename' => 'Nom affiché sur la carte (modifiable)',
+        'v_nichts' => 'Aucun lieu trouvé. Indique uniquement une localité ou une région – pas de rue.',
+        'v_suche_fehler' => 'La recherche de lieux est momentanément indisponible. Réessaie dans quelques minutes.',
+        'v_gespeichert' => 'Le lieu a été enregistré.',
+        'v_fehler' => 'Ça n’a pas fonctionné. Cherche à nouveau le lieu.',
+        'v_ort_entfernen' => 'Retirer le lieu',
+        'v_ort_entfernt' => 'Lieu retiré – la communauté n’apparaît plus sur la carte.',
+        'v_zur_karte' => '← Retour à la carte',
+    ];
+
     public static function sprache(): string
     {
         $code = strtolower(explode('-', (string)Yii::$app->language)[0]);
-        return in_array($code, ['de', 'en', 'es', 'ru'], true) ? $code : 'en';
+        return in_array($code, ['de', 'en', 'es', 'ru', 'fr'], true) ? $code : 'en';
     }
 
     public static function t(string $schluessel): string
@@ -206,6 +272,9 @@ class Texte
         $sprache = self::sprache();
         if ($sprache === 'ru' && isset(self::RU[$schluessel])) {
             return self::RU[$schluessel];
+        }
+        if ($sprache === 'fr' && isset(self::FR[$schluessel])) {
+            return self::FR[$schluessel];
         }
         return $eintrag[$sprache] ?? $eintrag['en'] ?? $eintrag['de'];
     }

@@ -16,13 +16,14 @@ use yii\web\BadRequestHttpException;
  */
 class SpracheController extends Controller
 {
-    public const ERLAUBT = ['de' => 'DE', 'en-US' => 'EN', 'es' => 'ES', 'ru' => 'RU'];
+    public const ERLAUBT = ['de' => 'DE', 'en-US' => 'EN', 'es' => 'ES', 'ru' => 'RU', 'fr' => 'FR'];
 
     private const MELDUNG = [
         'de' => 'Sprache auf Deutsch umgestellt.',
         'en' => 'Language switched to English.',
         'es' => 'Idioma cambiado a español.',
         'ru' => 'Язык переключён на русский.',
+        'fr' => 'Langue changée en français.',
     ];
     /** Hinweis in der bisherigen Sprache; %s = Kuerzel des Knopfs, der zurueckfuehrt. */
     private const ZURUECK = [
@@ -30,6 +31,7 @@ class SpracheController extends Controller
         'en' => 'By mistake? Click %s at the top to switch back to English.',
         'es' => '¿Por error? Haz clic arriba en %s para volver al español.',
         'ru' => 'Случайно? Нажмите вверху на %s, чтобы вернуться к русскому языку.',
+        'fr' => 'Par erreur ? Clique en haut sur %s pour revenir au français.',
     ];
 
     private static function kurz(string $code): string

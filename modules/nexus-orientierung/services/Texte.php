@@ -60,6 +60,19 @@ class Texte
             'neuere' => 'Показать более новые',
             'keine' => 'Здесь пока нечего показывать.',
         ],
+        'fr' => [
+            'menue' => 'Publications et commentaires',
+            'titel_ich' => 'Tes publications et commentaires',
+            'titel' => 'Publications et commentaires de {name}',
+            'einleitung' => 'Les plus récents d’abord. Tu ne vois que ce que tu as de toute façon le droit de lire.',
+            'beitrag' => 'Publication',
+            'kommentar' => 'Commentaire',
+            'zu' => 'sur',
+            'profil' => 'Profil de {name}',
+            'aeltere' => 'Afficher les plus anciens',
+            'neuere' => 'Afficher les plus récents',
+            'keine' => 'Il n’y a encore rien à voir ici.',
+        ],
     ];
 
     public static function t(string $schluessel, array $werte = []): string

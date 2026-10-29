@@ -72,6 +72,22 @@ class Texte
             'email_falsch' => 'Пожалуйста, введите действительный адрес электронной почты.',
             'zu_oft' => 'Слишком много попыток. Пожалуйста, попробуйте позже.',
         ],
+        'fr' => [
+            'titel' => 'Tu es invité(e) !',
+            'eingeladen' => 'Tu as été invité(e) dans le cercle « {kreis} ».',
+            'erklaerung' => 'Indique ici ton adresse e-mail. Crée ensuite ton compte – après confirmation par e-mail, tu seras automatiquement dans le cercle, quel que soit l’appareil sur lequel tu ouvres l’e-mail.',
+            'email' => 'Ton adresse e-mail',
+            'weiter' => 'Continuer',
+            'schon_konto' => 'J’ai déjà un compte – me connecter',
+            'bereit_titel' => 'Presque terminé !',
+            'bereit' => 'Crée maintenant ton compte. Important : utilise exactement cette adresse e-mail :',
+            'konto_anlegen' => 'Créer un compte',
+            'konto_da' => 'Il existe déjà un compte pour cette adresse e-mail. Connecte-toi simplement – tu seras ensuite dans le cercle « {kreis} ».',
+            'anmelden' => 'Se connecter',
+            'ungueltig' => 'Ce lien d’invitation n’est plus valide. Demande un nouveau lien à la personne qui t’a invité(e).',
+            'email_falsch' => 'Indique une adresse e-mail valide.',
+            'zu_oft' => 'Trop de tentatives. Réessaie plus tard.',
+        ],
     ];
 
     public static function t(string $schluessel, array $werte = []): string

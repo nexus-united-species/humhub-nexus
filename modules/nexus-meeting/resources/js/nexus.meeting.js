@@ -34,7 +34,10 @@
               fehler: 'No se pudo abrir la reunión en la ventana. Se abrirá ahora en su propia página.' },
         ru: { live: 'Сейчас в эфире', beitreten: 'Присоединиться', ausblenden: 'Скрыть', gross: 'Большое', klein: 'Маленькое', vollbild: 'Во весь экран', vollbildAus: 'Выйти из полноэкранного режима', ziehen: 'Удерживайте здесь и перетащите, чтобы переместить',
               schliessen: 'Выйти', schliessenFrage: 'Выйти из встречи?', laedt: 'Встреча загружается …',
-              fehler: 'Не удалось открыть встречу в окне. Сейчас она откроется на отдельной странице.' }
+              fehler: 'Не удалось открыть встречу в окне. Сейчас она откроется на отдельной странице.' },
+        fr: { live: 'En direct', beitreten: 'Rejoindre', ausblenden: 'Masquer', gross: 'Grand', klein: 'Petit', vollbild: 'Plein écran', vollbildAus: 'Quitter le plein écran', ziehen: 'Maintiens ici et fais glisser pour déplacer',
+              schliessen: 'Quitter', schliessenFrage: 'Quitter la réunion ?', laedt: 'Chargement de la réunion …',
+              fehler: 'La réunion n’a pas pu s’ouvrir dans la fenêtre. Elle s’ouvre maintenant sur sa propre page.' }
     };
     // Offene Tuer (Josh, 18.10.2026): "Menschen sehen, wenn ich am Rechner bin, und koennen einfach reinkommen"
     var TUER_TEXTE = {
@@ -65,7 +68,14 @@
               direkt: 'Все заходят сразу', warteraum: 'Я впускаю каждого по отдельности (зал ожидания)', oeffnen: 'Открыть дверь', abbrechen: 'Отмена',
               zuFrage: 'Закрыть дверь? Окно вашего разговора тоже закроется.', verlassen: 'Выйти из разговора? Ваша дверь тогда закроется.',
               abgelaufen: 'Ваша открытая дверь сама закрылась через %d ч.', fehlerTuer: 'Дверь сейчас не удалось открыть. Пожалуйста, попробуйте ещё раз.',
-              warteraumAn: 'Зал ожидания включён — тот, кто постучится, появится у вас, чтобы вы его впустили.' }
+              warteraumAn: 'Зал ожидания включён — тот, кто постучится, появится у вас, чтобы вы его впустили.' },
+        fr: { offeneTuer: 'Porte ouverte', istDa: '%s est là en ce moment', kommRein: 'entre simplement', klopfAn: 'frappe – on te laissera entrer',
+              reinkommen: 'Entrer', anklopfen: 'Frapper', gespraechMit: 'Discussion avec %s', meineOffen: 'Ta porte est ouverte', rein: 'Entrer', tuerZu: 'Fermer la porte',
+              frageTitel: 'Porte ouverte', frageText: 'Tous les membres verront alors sur chaque page que tu es là et pourront te rejoindre en un clic. La porte se ferme toute seule quand tu fermes le navigateur, au plus tard après %d heures.',
+              direkt: 'Tout le monde entre directement', warteraum: 'Je laisse entrer chaque personne une par une (salle d’attente)', oeffnen: 'Ouvrir la porte', abbrechen: 'Annuler',
+              zuFrage: 'Fermer la porte ? Ta fenêtre de discussion se fermera aussi.', verlassen: 'Quitter la discussion ? Ta porte sera alors fermée.',
+              abgelaufen: 'Ta porte ouverte s’est fermée toute seule après %d heures.', fehlerTuer: 'La porte n’a pas pu s’ouvrir à l’instant. Réessaie, s’il te plaît.',
+              warteraumAn: 'La salle d’attente est activée – la personne qui frappe apparaît chez toi pour que tu la laisses entrer.' }
     };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;

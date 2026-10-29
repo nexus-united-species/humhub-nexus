@@ -18,20 +18,20 @@ class Glossar
 {
     public const VERSION = 1;
 
-    public const NAMEN = ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian'];
+    public const NAMEN = ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French'];
 
     /** Feste Entsprechungen, je Zeile derselbe Begriff in allen Sprachen. */
     public const BEGRIFFE = [
-        ['de' => 'Kreis', 'en' => 'Circle', 'es' => 'Círculo', 'ru' => 'Круг'],
-        ['de' => 'Kreise', 'en' => 'Circles', 'es' => 'Círculos', 'ru' => 'Круги'],
-        ['de' => 'Bauplan', 'en' => 'Blueprint', 'es' => 'Plano', 'ru' => 'Генеральный план'],
-        ['de' => 'Menschheitsfamilie', 'en' => 'Human Family', 'es' => 'Familia Humana', 'ru' => 'Человеческая семья'],
-        ['de' => 'Gemeinschaft', 'en' => 'community', 'es' => 'comunidad', 'ru' => 'сообщество'],
-        ['de' => 'Gemeinschaften', 'en' => 'communities', 'es' => 'comunidades', 'ru' => 'сообщества'],
-        ['de' => 'Unterstützer', 'en' => 'Supporters', 'es' => 'Colaboradores', 'ru' => 'Сторонники'],
-        ['de' => 'Entwicklungsrat', 'en' => 'Development Council', 'es' => 'Consejo de Desarrollo', 'ru' => 'Совет по развитию'],
-        ['de' => 'Hauptgruppe', 'en' => 'Main Group', 'es' => 'Grupo principal', 'ru' => 'Основная группа'],
-        ['de' => 'Ortsgruppe', 'en' => 'local group', 'es' => 'grupo local', 'ru' => 'местная группа'],
+        ['de' => 'Kreis', 'en' => 'Circle', 'es' => 'Círculo', 'ru' => 'Круг', 'fr' => 'Cercle'],
+        ['de' => 'Kreise', 'en' => 'Circles', 'es' => 'Círculos', 'ru' => 'Круги', 'fr' => 'Cercles'],
+        ['de' => 'Bauplan', 'en' => 'Blueprint', 'es' => 'Plano', 'ru' => 'Генеральный план', 'fr' => 'Plan directeur'],
+        ['de' => 'Menschheitsfamilie', 'en' => 'Human Family', 'es' => 'Familia Humana', 'ru' => 'Человеческая семья', 'fr' => 'Famille humaine'],
+        ['de' => 'Gemeinschaft', 'en' => 'community', 'es' => 'comunidad', 'ru' => 'сообщество', 'fr' => 'communauté'],
+        ['de' => 'Gemeinschaften', 'en' => 'communities', 'es' => 'comunidades', 'ru' => 'сообщества', 'fr' => 'communautés'],
+        ['de' => 'Unterstützer', 'en' => 'Supporters', 'es' => 'Colaboradores', 'ru' => 'Сторонники', 'fr' => 'Contributeurs'],
+        ['de' => 'Entwicklungsrat', 'en' => 'Development Council', 'es' => 'Consejo de Desarrollo', 'ru' => 'Совет по развитию', 'fr' => 'Conseil de développement'],
+        ['de' => 'Hauptgruppe', 'en' => 'Main Group', 'es' => 'Grupo principal', 'ru' => 'Основная группа', 'fr' => 'Groupe principal'],
+        ['de' => 'Ortsgruppe', 'en' => 'local group', 'es' => 'grupo local', 'ru' => 'местная группа', 'fr' => 'groupe local'],
     ];
 
     /** Eigennamen, die in keiner Sprache uebersetzt werden. */

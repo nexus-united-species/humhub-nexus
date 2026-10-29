@@ -20,7 +20,7 @@ namespace nexus\modules\teilen;
 class Module extends \humhub\components\Module
 {
     /** Sprachen der Leseseite -- dieselben wie bei der automatischen Uebersetzung. */
-    public const SPRACHEN = ['de', 'en', 'es', 'ru'];
+    public const SPRACHEN = ['de', 'en', 'es', 'ru', 'fr'];
 
     /*
      * Einstellungen / settings: protected/config/common.php

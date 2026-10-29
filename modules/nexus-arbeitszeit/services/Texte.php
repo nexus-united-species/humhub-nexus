@@ -88,10 +88,46 @@ class Texte
         'kein_kreis' => 'Вы пока не состоите ни в одном круге. Сначала вступите в круг, затем сможете записывать часы.',
     ];
 
+    /** Französisch (seit 29.10.2026): eigene Tabelle, die anderen Sprachen bleiben unberührt. */
+    private const FR = [
+        'titel' => 'Mes heures de travail',
+        'einleitung' => 'Tu as fait quelque chose pour N.E.X.U.S. ? Indique ici combien de temps et quoi – rédiger des textes, faire des recherches, organiser ou programmer. Un administrateur vérifie l’entrée et la valide.',
+        'tipp' => '💡 Encore plus simple : envoie un message privé à l’assistant, p. ex. « Aujourd’hui, 2 heures sur la lettre d’information du Cercle 7 » – il l’enregistre pour toi.',
+        'freigegeben_gesamt' => 'Validées au total',
+        'diesen_monat' => 'Validées ce mois-ci',
+        'wartet' => 'En attente de validation',
+        'std' => 'h',
+        'neu' => 'Saisir de nouvelles heures',
+        'stunden' => 'Combien d’heures ?',
+        'stunden_hilfe' => 'p. ex. 2 ou 1,5 (les demi-heures sont possibles)',
+        'datum' => 'Quel jour ?',
+        'kreis' => 'Pour quel cercle ?',
+        'kreis_waehlen' => '– choisis, s’il te plaît –',
+        'taetigkeit' => 'Qu’as-tu fait ?',
+        'taetigkeit_hilfe' => 'Une ou deux phrases suffisent, p. ex. « Rédigé la lettre d’information d’octobre ».',
+        'speichern' => 'Enregistrer',
+        'gespeichert' => 'Merci ! Tes heures sont enregistrées et en attente de validation.',
+        'fehler' => 'Vérifie tes indications :',
+        'fehler_stunden' => 'Heures : un nombre entre 0,25 et 16.',
+        'fehler_datum' => 'Jour : une date, pas dans le futur.',
+        'fehler_kreis' => 'Cercle : choisis l’un de tes cercles.',
+        'fehler_text' => 'Activité : décris-la brièvement (500 caractères au maximum).',
+        'meine_eintraege' => 'Mes entrées',
+        'keine' => 'Aucune entrée pour l’instant – lance-toi !',
+        'st_offen' => '⏳ en attente de validation',
+        'st_freigegeben' => '✅ validée',
+        'st_ruecksprache' => '💬 à clarifier',
+        'loeschen' => 'Supprimer',
+        'loeschen_frage' => 'Vraiment supprimer cette entrée ?',
+        'geloescht' => 'Entrée supprimée.',
+        'freigabe_link' => 'Valider des heures',
+        'kein_kreis' => 'Tu n’es encore membre d’aucun cercle. Rejoins d’abord un cercle, tu pourras ensuite saisir des heures.',
+    ];
+
     public static function sprache(): string
     {
         $code = strtolower(explode('-', (string)Yii::$app->language)[0]);
-        return in_array($code, ['de', 'en', 'es', 'ru'], true) ? $code : 'en';
+        return in_array($code, ['de', 'en', 'es', 'ru', 'fr'], true) ? $code : 'en';
     }
 
     public static function t(string $schluessel): string
@@ -102,6 +138,9 @@ class Texte
         }
         if (self::sprache() === 'ru' && isset(self::RU[$schluessel])) {
             return self::RU[$schluessel];
+        }
+        if (self::sprache() === 'fr' && isset(self::FR[$schluessel])) {
+            return self::FR[$schluessel];
         }
         return $eintrag[self::sprache()] ?? $eintrag['en'];
     }

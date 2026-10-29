@@ -83,7 +83,25 @@
               keineKamera: 'Нет доступа к камере или микрофону. Пожалуйста, разрешите их в браузере (значок замка рядом с адресом).',
               videoAngehaengt: 'Видеосообщение прикреплено ✓', videoAbspielen: 'Воспроизвести видеосообщение',
               leer: 'Запись пустая — камера не передала изображения. Не открыта ли она в другой программе (например, в видеозвонке)? Пожалуйста, закройте её и попробуйте снова.',
-              kameraWeg: 'Камера перестала передавать изображение. Пожалуйста, остановите запись и начните заново.' }
+              kameraWeg: 'Камера перестала передавать изображение. Пожалуйста, остановите запись и начните заново.' },
+        fr: { knopf: 'Enregistrer un message vocal', stopp: 'Stop', abbrechen: 'Annuler', anhaengen: 'Joindre',
+              verwerfen: 'Rejeter', laeuft: 'Enregistrement en cours', fertig: 'Écouter et joindre :',
+              keinMikro: 'Pas d’accès au micro. Autorise-le dans ton navigateur (icône de cadenas à côté de l’adresse).',
+              nichtMoeglich: 'Ce navigateur ne peut pas enregistrer de messages vocaux.',
+              uploadFehlt: 'La pièce jointe a échoué – recharge la page et réessaie.',
+              schreibt: 'Création de la transcription, n’envoie pas encore …',
+              hochladen: 'Envoi en cours … patiente avant d’envoyer.', hochgeladen: 'Envoyé ✓ – tu peux maintenant envoyer.',
+              nochNichtFertig: 'L’enregistrement est encore en cours d’envoi. Attends que « Envoyé ✓ » apparaisse, puis envoie.',
+              ohneMitschrift: 'Sans transcription',
+              nichtsVerstanden: 'Aucune parole n’a été reconnue dans l’enregistrement. Il est tout de même joint.',
+              mitschriftFehlt: 'La transcription n’a pas fonctionné. L’enregistrement est tout de même joint.',
+              anhoeren: 'Écouter', pause: 'Pause', probeGehtNicht: 'L’écoute n’est pas possible dans ce navigateur – tu peux tout de même joindre l’enregistrement.',
+              videoKnopf: 'Enregistrer un message vidéo', videoBereit: 'Prêt – jusqu’à 3 minutes', videoStart: 'Démarrer l’enregistrement',
+              kameraWechseln: 'Changer de caméra', videoFertig: 'Enregistré :', neu: 'Réenregistrer',
+              keineKamera: 'Pas d’accès à la caméra ou au micro. Autorise-les dans ton navigateur (icône de cadenas à côté de l’adresse).',
+              videoAngehaengt: 'Message vidéo joint ✓', videoAbspielen: 'Lire le message vidéo',
+              leer: 'L’enregistrement est vide – la caméra n’a livré aucune image. Est-elle ouverte dans un autre programme (p. ex. un appel vidéo) ? Ferme-la et réessaie.',
+              kameraWeg: 'La caméra a cessé de livrer une image. Arrête l’enregistrement et recommence.' }
     };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;

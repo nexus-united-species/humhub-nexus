@@ -94,6 +94,21 @@ class WillkommensService
             'fragen' => 'Если у вас есть вопросы, просто ответьте на это сообщение — так вы попадёте к Нове (ИИ-ассистент), нашему помощнику по вопросам о N.E.X.U.S. и портале. Если Нова не знает ответа, ваш вопрос уйдёт человеку из команды.',
             'schluss' => "Как хорошо, что вы с нами!\nВаша команда приветствия",
         ],
+        'fr' => [
+            'titel' => 'Bienvenue chez N.E.X.U.S. 🌱',
+            'hallo_neu' => 'Bonjour %s, sois le(la) bienvenu(e) chez N.E.X.U.S. ! 🌱',
+            'hallo_nachgeholt' => 'Bonjour %s, quel plaisir que tu te sois inscrit(e) chez N.E.X.U.S. ! 🌱',
+            'ich' => 'Nous sommes heureux que tu sois là et nous t’aidons volontiers à bien démarrer.',
+            'ich_nachgeholt' => 'Tu n’as peut-être pas encore vraiment eu l’occasion de regarder autour de toi – voici donc quelques conseils pour bien démarrer.',
+            'vorbei' => 'Passe quand tu veux : %s',
+            'ohne_kreis' => 'Dans l’aperçu des cercles, tu trouveras tous les cercles de travail et toutes les communautés – regarde ce qui te parle : %s',
+            'schritte' => [1 => 'Une première étape simple :', 2 => 'Deux premières étapes simples :', 3 => 'Trois premières étapes simples :'],
+            'vorstellen' => 'Présente-toi brièvement dans le cercle « Présentations » – deux ou trois phrases suffisent : %s',
+            'runde' => 'Viens au tour de bienvenue – chaque dimanche à 18 h (heure allemande), 30 minutes, très décontracté. Voici le lien : %s – et peu avant, le portail affiche « En direct » avec un lien pour te joindre.',
+            'bild' => 'Ajoute une photo à ton profil – c’est toujours agréable de pouvoir te voir et te reconnaître : %s',
+            'fragen' => 'Si tu as des questions, réponds simplement à ce message – tu joindras ainsi Nova (assistante IA), notre assistante pour les questions sur N.E.X.U.S. et le portail. Si Nova ne sait pas répondre, ta question est transmise à une personne de l’équipe.',
+            'schluss' => "Quel plaisir que tu sois là !\nTon équipe d’accueil",
+        ],
     ];
 
     public function __construct(private readonly int $assistentId)
@@ -207,7 +222,7 @@ class WillkommensService
         foreach ($kreise as $kreis) {
             $liste[] = "- id {$kreis->id}: {$kreis->name} – " . trim(preg_replace('/\s+/', ' ', (string)$kreis->description));
         }
-        $sprachname = ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch'][$sprache];
+        $sprachname = ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch', 'fr' => 'Französisch'][$sprache];
         $prompt = "Ein neues Mitglied hat bei der Registrierung bei N.E.X.U.S. geschrieben:\n"
             . "- Was erhofft es sich: {$antworten['erwartung']}\n"
             . "- Fähigkeiten oder Beruf: {$antworten['faehigkeiten']}\n"
