@@ -47,6 +47,19 @@ class Texte
             'neuere' => 'Ver más recientes',
             'keine' => 'Todavía no hay nada que ver.',
         ],
+        'ru' => [
+            'menue' => 'Публикации и комментарии',
+            'titel_ich' => 'Ваши публикации и комментарии',
+            'titel' => 'Публикации и комментарии: {name}',
+            'einleitung' => 'Сначала самые новые. Вы видите только то, что вам и так разрешено читать.',
+            'beitrag' => 'Публикация',
+            'kommentar' => 'Комментарий',
+            'zu' => 'к',
+            'profil' => 'Профиль: {name}',
+            'aeltere' => 'Показать более старые',
+            'neuere' => 'Показать более новые',
+            'keine' => 'Здесь пока нечего показывать.',
+        ],
     ];
 
     public static function t(string $schluessel, array $werte = []): string

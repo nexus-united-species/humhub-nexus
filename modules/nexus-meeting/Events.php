@@ -11,7 +11,7 @@ use Yii;
 class Events
 {
     private const MENUE_OBEN = 450;
-    private const BESCHRIFTUNG = ['de' => 'Offene Tür', 'en' => 'Open door', 'es' => 'Puerta abierta'];
+    private const BESCHRIFTUNG = ['de' => 'Offene Tür', 'en' => 'Open door', 'es' => 'Puerta abierta', 'ru' => 'Открытая дверь'];
 
     /** Skript nur fuer Angemeldete -- Gaeste sehen keine Kreise und keine Termine. */
     public static function onLayoutAddonInit($event): void

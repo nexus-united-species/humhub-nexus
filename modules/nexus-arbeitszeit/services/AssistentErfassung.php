@@ -21,9 +21,9 @@ use Yii;
  */
 class AssistentErfassung
 {
-    private const ZEITANGABE = '/\d+(?:[.,]\d+)?\s*(?:h\b|std\b|std\.|stunde|stunden|hours?\b|hrs?\b|horas?\b)|halbe[n]?\s+stunde|dreiviertel\s*stunde|viertelstunde|half\s+an\s+hour|an\s+hour\b|media\s+hora|una\s+hora|eine\s+stunde/iu';
-    private const UEBERSICHT = '/\b(meine\s+(arbeits)?stunden|my\s+(working\s+)?hours|mis\s+horas)\b/iu';
-    private const ABBRUCH = '/^\s*(abbrechen|nein|stopp|cancel|no|cancelar)\s*[.!]?\s*$/iu';
+    private const ZEITANGABE = '/\d+(?:[.,]\d+)?\s*(?:h\b|std\b|std\.|stunde|stunden|hours?\b|hrs?\b|horas?\b)|halbe[n]?\s+stunde|dreiviertel\s*stunde|viertelstunde|half\s+an\s+hour|an\s+hour\b|media\s+hora|una\s+hora|eine\s+stunde|\d+(?:[.,]\d+)?\s*(?:ч\b|час(?:а|ов)?\b)|полчаса|пол\s+часа|час\s+работ/iu';
+    private const UEBERSICHT = '/\b(meine\s+(arbeits)?stunden|my\s+(working\s+)?hours|mis\s+horas|мои\s+(рабочие\s+)?часы)\b/iu';
+    private const ABBRUCH = '/^\s*(abbrechen|nein|stopp|cancel|no|cancelar|отмена|отменить|нет|стоп)\s*[.!]?\s*$/iu';
     private const ENTWURF_GUELTIG_STUNDEN = 48;
 
     public static function verarbeiten(User $user, string $text): ?string
@@ -96,7 +96,7 @@ class AssistentErfassung
         if (preg_match('/^\s*(\d{1,2})\s*[.)]?\s*$/u', $text, $m) && isset($ids[(int)$m[1] - 1])) {
             return $ids[(int)$m[1] - 1];
         }
-        $norm = fn(string $s) => preg_replace('/\b(circle|c[ií]rculo)\b/u', 'kreis', mb_strtolower($s));
+        $norm = fn(string $s) => preg_replace('/\b(circle|c[ií]rculo|круг)\b/u', 'kreis', mb_strtolower($s));
         $antwort = $norm($text);
         if (preg_match('/kreis\s*(\d+)/u', $antwort, $m)) {
             foreach ($kreise as $id => $name) {
@@ -212,6 +212,25 @@ class AssistentErfassung
             'fehler_text' => ['de' => 'was du gemacht hast', 'en' => 'what you did', 'es' => 'qué hiciste'],
             'fehler_kreis' => ['de' => 'der Kreis (du musst Mitglied sein)', 'en' => 'the circle (you must be a member)', 'es' => 'el círculo (debes ser miembro)'],
         ];
+        // Russisch (seit 29.10.2026): eigene Tabelle, die drei anderen Sprachen bleiben unberuehrt.
+        $ru = [
+            'eingetragen' => "✅ Записано: **%s ч** за %s – %s\n> %s",
+            'danach' => 'Администратор подтвердит запись, и вы получите сообщение. Ваша сводка:',
+            'welcher_kreis' => "Спасибо! Записываю **%s ч** за %s:\n> %s\n\nДля какого круга это было?",
+            'nummer' => 'Просто ответьте **номером** (например, «3») — или словом «отмена».',
+            'nicht_erkannt' => 'К сожалению, я не распознал круг.',
+            'abgebrochen' => 'Хорошо, я ничего не записал.',
+            'unklar' => 'К сожалению, не удалось это записать:',
+            'beispiel' => 'Напишите, например, так: «Сегодня 2 часа работал(а) над рассылкой для Круга 7».',
+            'uebersicht' => "⏱ Ваши рабочие часы:\n• подтверждено всего: **%s ч**\n• из них в этом месяце: **%s ч**\n• ожидает подтверждения: **%s ч**",
+            'fehler_stunden' => 'часы (от 0,25 до 16)',
+            'fehler_datum' => 'день (не в будущем)',
+            'fehler_text' => 'что вы сделали',
+            'fehler_kreis' => 'круг (вы должны быть его участником)',
+        ];
+        if ($sprache === 'ru' && isset($ru[$schluessel])) {
+            return $ru[$schluessel];
+        }
         return $t[$schluessel][$sprache] ?? $t[$schluessel]['de'] ?? $schluessel;
     }
 }

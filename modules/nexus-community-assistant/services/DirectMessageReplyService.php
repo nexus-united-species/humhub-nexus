@@ -125,6 +125,8 @@ class DirectMessageReplyService
                 . "I've passed it on to the support team, a person will get back to you.\n\nNova (AI)",
             'es' => "Lo siento: no he podido responder a tu pregunta por un problema técnico. "
                 . "La he pasado al equipo de soporte; una persona se pondrá en contacto contigo.\n\nNova (IA)",
+            'ru' => "Прости — сейчас я не смогла ответить на твой вопрос из-за технической неполадки. "
+                . "Я передала его команде поддержки, человек свяжется с тобой.\n\nНова (ИИ)",
         ];
         $sprache = substr((string)($absender->language ?? 'de'), 0, 2);
         try {

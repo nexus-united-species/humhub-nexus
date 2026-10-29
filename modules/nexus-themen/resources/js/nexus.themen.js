@@ -17,7 +17,8 @@
     var TEXTE = {
         de: { alle: 'Alle', thema: 'Thema', verwalten: 'Themen verwalten', leiste: 'Themen dieses Kreises' },
         en: { alle: 'All', thema: 'Topic', verwalten: 'Manage topics', leiste: 'Topics of this space' },
-        es: { alle: 'Todo', thema: 'Tema', verwalten: 'Gestionar temas', leiste: 'Temas de este círculo' }
+        es: { alle: 'Todo', thema: 'Tema', verwalten: 'Gestionar temas', leiste: 'Temas de este círculo' },
+        ru: { alle: 'Все', thema: 'Тема', verwalten: 'Управление темами', leiste: 'Темы этого круга' }
     };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;

@@ -65,7 +65,25 @@
               keineKamera: 'Sin acceso a la cámara o al micrófono. Permítelo en el navegador (icono del candado junto a la dirección).',
               videoAngehaengt: 'Mensaje de vídeo adjuntado ✓', videoAbspielen: 'Reproducir mensaje de vídeo',
               leer: 'La grabación está vacía: la cámara no envió imagen. ¿Está abierta en otro programa (p. ej. una videollamada)? Ciérrala e inténtalo de nuevo.',
-              kameraWeg: 'La cámara dejó de enviar imagen. Detén la grabación y empieza de nuevo.' }
+              kameraWeg: 'La cámara dejó de enviar imagen. Detén la grabación y empieza de nuevo.' },
+        ru: { knopf: 'Записать голосовое сообщение', stopp: 'Стоп', abbrechen: 'Отмена', anhaengen: 'Прикрепить',
+              verwerfen: 'Отбросить', laeuft: 'Идёт запись', fertig: 'Прослушать и прикрепить:',
+              keinMikro: 'Нет доступа к микрофону. Пожалуйста, разрешите его в браузере (значок замка рядом с адресом).',
+              nichtMoeglich: 'Этот браузер не может записывать голосовые сообщения.',
+              uploadFehlt: 'Прикрепить не удалось — пожалуйста, перезагрузите страницу и попробуйте снова.',
+              schreibt: 'Создаётся расшифровка, пожалуйста, пока не отправляйте …',
+              hochladen: 'Загрузка … пожалуйста, подождите с отправкой.', hochgeladen: 'Загружено ✓ — теперь можно отправлять.',
+              nochNichtFertig: 'Запись ещё загружается. Пожалуйста, дождитесь «Загружено ✓» и затем отправляйте.',
+              ohneMitschrift: 'Без расшифровки',
+              nichtsVerstanden: 'В записи не удалось распознать речь. Запись всё равно прикреплена.',
+              mitschriftFehlt: 'Расшифровка не удалась. Запись всё равно прикреплена.',
+              anhoeren: 'Прослушать', pause: 'Пауза', probeGehtNicht: 'В этом браузере воспроизведение невозможно — запись всё равно можно прикрепить.',
+              videoKnopf: 'Записать видеосообщение', videoBereit: 'Готово — до 3 минут', videoStart: 'Начать запись',
+              kameraWechseln: 'Сменить камеру', videoFertig: 'Записано:', neu: 'Записать заново',
+              keineKamera: 'Нет доступа к камере или микрофону. Пожалуйста, разрешите их в браузере (значок замка рядом с адресом).',
+              videoAngehaengt: 'Видеосообщение прикреплено ✓', videoAbspielen: 'Воспроизвести видеосообщение',
+              leer: 'Запись пустая — камера не передала изображения. Не открыта ли она в другой программе (например, в видеозвонке)? Пожалуйста, закройте её и попробуйте снова.',
+              kameraWeg: 'Камера перестала передавать изображение. Пожалуйста, остановите запись и начните заново.' }
     };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;

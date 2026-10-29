@@ -52,10 +52,46 @@ class Texte
         'kein_kreis' => ['de' => 'Du bist noch in keinem Kreis Mitglied. Tritt zuerst einem Kreis bei, dann kannst du Stunden eintragen.', 'en' => 'You are not a member of any circle yet. Join a circle first, then you can enter hours.', 'es' => 'Aún no eres miembro de ningún círculo. Únete primero a uno para poder anotar horas.'],
     ];
 
+    /** Russisch (seit 29.10.2026): eigene Tabelle, die drei anderen Sprachen bleiben unberuehrt. */
+    private const RU = [
+        'titel' => 'Мои рабочие часы',
+        'einleitung' => 'Сделали что-то для N.E.X.U.S.? Запишите здесь, сколько времени и что именно — будь то тексты, исследования, организация или программирование. Администратор проверит запись и подтвердит её.',
+        'tipp' => '💡 Ещё проще: напишите ассистенту личное сообщение, например: «Сегодня 2 часа работал(а) над рассылкой для Круга 7» — он внесёт запись за вас.',
+        'freigegeben_gesamt' => 'Подтверждено всего',
+        'diesen_monat' => 'Подтверждено в этом месяце',
+        'wartet' => 'Ожидает подтверждения',
+        'std' => 'ч',
+        'neu' => 'Записать новые часы',
+        'stunden' => 'Сколько часов?',
+        'stunden_hilfe' => 'например, 2 или 1,5 (можно и полчаса)',
+        'datum' => 'В какой день?',
+        'kreis' => 'Для какого круга?',
+        'kreis_waehlen' => '— пожалуйста, выберите —',
+        'taetigkeit' => 'Что вы сделали?',
+        'taetigkeit_hilfe' => 'Достаточно одного-двух предложений, например: «Написал(а) рассылку на октябрь».',
+        'speichern' => 'Записать',
+        'gespeichert' => 'Спасибо! Ваши часы записаны и ожидают подтверждения.',
+        'fehler' => 'Пожалуйста, проверьте данные:',
+        'fehler_stunden' => 'Часы: пожалуйста, число от 0,25 до 16.',
+        'fehler_datum' => 'День: пожалуйста, дата, не в будущем.',
+        'fehler_kreis' => 'Круг: пожалуйста, выберите один из ваших кругов.',
+        'fehler_text' => 'Деятельность: пожалуйста, опишите кратко (не более 500 символов).',
+        'meine_eintraege' => 'Мои записи',
+        'keine' => 'Записей пока нет — начните прямо сейчас!',
+        'st_offen' => '⏳ ожидает подтверждения',
+        'st_freigegeben' => '✅ подтверждено',
+        'st_ruecksprache' => '💬 нужно уточнить',
+        'loeschen' => 'Удалить',
+        'loeschen_frage' => 'Действительно удалить эту запись?',
+        'geloescht' => 'Запись удалена.',
+        'freigabe_link' => 'Подтвердить часы',
+        'kein_kreis' => 'Вы пока не состоите ни в одном круге. Сначала вступите в круг, затем сможете записывать часы.',
+    ];
+
     public static function sprache(): string
     {
         $code = strtolower(explode('-', (string)Yii::$app->language)[0]);
-        return in_array($code, ['de', 'en', 'es'], true) ? $code : 'en';
+        return in_array($code, ['de', 'en', 'es', 'ru'], true) ? $code : 'en';
     }
 
     public static function t(string $schluessel): string
@@ -63,6 +99,9 @@ class Texte
         $eintrag = self::T[$schluessel] ?? null;
         if ($eintrag === null) {
             return $schluessel;
+        }
+        if (self::sprache() === 'ru' && isset(self::RU[$schluessel])) {
+            return self::RU[$schluessel];
         }
         return $eintrag[self::sprache()] ?? $eintrag['en'];
     }
