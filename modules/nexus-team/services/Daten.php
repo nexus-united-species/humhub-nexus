@@ -231,8 +231,8 @@ class Daten
                LEFT JOIN content c ON c.contentcontainer_id = cc.id AND c.state = :st AND c.created_by <> :bot
               WHERE s.status = 1
               GROUP BY s.id, s.name, s.url
-             HAVING letzter IS NULL OR letzter < :grenze
-              ORDER BY letzter IS NULL DESC, letzter ASC LIMIT " . (int)$max,
+             HAVING MAX(c.created_at) IS NULL OR MAX(c.created_at) < :grenze
+              ORDER BY (MAX(c.created_at) IS NULL) DESC, MAX(c.created_at) ASC LIMIT " . (int)$max,
             [':space' => self::SPACE, ':st' => Content::STATE_PUBLISHED, ':bot' => self::botId(), ':grenze' => $grenze]
         )->queryAll();
         return array_map(fn($z) => [
