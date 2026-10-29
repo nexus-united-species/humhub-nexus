@@ -141,10 +141,41 @@ class TeilenController extends Controller
         $freigabe = Freigabe::anlegen($id, (int)Yii::$app->user->id);
         $freigabe->insSchaufenster((int)Yii::$app->user->id);
         Yii::info("nexus-teilen: content#$id ins Schaufenster von user#" . Yii::$app->user->id, 'nexus-teilen');
+        $this->vorUebersetzen($id);
         return [
             'meldung' => Texte::get('sf_drin_meldung'),
             'seite' => Url::to(['/nexus-teilen/lesen/schaufenster'], true),
         ];
+    }
+
+    /**
+     * Uebersetzt den Beitrag NACH der Antwort in alle Sprachen vor (Josh, 29.10.2026: der Beitrag blieb im
+     * Schaufenster auf Deutsch). Sonst muss der erste Besucher jeder Sprache auf die Uebersetzung warten,
+     * und bei einem Fehlversuch sieht er das Original. Die Ergebnisse landen im selben Speicher wie sonst.
+     */
+    private function vorUebersetzen(int $contentId): void
+    {
+        $record = Inhalt::ausContentId($contentId);
+        if ($record === null) {
+            return;
+        }
+        register_shutdown_function(static function () use ($record) {
+            foreach (['frankenphp_finish_request', 'fastcgi_finish_request'] as $beenden) {
+                if (function_exists($beenden)) {
+                    $beenden();
+                    break;
+                }
+            }
+            ignore_user_abort(true);
+            @set_time_limit(300);
+            foreach (SprachErkennung::SPRACHEN as $code) {
+                try {
+                    Inhalt::fassung($record, $code);
+                } catch (\Throwable $e) {
+                    Yii::warning('nexus-teilen: Vorab-Uebersetzung (' . $code . ') fehlgeschlagen: ' . $e->getMessage(), 'nexus-teilen');
+                }
+            }
+        });
     }
 
     public function actionSchaufensterAus(int $id)

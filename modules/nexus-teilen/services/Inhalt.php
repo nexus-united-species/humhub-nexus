@@ -194,6 +194,13 @@ class Inhalt
      *
      * @return array{titel: string, text: string, sprache: ?string, uebersetzt: bool}
      */
+    /**
+     * Wird true, sobald eine Uebersetzung scheiterte und stattdessen das Original steht. Der Feed fuer die
+     * Webseite darf dann nicht 10 Minuten zwischengespeichert werden -- sonst blieb ein Beitrag nach einem
+     * einzigen Fehlversuch (Uebersetzungsdienst gerade langsam) zehn Minuten lang auf Deutsch.
+     */
+    public static bool $uebersetzungFehlte = false;
+
     public static function fassung(ContentActiveRecord $record, ?string $ziel): array
     {
         $titel = self::titel($record);
@@ -213,6 +220,7 @@ class Inhalt
             }
         } catch (Throwable $e) {
             Yii::warning('nexus-teilen: Uebersetzung nicht moeglich, Original wird gezeigt: ' . $e->getMessage(), 'nexus-teilen');
+            self::$uebersetzungFehlte = true;
             return $original;
         }
         return ['titel' => $titel, 'text' => $text, 'sprache' => $ziel, 'uebersetzt' => true];

@@ -138,6 +138,10 @@ class LesenController extends Controller
             'datum' => substr($k['datum'], 0, 10),
             'link' => $k['link'],
         ], Schaufenster::karten($sprache, $anzahl));
+        if (Inhalt::$uebersetzungFehlte) {
+            // Eine Uebersetzung war gerade nicht moeglich: nicht zwischenspeichern, der naechste Abruf versucht es neu.
+            $antwort->headers->set('Cache-Control', 'no-store');
+        }
         return [
             'titel' => $t['sf_titel'],
             'einleitung' => $t['sf_intro'],
