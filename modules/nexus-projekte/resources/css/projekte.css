@@ -76,12 +76,30 @@
 .nx-pj .nx-pj-zeile .form-control { width: auto; min-width: 12rem; flex: 1 1 12rem; }
 
 /* Knoepfe "Zurueck in Arbeit", "Ich habe eine Aenderung" usw. (btn-default) sahen im Portal-Design
-   blass aus wie abgeschaltet -- Rueckmeldung eines Mitglieds mit Sehschwaeche. Jetzt klar lesbar,
-   in hell und dunkel gleich (wie "Bearbeiten"). */
+   blass aus wie abgeschaltet -- Rueckmeldung eines Mitglieds mit Sehschwaeche. Jetzt klar lesbar.
+   Hell: helle Flaeche, dunkle Schrift. Dunkel (Rueckmeldung eines Mitglieds, 29.10.2026: "irgendwelche Boxen, in denen
+   nichts zu lesen ist"): das Dunkel-Design setzte die Schriftfarbe auf hell, unsere helle Flaeche blieb --
+   weisse Box mit heller Schrift. Jetzt je Modus ein eigenes Paar, ueber die Knopf-Variablen von Bootstrap UND
+   direkt (hoehere Genauigkeit + !important, damit kein Theme-Zustand -- hover, focus, active -- es kippt). */
 .nx-pj .btn-default {
+    --bs-btn-color: #1b1f24; --bs-btn-bg: #f1f3f5; --bs-btn-border-color: #b8c0c8;
+    --bs-btn-hover-color: #1b1f24; --bs-btn-hover-bg: #e2e6ea; --bs-btn-hover-border-color: #8a949e;
+    --bs-btn-active-color: #1b1f24; --bs-btn-active-bg: #d5dadf; --bs-btn-active-border-color: #8a949e;
     background: #f1f3f5; color: #1b1f24; border: 1px solid #b8c0c8; font-weight: 600; opacity: 1;
 }
-.nx-pj .btn-default:hover, .nx-pj .btn-default:focus-visible { background: #e2e6ea; color: #1b1f24; border-color: #8a949e; }
+.nx-pj .btn-default:hover, .nx-pj .btn-default:focus, .nx-pj .btn-default:focus-visible, .nx-pj .btn-default:active {
+    background: #e2e6ea; color: #1b1f24; border-color: #8a949e;
+}
+[data-bs-theme=dark] .nx-pj .btn-default {
+    --bs-btn-color: #f1f3f5; --bs-btn-bg: #2f363e; --bs-btn-border-color: #6b7580;
+    --bs-btn-hover-color: #ffffff; --bs-btn-hover-bg: #3d4650; --bs-btn-hover-border-color: #8a949e;
+    --bs-btn-active-color: #ffffff; --bs-btn-active-bg: #4a545f; --bs-btn-active-border-color: #8a949e;
+    background: #2f363e !important; color: #f1f3f5 !important; border-color: #6b7580 !important;
+}
+[data-bs-theme=dark] .nx-pj .btn-default:hover, [data-bs-theme=dark] .nx-pj .btn-default:focus,
+[data-bs-theme=dark] .nx-pj .btn-default:focus-visible, [data-bs-theme=dark] .nx-pj .btn-default:active {
+    background: #3d4650 !important; color: #ffffff !important; border-color: #8a949e !important;
+}
 .nx-pj .btn-default .fa { color: inherit; }
 
 /* Entwuerfe & Bilder in der Kachel -- groesser als bei Vorschlaegen, damit man beim Abstimmen etwas erkennt */
