@@ -40,7 +40,7 @@ Alles dazu findest du auf unserer neuen Förderseite – mit verschiedenen Zahlu
 👉 {spendenLink}
 
 Dort siehst du auch, wie viel schon zusammengekommen ist und wofür das Geld eingesetzt wird.
-{zusatz}
+{finanzen}{zusatz}
 N.E.X.U.S. ist ein Gemeinschaftsprojekt. Danke an alle, die es möglich machen – mit Zeit, Wissen, Herz, Vertrauen oder finanzieller Unterstützung. 💛
 TEXT;
 
@@ -93,7 +93,30 @@ TEXT;
         $zusatz = trim((string)$modul->spendenLinkZusatz) !== ''
             ? str_replace('{link}', trim((string)$modul->spendenLinkZusatz), self::SPENDENAUFRUF_ZUSATZ)
             : "\n";
-        return strtr(self::SPENDENAUFRUF_TEXT, ['{spendenLink}' => (string)$modul->spendenLink, '{zusatz}' => $zusatz]);
+        return strtr(self::SPENDENAUFRUF_TEXT, [
+            '{spendenLink}' => (string)$modul->spendenLink,
+            '{finanzen}' => self::finanzenAbsatz(),
+            '{zusatz}' => $zusatz,
+        ]);
+    }
+
+    /**
+     * Hinweis auf die Finanzierungs-Ampel im Portal (Modul nexus-finanzen, seit 29.10.2026). Nur wenn das
+     * Modul laeuft UND die Ampel fuer alle sichtbar ist: sonst bekaeme jedes Mitglied hinter dem Link eine
+     * Fehlerseite (solange "Fuer alle sichtbar" aus ist, sehen sie nur die Finanzverantwortlichen).
+     */
+    private static function finanzenAbsatz(): string
+    {
+        $finanzen = Yii::$app->getModule('nexus-finanzen');
+        if ($finanzen === null || !method_exists($finanzen, 'fuerAlle') || !$finanzen->fuerAlle()) {
+            return '';
+        }
+        $url = rtrim((string)Yii::$app->settings->get('baseUrl'), '/') . '/nexus-finanzen/ampel/index';
+        return "
+📊 Und hier im Portal, unter **Finanzierung**, siehst du jeden Monat, was N.E.X.U.S. braucht, was davon schon bezahlt ist und was noch offen ist – offen und nachvollziehbar für alle:
+
+👉 {$url}
+";
     }
 
     /**
