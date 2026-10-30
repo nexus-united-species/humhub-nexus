@@ -94,8 +94,8 @@ class Nachrichten
             'bedenken' => '⚠️ %s stimmt **%s** mit Bedenken zu:',
             'einwand' => '✋ %s hat einen schwerwiegenden Einwand gegen **%s**:',
         ][$stimme->art] ?? '💬 %s zu **%s**:';
-        $text = sprintf($was . "\n\n> %s\n\n%s",
-            $von->displayName, $karte->titel, str_replace("\n", "\n> ", trim((string)$stimme->text)), $karte->url(true));
+        $text = sprintf($was . "\n\n> %s\n\n%s\n\n%s",
+            $von->displayName, $karte->titel, str_replace("\n", "\n> ", trim((string)$stimme->text)), $karte->url(true), self::hinweisAntworten($von));
         foreach (self::verantwortlicheUndLeitung($karte) as $mensch) {
             if ((int)$mensch->id !== (int)$von->id) {
                 self::senden($mensch, $karte->projekt, $text);
@@ -121,11 +121,23 @@ class Nachrichten
             return;
         }
         $autor = $stimme->autor ? $stimme->autor->displayName : 'jemandem';
-        $text = sprintf("💬 %s antwortet auf die Rückmeldung von %s zu **%s**:\n\n> %s\n\n%s",
-            $von->displayName, $autor, $karte->titel, str_replace("\n", "\n> ", trim($antwort->text)), $karte->url(true));
+        $text = sprintf("💬 %s antwortet auf die Rückmeldung von %s zu **%s**:\n\n> %s\n\n%s\n\n%s",
+            $von->displayName, $autor, $karte->titel, str_replace("\n", "\n> ", trim($antwort->text)), $karte->url(true), self::hinweisAntworten($von));
         foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
             self::senden($mensch, $karte->projekt, $text);
         }
+    }
+
+    /**
+     * Der Knopf "Antworten" unter einer privaten Nachricht schreibt nur in diese Unterhaltung mit dem Assistenten.
+     * Ein Mitglied hielt das fuer die Antwort an die Person, deren Rueckmeldung dort steht -- die geht nur in der Kachel.
+     */
+    private static function hinweisAntworten(User $von): string
+    {
+        return sprintf(
+            '👉 Um %1$s zu antworten, öffne den Link und klicke dort unter der Rückmeldung auf „Antworten“. Was du hier in dieser Unterhaltung schreibst, erreicht %1$s nicht.',
+            $von->displayName
+        );
     }
 
     /** Bild-Auswahl: Bedenken oder Einwand zu einem Entwurf -- an Verantwortliche und Leitung */
