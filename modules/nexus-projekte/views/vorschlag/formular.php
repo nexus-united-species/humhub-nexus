@@ -17,6 +17,7 @@ use humhub\modules\user\widgets\UserPickerField;
 use nexus\modules\projekte\models\Aenderung;
 use nexus\modules\projekte\models\Datei;
 use nexus\modules\projekte\services\Rechte;
+use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Texte;
 
 $neu = $karte->isNewRecord;
@@ -49,25 +50,25 @@ $zeile = function (array $a) {
             <div class="nx-pj-felder">
                 <div class="nx-pj-ganz"><label for="nx-pj-titel"><?= Html::encode(Texte::t('titel')) ?></label>
                     <input id="nx-pj-titel" class="form-control" name="titel" value="<?= Html::encode($karte->titel) ?>" required maxlength="190" placeholder="<?= Html::encode(Texte::t('vorschlag_titel_hilfe')) ?>"></div>
-                <div class="nx-pj-ganz"><label for="nx-pj-zusammenfassung"><?= Html::encode(Texte::t('zusammenfassung')) ?></label>
+                <div class="nx-pj-ganz"><label for="nx-pj-zusammenfassung"><?= Html::encode(Texte::t('zusammenfassung')) ?></label><?= Hilfe::info('zusammenfassung') ?>
                     <textarea id="nx-pj-zusammenfassung" class="form-control" name="zusammenfassung" rows="4" required maxlength="10000"><?= Html::encode((string)$karte->zusammenfassung) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('zusammenfassung_hilfe')) ?></span></div>
-                <div class="nx-pj-ganz"><label for="nx-pj-begruendung"><?= Html::encode(Texte::t('begruendung')) ?></label>
+                <div class="nx-pj-ganz"><label for="nx-pj-begruendung"><?= Html::encode(Texte::t('begruendung')) ?></label><?= Hilfe::info('begruendung') ?>
                     <textarea id="nx-pj-begruendung" class="form-control" name="begruendung" rows="3" maxlength="10000"><?= Html::encode((string)$karte->begruendung) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('begruendung_hilfe')) ?></span></div>
                 <?php if (Rechte::darfLeiten($projekt, Yii::$app->user->getIdentity())) : ?>
-                    <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label>
+                    <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label><?= Hilfe::info('verantwortlich_vorschlag') ?>
                         <?= UserPickerField::widget(['name' => 'verantwortlich', 'selection' => $karte->verantwortlich ? [$karte->verantwortlich] : [],
                             'url' => $kreis->createUrl('/space/membership/search'), 'maxSelection' => 1, 'placeholder' => Texte::t('personen')]) ?></div>
                 <?php endif; ?>
-                <div><label for="nx-pj-frist"><?= Html::encode(Texte::t('frist')) ?></label>
+                <div><label for="nx-pj-frist"><?= Html::encode(Texte::t('frist')) ?></label><?= Hilfe::info('frist') ?>
                     <input id="nx-pj-frist" class="form-control" type="date" name="frist" value="<?= Html::encode((string)$karte->frist) ?>"></div>
-                <div class="nx-pj-ganz"><label for="nx-pj-schritte"><?= Html::encode(Texte::t('teilschritte')) ?></label>
+                <div class="nx-pj-ganz"><label for="nx-pj-schritte"><?= Html::encode(Texte::t('teilschritte')) ?></label><?= Hilfe::info('teilschritte') ?>
                     <textarea id="nx-pj-schritte" class="form-control" name="schritte" rows="3"><?= Html::encode($schritte) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('schritte_hilfe')) ?></span></div>
             </div>
 
-            <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('textaenderungen')) ?></h2>
+            <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('textaenderungen')) ?><?= Hilfe::info('textaenderungen') ?></h2>
             <div class="nx-pj-leise" style="margin-bottom:.5rem"><?= Html::encode(Texte::t('textaenderungen_hilfe')) ?></div>
             <div id="nx-pj-aenderungen" data-max="<?= Aenderung::MAX ?>">
                 <?php foreach ($zeilen as $a) : ?><?= $zeile($a) ?><?php endforeach; ?>
@@ -76,7 +77,7 @@ $zeile = function (array $a) {
             <button type="button" class="btn btn-sm btn-default" data-nx-pj-weitere="nx-pj-aenderungen"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('weitere_aenderung')) ?></button>
 
             <?php if ($dateienMoeglich) : ?>
-                <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('dateien')) ?></h2>
+                <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('dateien')) ?><?= Hilfe::info('dateien') ?></h2>
                 <div class="nx-pj-leise" style="margin-bottom:.5rem"><?= Html::encode(Texte::t('dateien_hilfe')) ?></div>
                 <?php if ($fassungen !== []) : ?>
                     <?= $this->render('/projekt/_dateien', ['fassungen' => $fassungen, 'kompakt' => true, 'karte' => $karte, 'ich' => Yii::$app->user->getIdentity(),
@@ -92,7 +93,7 @@ $zeile = function (array $a) {
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('dateien_im_kreis')) ?></div>
             <?php endif; ?>
 
-            <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('unterlagen')) ?></h2>
+            <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('unterlagen')) ?><?= Hilfe::info('unterlagen') ?></h2>
             <textarea class="form-control" name="links" rows="2" placeholder="Text | https://…" aria-label="<?= Html::encode(Texte::t('unterlagen')) ?>"><?= Html::encode($links) ?></textarea>
             <span class="nx-pj-leise"><?= Html::encode(Texte::t('links_hilfe')) ?></span>
 

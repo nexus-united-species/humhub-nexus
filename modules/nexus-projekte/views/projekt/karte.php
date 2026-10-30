@@ -12,6 +12,7 @@
 
 use humhub\helpers\Html;
 use humhub\modules\user\widgets\UserPickerField;
+use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Texte;
 
 $neu = $karte->isNewRecord;
@@ -48,19 +49,19 @@ $this->title = Texte::t($neu ? 'neue_karte' : 'karte_bearbeiten');
                         </select>
                         <span class="nx-pj-leise"><?= Html::encode(Texte::t('auswahl_art_hilfe')) ?></span></div>
                     <?php endif; ?>
-                    <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label>
+                    <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label><?= Hilfe::info('verantwortlich_kachel') ?>
                         <?= UserPickerField::widget(['name' => 'verantwortlich', 'selection' => $karte->verantwortlich ? [$karte->verantwortlich] : [],
                             'url' => $suche, 'maxSelection' => 1, 'placeholder' => Texte::t('personen')]) ?></div>
-                    <div><label><?= Html::encode(Texte::t('hilft_mit')) ?></label>
+                    <div><label><?= Html::encode(Texte::t('hilft_mit')) ?></label><?= Hilfe::info('hilft_mit') ?>
                         <?= UserPickerField::widget(['name' => 'helfer', 'selection' => $neu ? [] : $karte->helfer(),
                             'url' => $suche, 'maxSelection' => 20, 'placeholder' => Texte::t('personen')]) ?></div>
                 <?php endif; ?>
-                <div><label for="nx-pj-frist"><?= Html::encode(Texte::t('frist')) ?></label>
+                <div><label for="nx-pj-frist"><?= Html::encode(Texte::t('frist')) ?></label><?= Hilfe::info('frist') ?>
                     <input id="nx-pj-frist" class="form-control" type="date" name="frist" value="<?= Html::encode((string)$karte->frist) ?>"></div>
-                <div class="nx-pj-ganz"><label for="nx-pj-schritte"><?= Html::encode(Texte::t('teilschritte')) ?></label>
+                <div class="nx-pj-ganz"><label for="nx-pj-schritte"><?= Html::encode(Texte::t('teilschritte')) ?></label><?= Hilfe::info('teilschritte') ?>
                     <textarea id="nx-pj-schritte" class="form-control" name="schritte" rows="4" placeholder="<?= Html::encode(Texte::t('schritte_hilfe')) ?>"><?= Html::encode($schritte) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('schritte_hilfe')) ?></span></div>
-                <div class="nx-pj-ganz"><label for="nx-pj-links"><?= Html::encode(Texte::t('unterlagen')) ?></label>
+                <div class="nx-pj-ganz"><label for="nx-pj-links"><?= Html::encode(Texte::t('unterlagen')) ?></label><?= Hilfe::info('unterlagen') ?>
                     <textarea id="nx-pj-links" class="form-control" name="links" rows="3" placeholder="Text | https://…"><?= Html::encode($links) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('links_hilfe')) ?></span></div>
                 <?php if (!$karte->istAuswahl()) : ?>
