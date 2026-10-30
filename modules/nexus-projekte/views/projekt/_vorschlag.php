@@ -100,6 +100,6 @@ $farbe = ['angenommen' => 'nx-pj-gruen', 'abgelehnt' => 'nx-pj-rot', 'zurueckgez
 
     <?php if ($fassungen !== []) : ?>
         <div class="nx-pj-label" style="margin-top:.6rem"><?= Html::encode(Texte::t('dateien')) ?></div>
-        <?= $this->render('_dateien', ['fassungen' => $fassungen]) ?>
+        <?= $this->render('_dateien', ['fassungen' => $fassungen, 'lesen' => fn($d) => $kreis->createUrl('/nexus-projekte/projekt/datei-lesen', ['k' => $karte->id, 'd' => $d->id])]) ?>
     <?php endif; ?>
 </div>

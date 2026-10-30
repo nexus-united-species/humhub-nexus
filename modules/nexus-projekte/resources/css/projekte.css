@@ -170,3 +170,18 @@
 .nx-pj .nx-pj-team-post-offen { font-weight: 600; color: var(--bs-primary); }
 .nx-pj .nx-pj-team-post-kreisleitung { font-weight: 600; color: var(--bs-danger, #dc3545); }
 .nx-pj .nx-pj-team-mitmachen summary, .nx-pj details > summary { cursor: pointer; }
+
+/* Neue Kachel: Art waehlen (karte_art.php) */
+.nx-pj .nx-pj-artwahl { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; margin: .8rem 0 1rem; }
+.nx-pj .nx-pj-artkarte { display: flex; flex-direction: column; gap: .35rem; padding: 1rem; border: 1px solid var(--bs-border-color, #d6d6d6); border-radius: .5rem; text-decoration: none; color: inherit; background: var(--bs-body-bg, #fff); }
+.nx-pj .nx-pj-artkarte:hover, .nx-pj .nx-pj-artkarte:focus { border-color: var(--bs-primary, #14295a); box-shadow: 0 0 0 2px rgba(20, 41, 90, .15); }
+.nx-pj .nx-pj-artkarte .fa { font-size: 1.6rem; color: var(--bs-primary, #14295a); }
+.nx-pj .nx-pj-artkarte span { font-size: .9rem; opacity: .8; }
+/* Markdown/Text einer Kachel im Portal lesen (datei_lesen.php) */
+.nx-pj .nx-pj-lesen { max-width: 46rem; line-height: 1.6; overflow-wrap: anywhere; }
+.nx-pj .nx-pj-lesen h1, .nx-pj .nx-pj-lesen h2, .nx-pj .nx-pj-lesen h3 { margin-top: 1.4rem; }
+.nx-pj .nx-pj-lesen img { max-width: 100%; height: auto; }
+.nx-pj .nx-pj-lesen blockquote { border-left: 3px solid var(--bs-border-color, #d6d6d6); margin-left: 0; padding-left: 1rem; opacity: .85; }
+.nx-pj .nx-pj-lesen table { border-collapse: collapse; } .nx-pj .nx-pj-lesen td, .nx-pj .nx-pj-lesen th { border: 1px solid var(--bs-border-color, #d6d6d6); padding: .25rem .5rem; }
+.nx-pj .nx-pj-lesen-text { white-space: pre-wrap; }
+

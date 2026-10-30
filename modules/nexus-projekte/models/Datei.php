@@ -54,6 +54,8 @@ class Datei extends ActiveRecord
             'anzeige' => (string)preg_replace('/^F\d+ - /', '', (string)$basis->file_name),
             'url' => $basis->getUrl(),
             'bild' => str_starts_with((string)$basis->mime_type, 'image/'),
+            // Markdown und Text lassen sich im Portal lesen (ProjektController::actionDateiLesen)
+            'lesbar' => (bool)preg_match('/\.(md|markdown|txt)$/i', (string)$basis->file_name),
             'groesse' => (int)$basis->size,
         ];
     }

@@ -10,6 +10,7 @@
  * @var $karte nexus\modules\projekte\models\Karte|null
  * @var $ich humhub\modules\user\models\User|null
  * @var $url callable|null  Aktion, Parameter => Adresse (wie in _detail.php)
+ * @var $lesen callable|null  Datei => Adresse der Leseansicht (Markdown/Text im Portal)
  */
 
 use humhub\helpers\Html;
@@ -20,6 +21,7 @@ $kompakt = $kompakt ?? false;
 $karte = $karte ?? null;
 $ich = $ich ?? null;
 $url = $url ?? null;
+$lesen = $lesen ?? null;
 
 $darfLoeschen = static fn($d): bool => $karte !== null && $url !== null && Rechte::darfDateiLoeschen($karte, $d, $ich);
 $loeschen = function ($d, string $anzeige) use ($url, $darfLoeschen): string {
@@ -34,7 +36,7 @@ $loeschen = function ($d, string $anzeige) use ($url, $darfLoeschen): string {
 };
 $groesse = static fn(int $b): string => Yii::$app->formatter->asShortSize($b, 1);
 
-$liste = function (array $dateien) use ($kompakt, $loeschen, $groesse): string {
+$liste = function (array $dateien) use ($kompakt, $loeschen, $groesse, $lesen): string {
     $bilder = $andere = [];
     foreach ($dateien as $d) {
         $info = $d->info();
@@ -53,6 +55,7 @@ $liste = function (array $dateien) use ($kompakt, $loeschen, $groesse): string {
         } else {
             $andere[] = '<li><a href="' . Html::encode($info['url']) . '" target="_blank" rel="noopener"><i class="fa fa-file-o"></i> '
                 . Html::encode($info['anzeige']) . '</a> <span class="nx-pj-leise">(' . Html::encode($groesse($info['groesse'])) . ')</span> '
+                . ($info['lesbar'] && $lesen !== null ? '<a class="btn btn-xs btn-light" href="' . Html::encode($lesen($d)) . '"><i class="fa fa-book"></i> ' . Html::encode(Texte::t('datei_lesen')) . '</a> ' : '')
                 . $loeschen($d, $info['anzeige']) . '</li>';
         }
     }

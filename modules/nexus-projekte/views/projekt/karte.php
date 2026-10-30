@@ -24,21 +24,30 @@ $this->title = Texte::t($neu ? 'neue_karte' : 'karte_bearbeiten');
     <div class="panel-body">
         <div class="nx-pj-leise"><a href="<?= Html::encode($projekt->url()) ?>"><?= Html::encode($projekt->titel) ?></a></div>
         <h1 style="font-size:1.4rem"><?= Html::encode($this->title) ?></h1>
+        <?php if ($neu) : ?>
+            <p class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('art_gewaehlt'), Texte::t($karte->istAuswahl() ? 'art_auswahl_titel' : 'art_aufgabe_titel'))) ?>
+                · <a href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/karte', ['p' => $projekt->id])) ?>"><?= Html::encode(Texte::t('art_aendern')) ?></a></p>
+        <?php endif; ?>
         <?php if ($fehler) : ?><div class="alert alert-danger"><?= Html::encode($fehler) ?></div><?php endif; ?>
 
-        <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/karte-speichern', ['p' => $projekt->id] + ($neu ? [] : ['k' => $karte->id])), 'post') ?>
+        <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/karte-speichern', ['p' => $projekt->id] + ($neu ? [] : ['k' => $karte->id])), 'post', ['enctype' => 'multipart/form-data']) ?>
             <div class="nx-pj-felder">
                 <div class="nx-pj-ganz"><label for="nx-pj-titel"><?= Html::encode(Texte::t('titel')) ?></label>
                     <input id="nx-pj-titel" class="form-control" name="titel" value="<?= Html::encode($karte->titel) ?>" required maxlength="190"></div>
                 <div class="nx-pj-ganz"><label for="nx-pj-beschreibung"><?= Html::encode(Texte::t('beschreibung')) ?></label>
                     <textarea id="nx-pj-beschreibung" class="form-control" name="beschreibung" rows="3" maxlength="10000"><?= Html::encode((string)$karte->beschreibung) ?></textarea></div>
                 <?php if ($darfZuweisen) : ?>
+                    <?php if ($neu) : ?>
+                        <?php /* Die Art steht schon fest (Auswahl vorher in karte_art.php) */ ?>
+                        <input type="hidden" name="art" value="<?= $karte->istAuswahl() ? 'auswahl' : 'aufgabe' ?>">
+                    <?php else : ?>
                     <div class="nx-pj-ganz"><label for="nx-pj-art"><?= Html::encode(Texte::t('auswahl_art')) ?></label>
                         <select id="nx-pj-art" name="art" class="form-control">
                             <option value="aufgabe"<?= $karte->istAuswahl() ? '' : ' selected' ?>><?= Html::encode(Texte::t('auswahl_art_aufgabe')) ?></option>
                             <option value="auswahl"<?= $karte->istAuswahl() ? ' selected' : '' ?>><?= Html::encode(Texte::t('auswahl_art_auswahl')) ?></option>
                         </select>
                         <span class="nx-pj-leise"><?= Html::encode(Texte::t('auswahl_art_hilfe')) ?></span></div>
+                    <?php endif; ?>
                     <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label>
                         <?= UserPickerField::widget(['name' => 'verantwortlich', 'selection' => $karte->verantwortlich ? [$karte->verantwortlich] : [],
                             'url' => $suche, 'maxSelection' => 1, 'placeholder' => Texte::t('personen')]) ?></div>
@@ -54,6 +63,16 @@ $this->title = Texte::t($neu ? 'neue_karte' : 'karte_bearbeiten');
                 <div class="nx-pj-ganz"><label for="nx-pj-links"><?= Html::encode(Texte::t('unterlagen')) ?></label>
                     <textarea id="nx-pj-links" class="form-control" name="links" rows="3" placeholder="Text | https://…"><?= Html::encode($links) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('links_hilfe')) ?></span></div>
+                <?php if (!$karte->istAuswahl()) : ?>
+                    <div class="nx-pj-ganz"><label for="nx-pj-dateien"><?= Html::encode(Texte::t('dateien_anhaengen')) ?></label>
+                        <?php if (\nexus\modules\projekte\services\Dateien::hochladbar($kreis)) : ?>
+                            <input id="nx-pj-dateien" class="form-control" type="file" name="dateien[]" multiple>
+                            <span class="nx-pj-leise"><?= Html::encode(Texte::t('dateien_anhaengen_hilfe')) ?></span>
+                        <?php else : ?>
+                            <span class="nx-pj-leise"><?= Html::encode(Texte::t('dateien_aus')) ?></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="nx-pj-knoepfe">
                 <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> <?= Html::encode(Texte::t('speichern')) ?></button>

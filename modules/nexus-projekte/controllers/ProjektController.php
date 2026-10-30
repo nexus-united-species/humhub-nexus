@@ -5,6 +5,7 @@ namespace nexus\modules\projekte\controllers;
 use humhub\components\access\ControllerAccess;
 use humhub\modules\content\components\ContentContainerController;
 use humhub\modules\space\models\Space;
+use cebe\markdown\GithubMarkdown;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\assets\ProjekteAsset;
 use nexus\modules\projekte\models\Antwort;
@@ -21,6 +22,7 @@ use nexus\modules\projekte\services\Nachrichten;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 use Yii;
+use yii\helpers\HtmlPurifier;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 
@@ -161,6 +163,14 @@ class ProjektController extends ContentContainerController
             return $this->redirect($this->kreis()->createUrl('/nexus-projekte/vorschlag/formular', ['p' => $projekt->id, 'k' => $karte->id]));
         }
         $this->pruefe($karte->isNewRecord ? Rechte::darfLeiten($projekt, $this->ich()) : Rechte::darfKarteBearbeiten($karte, $this->ich()));
+        if ($karte->isNewRecord) {
+            // Erst die Art waehlen, dann erscheint das passende Formular (Aufgabe / Bild-Auswahl) bzw. der Vorschlag
+            $art = (string)Yii::$app->request->get('art');
+            if (!in_array($art, ['aufgabe', 'auswahl'], true)) {
+                return $this->render('karte_art', ['kreis' => $this->kreis(), 'projekt' => $projekt]);
+            }
+            $karte->art = $art;
+        }
         return $this->render('karte', [
             'kreis' => $this->kreis(),
             'projekt' => $projekt,
@@ -209,13 +219,50 @@ class ProjektController extends ContentContainerController
                 'darfZuweisen' => $darfZuweisen, 'fehler' => implode(' ', $karte->getErrorSummary(true))]);
         }
         $this->speichereSchritte($karte, (string)$r->post('schritte'));
+        $dateiMeldung = $this->speichereDateien($karte, $ich);
         if ($darfZuweisen) {
             $helfer = $this->personen((array)$r->post('helfer', []));
             $karte->setzeHelfer(array_map(fn($u) => (int)$u->id, $helfer));
             $this->meldeZuweisungen($karte, $vorher, $helfer);
         }
-        Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert'));
+        Yii::$app->session->setFlash(self::FLASH, trim(Texte::t('gespeichert') . ' ' . $dateiMeldung));
         return $this->redirect($karte->url());
+    }
+
+    /** Dateien, die schon im Kachel-Formular ausgewaehlt wurden (Fassung 1); leer, wenn nichts hochgeladen wurde. */
+    private function speichereDateien(Karte $karte, User $ich): string
+    {
+        $dateien = UploadedFile::getInstancesByName('dateien');
+        if ($dateien === [] || $karte->istAuswahl() || !Dateien::hochladbar($this->kreis())) {
+            return '';
+        }
+        [$fassung, $fehler] = Dateien::hochladen($karte, $dateien, '', $ich);
+        $meldung = $fassung > 0 ? sprintf(Texte::t('entwuerfe_ok'), $fassung) : '';
+        if ($fehler !== []) {
+            $meldung .= ($meldung !== '' ? ' ' : '') . sprintf(Texte::t('datei_fehler'), implode('; ', $fehler));
+        }
+        return $meldung;
+    }
+
+    /** Markdown- oder Textdatei einer Kachel bzw. eines Vorschlags im Portal lesen (ohne Herunterladen). */
+    public function actionDateiLesen(int $k, int $d)
+    {
+        $karte = $this->karteImKreis($k);
+        $datei = Datei::findOne(['id' => $d, 'karte_id' => $karte->id]) ?? throw new NotFoundHttpException();
+        $info = $datei->info();
+        if ($info === null || !$info['lesbar']) {
+            throw new NotFoundHttpException();
+        }
+        $html = null;
+        if ($info['groesse'] <= 1024 * 1024) {
+            $pfad = $datei->kreisDatei->baseFile->getStore()->get();
+            $text = (string)@file_get_contents($pfad);
+            $text = preg_replace('/^\xEF\xBB\xBF/', '', $text);
+            $html = preg_match('/\.txt$/i', $info['name'])
+                ? '<pre class="nx-pj-lesen-text">' . \humhub\helpers\Html::encode($text) . '</pre>'
+                : HtmlPurifier::process((new GithubMarkdown())->parse($text));
+        }
+        return $this->render('datei_lesen', ['kreis' => $this->kreis(), 'karte' => $karte, 'info' => $info, 'html' => $html]);
     }
 
     public function actionKarteLoeschen(int $k)

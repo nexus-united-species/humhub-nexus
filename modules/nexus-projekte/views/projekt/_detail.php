@@ -97,7 +97,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         <div class="nx-pj-entwuerfe">
             <div class="nx-pj-label"><i class="fa fa-picture-o"></i> <?= Html::encode(Texte::t('entwuerfe')) ?></div>
             <?php if ($fassungen !== []) : ?>
-                <?= $this->render('_dateien', ['fassungen' => $fassungen, 'karte' => $karte, 'ich' => $ich, 'url' => $url]) ?>
+                <?= $this->render('_dateien', ['fassungen' => $fassungen, 'karte' => $karte, 'ich' => $ich, 'url' => $url, 'lesen' => fn($d) => $url('datei-lesen', ['d' => $d->id])]) ?>
             <?php else : ?>
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('entwuerfe_leer')) ?></div>
             <?php endif; ?>
