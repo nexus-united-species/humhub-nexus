@@ -31,7 +31,7 @@ $this->title = $projekt->titel;
 <div class="panel panel-default nx-pj">
     <div class="panel-body">
         <div class="nx-pj-leise"><a href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/index')) ?>"><i class="fa fa-columns"></i> <?= Html::encode(Texte::t('projekte')) ?></a></div>
-        <div class="nx-pj-kopf">
+        <div class="nx-pj-kopf nx-pj-kopf-projekt">
             <div style="flex:1;min-width:220px">
                 <h1><?= Html::encode($projekt->titel) ?><?php if ($projekt->status !== 'aktiv') : ?> <span class="nx-pj-leise">(<?= Html::encode(Texte::t('abgeschlossen')) ?>)</span><?php endif; ?></h1>
                 <?php if ($projekt->ziel) : ?><div style="white-space:pre-wrap"><?= Html::encode($projekt->ziel) ?></div><?php endif; ?>
