@@ -21,6 +21,8 @@ use nexus\modules\projekte\services\Texte;
 $neu = $karte->isNewRecord;
 $links = implode("\n", array_map(fn($l) => $l['titel'] === $l['url'] ? $l['url'] : $l['titel'] . ' | ' . $l['url'], $karte->linkListe()));
 $zeilen = $aenderungen === [] ? [['stelle' => '', 'alt' => '', 'neu' => '']] : $aenderungen;
+$schritte = $neu ? '' : implode("
+", array_map(fn($s) => $s->text, $karte->schritte));
 $this->title = Texte::t($neu ? 'neuer_vorschlag' : 'vorschlag_bearbeiten');
 
 $zeile = function (array $a) {
@@ -52,6 +54,9 @@ $zeile = function (array $a) {
                 <div class="nx-pj-ganz"><label for="nx-pj-begruendung"><?= Html::encode(Texte::t('begruendung')) ?></label>
                     <textarea id="nx-pj-begruendung" class="form-control" name="begruendung" rows="3" maxlength="10000"><?= Html::encode((string)$karte->begruendung) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('begruendung_hilfe')) ?></span></div>
+                <div class="nx-pj-ganz"><label for="nx-pj-schritte"><?= Html::encode(Texte::t('teilschritte')) ?></label>
+                    <textarea id="nx-pj-schritte" class="form-control" name="schritte" rows="3"><?= Html::encode($schritte) ?></textarea>
+                    <span class="nx-pj-leise"><?= Html::encode(Texte::t('schritte_hilfe')) ?></span></div>
             </div>
 
             <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('textaenderungen')) ?></h2>

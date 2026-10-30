@@ -460,7 +460,7 @@ class ProjektController extends ContentContainerController
     // ── Hilfen ─────────────────────────────────────────────────────────────
 
     /** Teilschritte aus dem Textfeld: bekannte behalten ihren Haken, neue kommen dazu, fehlende fallen weg */
-    private function speichereSchritte(Karte $karte, string $text): void
+    public static function speichereSchritte(Karte $karte, string $text): void
     {
         $zeilen = array_slice(array_values(array_filter(array_map(fn($z) => mb_substr(trim($z), 0, 255), preg_split('/\R/', $text)))), 0, Schritt::MAX);
         $vorhanden = [];

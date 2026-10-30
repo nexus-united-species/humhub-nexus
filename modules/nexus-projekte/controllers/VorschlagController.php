@@ -89,6 +89,7 @@ class VorschlagController extends ContentContainerController
         }
         $karte->save(false);
         $this->speichereAenderungen($karte, $aenderungen);
+        ProjektController::speichereSchritte($karte, (string)$r->post('schritte'));
 
         [$fassung, $uploadFehler] = Dateien::hochladbar($this->kreis())
             ? Dateien::hochladen($karte, UploadedFile::getInstancesByName('dateien'), (string)$r->post('fassung_hinweis'), $ich)
