@@ -106,7 +106,7 @@ class VorschlagController extends ContentContainerController
             $meldung .= ' ' . sprintf(Texte::t('datei_fehler'), implode('; ', $uploadFehler));
         }
         Yii::$app->session->setFlash(ProjektController::FLASH, $meldung);
-        return $this->redirect($karte->url());
+        return $this->redirect($projekt->url());
     }
 
     // ── Entscheiden ──────────────────────────────────────────────────────────

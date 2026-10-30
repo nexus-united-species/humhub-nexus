@@ -226,7 +226,8 @@ class ProjektController extends ContentContainerController
             $this->meldeZuweisungen($karte, $vorher, $helfer);
         }
         Yii::$app->session->setFlash(self::FLASH, trim(Texte::t('gespeichert') . ' ' . $dateiMeldung));
-        return $this->redirect($karte->url());
+        // Zurueck auf die Tafel, ohne eine Kachel aufzuschlagen: sonst steht dort immer der Text der zuletzt gespeicherten
+        return $this->redirect($projekt->url());
     }
 
     /** Dateien, die schon im Kachel-Formular ausgewaehlt wurden (Fassung 1); leer, wenn nichts hochgeladen wurde. */
