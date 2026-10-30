@@ -48,8 +48,9 @@ $this->title = $projekt->titel;
                         <a class="btn btn-primary btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/karte', ['p' => $projekt->id])) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('neue_karte')) ?></a>
                         <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/formular', ['p' => $projekt->id])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>
                     <?php endif; ?>
-                    <?php if (Rechte::darfVorschlagen($projekt, $ich)) : ?>
-                        <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/vorschlag/formular', ['p' => $projekt->id])) ?>" title="<?= Html::encode(Texte::t('vorschlag_hinweis')) ?>"><i class="fa fa-lightbulb-o"></i> <?= Html::encode(Texte::t('neuer_vorschlag')) ?></a>
+                    <?php /* Die Leitung legt Text-Kacheln ueber "Neue Kachel" an (gleiches Formular) -- der zweite Knopf waere doppelt */ ?>
+                    <?php if (!$darfLeiten && Rechte::darfVorschlagen($projekt, $ich)) : ?>
+                        <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/vorschlag/formular', ['p' => $projekt->id])) ?>" title="<?= Html::encode(Texte::t('vorschlag_hinweis')) ?>"><i class="fa fa-lightbulb-o"></i> <?= Html::encode(Texte::t('vorschlag_einbringen')) ?></a>
                     <?php endif; ?>
                     <?php if ($hatVorschlaege) : ?>
                         <a class="btn btn-light btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/vorschlag/beschluesse', ['p' => $projekt->id])) ?>"><i class="fa fa-gavel"></i> <?= Html::encode(Texte::t('beschluesse')) ?></a>

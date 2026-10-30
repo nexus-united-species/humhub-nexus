@@ -58,6 +58,7 @@ class TexteAuswahl
             'datei_lesen_zurueck' => 'Zurück zur Kachel',
             'datei_herunterladen' => 'Herunterladen',
             'datei_lesen_zu_gross' => 'Die Datei ist zu groß für die Ansicht im Portal – bitte herunterladen.',
+            'vorschlag_einbringen' => 'Vorschlag einbringen',
         ],
         'en' => [
             'auswahl' => 'Image selection',
@@ -109,6 +110,7 @@ class TexteAuswahl
             'datei_lesen_zurueck' => 'Back to the card',
             'datei_herunterladen' => 'Download',
             'datei_lesen_zu_gross' => 'The file is too large to show in the portal – please download it.',
+            'vorschlag_einbringen' => 'Submit a proposal',
         ],
         'es' => [
             'auswahl' => 'Selección de imagen',
@@ -160,6 +162,7 @@ class TexteAuswahl
             'datei_lesen_zurueck' => 'Volver a la tarjeta',
             'datei_herunterladen' => 'Descargar',
             'datei_lesen_zu_gross' => 'El archivo es demasiado grande para verlo en el portal – descárgalo.',
+            'vorschlag_einbringen' => 'Presentar una propuesta',
         ],
         'ru' => [
             'auswahl' => 'Выбор изображения',
@@ -211,6 +214,7 @@ class TexteAuswahl
             'datei_lesen_zurueck' => 'Назад к карточке',
             'datei_herunterladen' => 'Скачать',
             'datei_lesen_zu_gross' => 'Файл слишком большой для просмотра в портале – скачайте его.',
+            'vorschlag_einbringen' => 'Внести предложение',
         ],
         'fr' => [
             'auswahl' => 'Choix d’image',
@@ -262,6 +266,7 @@ class TexteAuswahl
             'datei_lesen_zurueck' => 'Retour à la carte',
             'datei_herunterladen' => 'Télécharger',
             'datei_lesen_zu_gross' => 'Le fichier est trop volumineux pour être affiché dans le portail – veuillez le télécharger.',
+            'vorschlag_einbringen' => 'Soumettre une proposition',
         ],
     ];
 }
