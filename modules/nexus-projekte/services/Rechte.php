@@ -66,12 +66,14 @@ class Rechte
 
     /**
      * Eine hochgeladene Datei einer Kachel loeschen: wer sie hochgeladen hat sowie Verantwortliche und Leitung
-     * (Rueckmeldung eines Mitglieds, 26.10.2026) -- nicht bei Vorschlaegen (die Fassungen gehoeren zur Entscheidung),
-     * nicht bei der Bild-Auswahl (eigene Entwuerfe) und nicht bei fertigen Kacheln.
+     * (Rueckmeldung eines Mitglieds, 26.10.2026). Bei Vorschlaegen nur, solange nicht abgestimmt wird (31.10.2026: falsche
+     * Datei hochgeladen) -- waehrend der Abstimmung und danach gehoeren die Fassungen zur Entscheidung; dann hilft nur eine
+     * neue Fassung. Nicht bei der Bild-Auswahl (eigene Entwuerfe) und nicht bei fertigen Kacheln.
      */
     public static function darfDateiLoeschen(Karte $karte, Datei $datei, ?User $mensch): bool
     {
-        return $mensch !== null && !$karte->istVorschlag() && !$karte->istAuswahl() && $karte->spalte !== 'fertig'
+        return $mensch !== null && !$karte->istAuswahl() && $karte->spalte !== 'fertig'
+            && !($karte->istVorschlag() && $karte->spalte === 'abstimmung')
             && ((int)$datei->created_by === (int)$mensch->id || self::darfKarteBearbeiten($karte, $mensch));
     }
 
