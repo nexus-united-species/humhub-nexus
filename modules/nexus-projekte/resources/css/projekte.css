@@ -192,7 +192,10 @@
 /* Hilfe-Symbol mit Hilfetext (Hilfe.php): Daraufzeigen am PC, Antippen am Handy */
 .nx-pj .nx-pj-info { position: relative; display: inline-block; vertical-align: middle; margin-left: .25rem; }
 .nx-pj .nx-pj-info-knopf { background: none; border: 0; padding: .1rem .2rem; color: var(--nx-pj-leise); cursor: help; font-size: .95rem; line-height: 1; }
-.nx-pj .nx-pj-info-knopf:hover, .nx-pj .nx-pj-info-knopf:focus-visible, .nx-pj .nx-pj-info.offen .nx-pj-info-knopf { color: var(--bs-primary, #14295a); }
+.nx-pj .nx-pj-info-knopf .fa { color: #b8901f; font-size: 1.3rem; vertical-align: middle; }
+[data-bs-theme=dark] .nx-pj .nx-pj-info-knopf .fa { color: #e0bb3f; }
+.nx-pj .nx-pj-info-knopf:hover .fa, .nx-pj .nx-pj-info-knopf:focus-visible .fa, .nx-pj .nx-pj-info.offen .nx-pj-info-knopf .fa { color: #8f6f12; }
+[data-bs-theme=dark] .nx-pj .nx-pj-info-knopf:hover .fa, [data-bs-theme=dark] .nx-pj .nx-pj-info-knopf:focus-visible .fa, [data-bs-theme=dark] .nx-pj .nx-pj-info.offen .nx-pj-info-knopf .fa { color: #f2d774; }
 .nx-pj .nx-pj-info-beschriftung { font-size: .88rem; margin-left: .15rem; }
 .nx-pj .nx-pj-info-text { display: none; position: absolute; z-index: 60; left: 0; top: 1.7rem; width: min(24rem, 82vw); padding: .65rem .8rem; border: 1px solid var(--nx-pj-rand); border-radius: .5rem;
     background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #212529); box-shadow: 0 4px 16px rgba(0, 0, 0, .18); font-size: .88rem; font-weight: normal; line-height: 1.45; text-align: left; white-space: normal; }
