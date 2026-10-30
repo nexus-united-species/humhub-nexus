@@ -39,7 +39,7 @@ $bezahlt = $stand->bezahlt($k, $monat);
         <?php endif; ?>
         <?php if ($uebertrag > 0 && $farbe !== 'grau') : ?><span class="nx-fin-leise"><?= Html::encode(sprintf(Texte::t('uebertrag'), Geld::zeigen($uebertrag))) ?></span><?php endif; ?>
         <?php /* "geschaetzter Verbrauch" & Co. nur bei Kacheln, die noch nicht bezahlt sind -- bei bezahlten steht der echte Betrag */ ?>
-        <?php if ($bezahlt === null) : ?><span class="nx-fin-marke"><?= Html::encode(Texte::t('einordnung_' . $k->einordnung)) ?></span><?php endif; ?>
+        <?php if ($bezahlt === null && $k->einordnung !== 'geschaetzt') : ?><span class="nx-fin-marke"><?= Html::encode(Texte::t('einordnung_' . $k->einordnung)) ?></span><?php endif; ?>
         <?php if ($k->zusatz) : ?><span class="nx-fin-marke nx-fin-zusatz"><?= Html::encode(Texte::t('zusatz_' . $k->zusatz)) ?></span><?php endif; ?>
     </div>
     <?php if ($bezahlt !== null) : ?>
@@ -54,7 +54,6 @@ $bezahlt = $stand->bezahlt($k, $monat);
                 – <?= Html::encode(sprintf(Texte::t('davon_spenden'), Geld::zeigen($ausSpenden, true))) ?>
                 · <?= Html::encode(sprintf(Texte::t('davon_vorgestreckt'), Geld::zeigen($vorgestreckt['betrag'], true), implode(', ', $vorgestreckt['von']))) ?>
             <?php endif; ?>
-            <?php if ($bezahlt['geschaetzt']) : ?><span class="nx-fin-marke"><?= Html::encode(Texte::t('geschaetzt')) ?></span><?php endif; ?>
         </div>
     <?php endif; ?>
 </div>
