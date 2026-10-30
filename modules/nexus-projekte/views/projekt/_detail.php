@@ -14,6 +14,7 @@ use humhub\helpers\Html;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\services\Dateien;
 use nexus\modules\projekte\services\Entscheidung;
+use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 
@@ -44,7 +45,7 @@ $knopf = function (string $ziel, string $text, string $symbol, string $klasse = 
     }
     return Html::beginForm($url('verschieben'), 'post') . Html::hiddenInput('ziel', $ziel)
         . '<button type="submit" class="btn btn-sm ' . $klasse . '"><i class="fa fa-' . $symbol . '"></i> ' . Html::encode(Texte::t($text)) . '</button>'
-        . Html::endForm();
+        . Hilfe::info($text) . Html::endForm();
 };
 $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 ?>
@@ -185,6 +186,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 
     <?php if ($karte->spalte === 'abstimmung' && !$istAuswahl) : ?>
         <div class="nx-pj-abstimmung">
+            <div><?= Hilfe::info('abstimmung_' . $regel, 'hilfe_abstimmung_frage') ?></div>
             <?php if ($karte->abstimmung_bis) : ?>
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?> <?= Html::encode(Texte::datum($karte->abstimmung_bis, 'php:D d.m.Y')) ?></div>
             <?php endif; ?>
@@ -259,7 +261,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
     <div class="nx-pj-knoepfe">
         <?php if (Rechte::darfUebernehmen($karte, $ich) && !$istVorschlag) : ?>
             <?= Html::beginForm($url('uebernehmen'), 'post') ?>
-                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-hand-paper-o"></i> <?= Html::encode(Texte::t('uebernehmen')) ?></button>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-hand-paper-o"></i> <?= Html::encode(Texte::t('uebernehmen')) ?></button><?= Hilfe::info('uebernehmen') ?>
             <?= Html::endForm() ?>
         <?php endif; ?>
         <?php if ($karte->spalte === 'arbeit' || $karte->spalte === 'offen') : ?>
@@ -270,7 +272,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                     <?= Html::hiddenInput('ziel', 'abstimmung') ?>
                     <label class="nx-pj-leise" for="nx-pj-bis" style="margin:0"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?></label>
                     <input id="nx-pj-bis" type="date" name="abstimmung_bis" class="form-control input-sm" style="width:auto" value="<?= date('Y-m-d', strtotime('+' . Entscheidung::rundenTage($karte) . ' days')) ?>" min="<?= date('Y-m-d') ?>">
-                    <button type="submit" class="btn btn-sm btn-default" title="<?= Html::encode(Texte::t('abstimmung_hinweis')) ?>"><i class="fa fa-thumbs-o-up"></i> <?= Html::encode(Texte::t('zur_abstimmung')) ?></button>
+                    <button type="submit" class="btn btn-sm btn-default" title="<?= Html::encode(Texte::t('abstimmung_hinweis')) ?>"><i class="fa fa-thumbs-o-up"></i> <?= Html::encode(Texte::t('zur_abstimmung')) ?></button><?= Hilfe::info('zur_abstimmung') ?>
                 <?= Html::endForm() ?>
             <?php endif; ?>
         <?php endif; ?>

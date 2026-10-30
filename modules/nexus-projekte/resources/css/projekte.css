@@ -188,3 +188,13 @@
 .nx-pj .nx-pj-kopf-projekt { flex-direction: column; align-items: stretch; flex-wrap: nowrap; }
 .nx-pj .nx-pj-kopf-projekt > div:first-child { flex: none !important; max-width: 62rem; }
 .nx-pj .nx-pj-kopf-projekt .nx-pj-balken { max-width: 22rem; }
+
+/* Hilfe-Symbol mit Hilfetext (Hilfe.php): Daraufzeigen am PC, Antippen am Handy */
+.nx-pj .nx-pj-info { position: relative; display: inline-block; vertical-align: middle; margin-left: .25rem; }
+.nx-pj .nx-pj-info-knopf { background: none; border: 0; padding: .1rem .2rem; color: var(--nx-pj-leise); cursor: help; font-size: .95rem; line-height: 1; }
+.nx-pj .nx-pj-info-knopf:hover, .nx-pj .nx-pj-info-knopf:focus-visible, .nx-pj .nx-pj-info.offen .nx-pj-info-knopf { color: var(--bs-primary, #14295a); }
+.nx-pj .nx-pj-info-beschriftung { font-size: .88rem; margin-left: .15rem; }
+.nx-pj .nx-pj-info-text { display: none; position: absolute; z-index: 60; left: 0; top: 1.7rem; width: min(24rem, 82vw); padding: .65rem .8rem; border: 1px solid var(--nx-pj-rand); border-radius: .5rem;
+    background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #212529); box-shadow: 0 4px 16px rgba(0, 0, 0, .18); font-size: .88rem; font-weight: normal; line-height: 1.45; text-align: left; white-space: normal; }
+.nx-pj .nx-pj-info:hover .nx-pj-info-text, .nx-pj .nx-pj-info.offen .nx-pj-info-text { display: block; }
+.nx-pj .nx-pj-tafelhilfe { margin: 0 0 .4rem; min-height: 1.4rem; }

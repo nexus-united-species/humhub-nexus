@@ -16,6 +16,7 @@
 use humhub\helpers\Html;
 use nexus\modules\projekte\models\Karte;
 use nexus\modules\projekte\services\Entscheidung;
+use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 
@@ -67,6 +68,7 @@ $this->title = $projekt->titel;
 
         <?php if ($meldung) : ?><div class="nx-pj-meldung"><?= Html::encode($meldung) ?></div><?php endif; ?>
 
+        <div class="nx-pj-tafelhilfe"><?= Hilfe::info('tafel', 'hilfe_tafel_frage') ?></div>
         <div class="nx-pj-tafel">
             <?php foreach (Karte::SPALTEN as $spalte) : ?>
                 <?php $inSpalte = array_filter($karten, fn($k) => $k->spalte === $spalte); ?>

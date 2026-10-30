@@ -3,6 +3,29 @@
 (function () {
     if (window.nexusProjekteGeladen) { return; }
     window.nexusProjekteGeladen = true;
+    // Hilfe-Symbole: Antippen/Klicken klappt den Text auf bzw. zu, ein Klick daneben oder Esc schliesst ihn
+    function hilfeZu(ausser) {
+        document.querySelectorAll('.nx-pj-info.offen').forEach(function (h) {
+            if (h !== ausser) {
+                h.classList.remove('offen');
+                var k = h.querySelector('.nx-pj-info-knopf');
+                if (k) { k.setAttribute('aria-expanded', 'false'); }
+            }
+        });
+    }
+    document.addEventListener('click', function (e) {
+        var hk = e.target.closest('.nx-pj-info-knopf');
+        var h = hk ? hk.parentNode : null;
+        hilfeZu(h);
+        if (h) {
+            e.preventDefault();
+            var offen = h.classList.toggle('offen');
+            hk.setAttribute('aria-expanded', offen ? 'true' : 'false');
+        }
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { hilfeZu(null); }
+    });
     document.addEventListener('click', function (e) {
         var knopf = e.target.closest('[data-nx-pj-oeffne]');
         if (knopf) {
