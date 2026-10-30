@@ -13,6 +13,7 @@
  */
 
 use humhub\helpers\Html;
+use humhub\modules\user\widgets\UserPickerField;
 use nexus\modules\projekte\models\Aenderung;
 use nexus\modules\projekte\models\Datei;
 use nexus\modules\projekte\services\Rechte;
@@ -54,6 +55,13 @@ $zeile = function (array $a) {
                 <div class="nx-pj-ganz"><label for="nx-pj-begruendung"><?= Html::encode(Texte::t('begruendung')) ?></label>
                     <textarea id="nx-pj-begruendung" class="form-control" name="begruendung" rows="3" maxlength="10000"><?= Html::encode((string)$karte->begruendung) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('begruendung_hilfe')) ?></span></div>
+                <?php if (Rechte::darfLeiten($projekt, Yii::$app->user->getIdentity())) : ?>
+                    <div><label><?= Html::encode(Texte::t('verantwortlich')) ?></label>
+                        <?= UserPickerField::widget(['name' => 'verantwortlich', 'selection' => $karte->verantwortlich ? [$karte->verantwortlich] : [],
+                            'url' => $kreis->createUrl('/space/membership/search'), 'maxSelection' => 1, 'placeholder' => Texte::t('personen')]) ?></div>
+                <?php endif; ?>
+                <div><label for="nx-pj-frist"><?= Html::encode(Texte::t('frist')) ?></label>
+                    <input id="nx-pj-frist" class="form-control" type="date" name="frist" value="<?= Html::encode((string)$karte->frist) ?>"></div>
                 <div class="nx-pj-ganz"><label for="nx-pj-schritte"><?= Html::encode(Texte::t('teilschritte')) ?></label>
                     <textarea id="nx-pj-schritte" class="form-control" name="schritte" rows="3"><?= Html::encode($schritte) ?></textarea>
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('schritte_hilfe')) ?></span></div>

@@ -79,6 +79,11 @@ class VorschlagController extends ContentContainerController
         $karte->zusammenfassung = trim((string)$r->post('zusammenfassung')) ?: null;
         $karte->begruendung = trim((string)$r->post('begruendung')) ?: null;
         $karte->setzeLinks($this->linksAus((string)$r->post('links')));
+        $karte->frist = trim((string)$r->post('frist')) ?: null;
+        // Eingebracht hat ihn, wer ihn verantwortet; die Leitung kann das aendern
+        if (Rechte::darfLeiten($projekt, $ich) && (array)$r->post('verantwortlich', []) !== []) {
+            $karte->verantwortlich_id = ($this->personen((array)$r->post('verantwortlich'))[0] ?? null)?->id ?? $karte->verantwortlich_id;
+        }
         $aenderungen = $this->aenderungenAus();
         $fehler = $this->pruefeAenderungen($aenderungen);
         if ($fehler !== null || !$karte->validate()) {
