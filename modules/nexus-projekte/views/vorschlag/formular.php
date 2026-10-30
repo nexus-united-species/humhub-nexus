@@ -71,7 +71,9 @@ $zeile = function (array $a) {
                 <h2 class="nx-pj-abschnitt"><?= Html::encode(Texte::t('dateien')) ?></h2>
                 <div class="nx-pj-leise" style="margin-bottom:.5rem"><?= Html::encode(Texte::t('dateien_hilfe')) ?></div>
                 <?php if ($fassungen !== []) : ?>
-                    <?= $this->render('/projekt/_dateien', ['fassungen' => $fassungen, 'kompakt' => true]) ?>
+                    <?= $this->render('/projekt/_dateien', ['fassungen' => $fassungen, 'kompakt' => true, 'karte' => $karte, 'ich' => Yii::$app->user->getIdentity(),
+                        'url' => fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/projekt/' . $aktion, ['k' => $karte->id] + $p),
+                        'lesen' => fn($d) => $kreis->createUrl('/nexus-projekte/projekt/datei-lesen', ['k' => $karte->id, 'd' => $d->id])]) ?>
                 <?php endif; ?>
                 <div class="nx-pj-felder">
                     <div><label for="nx-pj-dateien"><?= Html::encode(Texte::t($fassungen === [] ? 'dateien' : 'neue_fassung')) ?></label>
@@ -91,6 +93,7 @@ $zeile = function (array $a) {
                 <a class="btn btn-light" href="<?= Html::encode($neu ? $projekt->url() : $karte->url()) ?>"><?= Html::encode(Texte::t('abbrechen')) ?></a>
             </div>
         <?= Html::endForm() ?>
+        <?= implode('', $this->params['nxPjLoeschFormulare'] ?? []) ?>
 
         <?php if (!$neu && Rechte::darfZurueckziehen($karte, Yii::$app->user->getIdentity())) : ?>
             <hr>

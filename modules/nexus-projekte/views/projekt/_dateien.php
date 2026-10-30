@@ -24,15 +24,24 @@ $url = $url ?? null;
 $lesen = $lesen ?? null;
 
 $darfLoeschen = static fn($d): bool => $karte !== null && $url !== null && Rechte::darfDateiLoeschen($karte, $d, $ich);
-$loeschen = function ($d, string $anzeige) use ($url, $darfLoeschen): string {
+$loeschen = function ($d, string $anzeige) use ($url, $darfLoeschen, $kompakt): string {
     if (!$darfLoeschen($d)) {
         return '';
     }
-    return Html::beginForm($url('datei-loeschen', ['d' => $d->id]), 'post', [
+    // Im Formular (kompakt) darf kein Formular im Formular stehen: Der Knopf bekommt ein form-Attribut, das Formular selbst
+    // sammelt die Ansicht in $this->params und gibt es nach dem Hauptformular aus (vorschlag/formular.php).
+    $knopf = '<button type="submit" class="nx-pj-x" title="' . Html::encode(Texte::t('datei_loeschen')) . '" aria-label="' . Html::encode(Texte::t('datei_loeschen')) . '"'
+        . ($kompakt ? ' form="nx-pj-loesch-' . (int)$d->id . '"' : '') . '><i class="fa fa-trash-o"></i></button>';
+    $formular = Html::beginForm($url('datei-loeschen', ['d' => $d->id]), 'post', [
         'class' => 'nx-pj-datei-loeschen',
+        'id' => $kompakt ? 'nx-pj-loesch-' . (int)$d->id : null,
         'data-nx-pj-frage' => sprintf(Texte::t('datei_loeschen_frage'), $anzeige),
-    ]) . '<button type="submit" class="nx-pj-x" title="' . Html::encode(Texte::t('datei_loeschen')) . '" aria-label="' . Html::encode(Texte::t('datei_loeschen')) . '">'
-        . '<i class="fa fa-trash-o"></i></button>' . Html::endForm();
+    ]) . ($kompakt ? '' : $knopf) . Html::endForm();
+    if ($kompakt) {
+        $this->params['nxPjLoeschFormulare'][] = $formular;
+        return $knopf;
+    }
+    return $formular;
 };
 $groesse = static fn(int $b): string => Yii::$app->formatter->asShortSize($b, 1);
 
@@ -62,7 +71,7 @@ $liste = function (array $dateien) use ($kompakt, $loeschen, $groesse, $lesen): 
     return ($bilder !== [] ? '<div class="nx-pj-galerie">' . implode('', $bilder) . '</div>' : '')
         . ($andere !== [] ? '<ul class="nx-pj-dateiliste">' . implode('', $andere) . '</ul>' : '');
 };
-$kopf = function (int $nr, array $dateien) use ($url, $darfLoeschen) {
+$kopf = function (int $nr, array $dateien) use ($url, $darfLoeschen, $kompakt) {
     $erste = $dateien[0];
     $teile = [sprintf(Texte::t('fassung'), $nr), Texte::datum($erste->created_at)];
     if ($erste->autor) {
@@ -72,10 +81,17 @@ $kopf = function (int $nr, array $dateien) use ($url, $darfLoeschen) {
     $html = Html::encode(implode(' · ', $teile)) . ($erste->hinweis ? ' – <em>' . Html::encode($erste->hinweis) . '</em>' : '');
     // Ganze Fassung loeschen: nur anbieten, wenn die Person ALLE ihre Dateien loeschen darf und es mehr als eine ist
     if ($url !== null && count($dateien) > 1 && count(array_filter($dateien, $darfLoeschen)) === count($dateien)) {
-        $html .= ' ' . Html::beginForm($url('fassung-loeschen', ['f' => $nr]), 'post', [
+        $formular = Html::beginForm($url('fassung-loeschen', ['f' => $nr]), 'post', [
             'class' => 'nx-pj-datei-loeschen',
+            'id' => $kompakt ? 'nx-pj-fassung-loesch-' . $nr : null,
             'data-nx-pj-frage' => sprintf(Texte::t('fassung_loeschen_frage'), $nr),
-        ]) . '<button type="submit" class="nx-pj-x nx-pj-x-text"><i class="fa fa-trash-o"></i> ' . Html::encode(Texte::t('fassung_loeschen')) . '</button>' . Html::endForm();
+        ]) . ($kompakt ? '' : '<button type="submit" class="nx-pj-x nx-pj-x-text"><i class="fa fa-trash-o"></i> ' . Html::encode(Texte::t('fassung_loeschen')) . '</button>') . Html::endForm();
+        if ($kompakt) {
+            $this->params['nxPjLoeschFormulare'][] = $formular;
+            $html .= ' <button type="submit" form="nx-pj-fassung-loesch-' . $nr . '" class="nx-pj-x nx-pj-x-text"><i class="fa fa-trash-o"></i> ' . Html::encode(Texte::t('fassung_loeschen')) . '</button>';
+        } else {
+            $html .= ' ' . $formular;
+        }
     }
     return $html;
 };
