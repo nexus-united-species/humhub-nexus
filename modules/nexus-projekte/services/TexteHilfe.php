@@ -52,6 +52,20 @@ Unsicher? Nimm „Einfache Rückmeldung“. Du kannst es später ändern.',
             'hilfe_frist' => 'Bis wann es erledigt sein soll. Einen Tag vorher bekommt die verantwortliche Person eine Erinnerung.',
             'hilfe_teilschritte' => 'Eine kleine Checkliste, ein Schritt pro Zeile. Die Häkchen sind nur eine Gedächtnisstütze – sie lösen nichts aus, auch keine Abstimmung.',
             'hilfe_unterlagen' => 'Links zu Dokumenten, ein Link pro Zeile in der Form „Titel | Adresse“. Dateien lädst du besser direkt hoch – dann sieht sie jeder sofort in der Kachel.',
+            'hilfe_auswerten' => 'Hier hältst du als Leitung das Ergebnis der Runde fest.
+Als angenommen festhalten – die Kachel wandert nach „Fertig“. Bei Konsent und Mehrheit gibt es diesen Knopf nur, wenn das Ergebnis es hergibt.
+Als abgelehnt festhalten – die Kachel wandert ebenfalls nach „Fertig“.
+Zurück zur Überarbeitung – zurück nach „In Arbeit“, der Vorschlag kann verbessert werden.
+Beim Festhalten bekommen alle, die abgestimmt haben, eine Nachricht.',
+            'hilfe_auswahl_sammeln' => 'Solange die Kachel „Offen“ oder „In Arbeit“ ist, kann jedes Kreismitglied Bild-Entwürfe einstellen. Sie bekommen die Buchstaben A, B, C … Zur Abstimmung braucht es mindestens einen Entwurf.',
+            'hilfe_auswahl_abstimmen' => 'Unter jedem Entwurf wählst du:
+Ich stimme zu – er gefällt dir.
+Zustimmung mit Bedenken – geht, aber dir fällt etwas auf (bitte kurz schreiben).
+Schwerwiegender Einwand – er geht für dich gar nicht (bitte kurz begründen).
+Du musst nicht zu jedem etwas sagen und kannst deine Stimme bis zum Ende der Runde ändern.',
+            'hilfe_auswahl_auswerten' => 'In Frage kommt nur ein Entwurf ohne schwerwiegenden Einwand und mit mindestens einer Zustimmung. Es gewinnt der mit den meisten Zustimmungen, bei Gleichstand wählt die Leitung.
+„Entwurf … wählen“ macht die Kachel fertig, und alle Beteiligten bekommen eine Nachricht.
+Trägt keiner, geht es mit „Zurück ins Sammeln“ weiter.',
         ],
         'en' => [
             'hilfe_label' => 'Help',
@@ -96,6 +110,20 @@ Not sure? Choose “Simple feedback”. You can change it later.',
             'hilfe_frist' => 'By when it should be done. The responsible person gets a reminder one day before.',
             'hilfe_teilschritte' => 'A small checklist, one step per line. The ticks are only a memory aid – they trigger nothing, not even a vote.',
             'hilfe_unterlagen' => 'Links to documents, one link per line in the form “Title | Address”. It is better to upload files directly – then everyone sees them right in the card.',
+            'hilfe_auswerten' => 'Here you, as lead, record the result of the round.
+Record as accepted – the card moves to “Done”. With consent and majority this button only appears if the result allows it.
+Record as rejected – the card also moves to “Done”.
+Back for revision – back to “In progress” so the proposal can be improved.
+When a result is recorded, everyone who voted receives a message.',
+            'hilfe_auswahl_sammeln' => 'While the card is “Open” or “In progress”, any circle member can add image drafts. They get the letters A, B, C … A vote needs at least one draft.',
+            'hilfe_auswahl_abstimmen' => 'Under each draft you choose:
+I agree – you like it.
+Agree with concerns – it works, but something strikes you (please write briefly).
+Serious objection – it does not work for you at all (please give a brief reason).
+You do not have to comment on every draft and can change your vote until the round ends.',
+            'hilfe_auswahl_auswerten' => 'Only a draft with no serious objection and at least one agreement is eligible. The one with the most agreements wins; if tied, the lead chooses.
+“Choose draft …” completes the card and everyone involved receives a message.
+If none is viable, continue with “Back to collecting”.',
         ],
         'es' => [
             'hilfe_label' => 'Ayuda',
@@ -140,6 +168,20 @@ Mayoría – se acepta si hay más síes que noes.
             'hilfe_frist' => 'Hasta cuándo debe estar hecho. Un día antes la persona responsable recibe un recordatorio.',
             'hilfe_teilschritte' => 'Una pequeña lista de comprobación, un paso por línea. Las marcas son solo una ayuda para recordar: no activan nada, ni siquiera una votación.',
             'hilfe_unterlagen' => 'Enlaces a documentos, uno por línea con el formato «Título | Dirección». Es mejor subir los archivos directamente: así todos los ven al instante en la tarjeta.',
+            'hilfe_auswerten' => 'Aquí, como dirección, registras el resultado de la ronda.
+Registrar como aceptada – la tarjeta pasa a «Terminado». Con consentimiento y mayoría este botón solo aparece si el resultado lo permite.
+Registrar como rechazada – la tarjeta también pasa a «Terminado».
+Volver a revisión – vuelve a «En curso» para que la propuesta pueda mejorarse.
+Al registrar el resultado, todos los que votaron reciben un mensaje.',
+            'hilfe_auswahl_sammeln' => 'Mientras la tarjeta esté «Abierta» o «En curso», cualquier miembro del círculo puede añadir borradores de imagen. Reciben las letras A, B, C … Para votar hace falta al menos un borrador.',
+            'hilfe_auswahl_abstimmen' => 'Debajo de cada borrador eliges:
+Estoy de acuerdo – te gusta.
+Conforme con reservas – sirve, pero algo te llama la atención (escríbelo brevemente).
+Objeción grave – para ti no sirve en absoluto (razónalo brevemente).
+No tienes que opinar sobre todos y puedes cambiar tu voto hasta el final de la ronda.',
+            'hilfe_auswahl_auswerten' => 'Solo puede elegirse un borrador sin objeción grave y con al menos un voto de acuerdo. Gana el que más acuerdos tenga; en caso de empate elige la dirección.
+«Elegir borrador …» termina la tarjeta y todos los participantes reciben un mensaje.
+Si ninguno sirve, se continúa con «Volver a recoger».',
         ],
         'ru' => [
             'hilfe_label' => 'Справка',
@@ -184,6 +226,20 @@ Mayoría – se acepta si hay más síes que noes.
             'hilfe_frist' => 'К какому сроку нужно сделать. За день до срока ответственный получит напоминание.',
             'hilfe_teilschritte' => 'Небольшой чек-лист, один шаг в строке. Галочки — лишь напоминание: они ничего не запускают, даже голосование.',
             'hilfe_unterlagen' => 'Ссылки на документы, по одной в строке в виде «Название | Адрес». Файлы лучше загружать напрямую — тогда все сразу увидят их в карточке.',
+            'hilfe_auswerten' => 'Здесь руководство фиксирует результат раунда.
+Зафиксировать как принятое — карточка переходит в «Готово». При консенте и большинстве эта кнопка появляется, только если результат это позволяет.
+Зафиксировать как отклонённое — карточка тоже переходит в «Готово».
+Вернуть на доработку — обратно в «В работе», предложение можно улучшить.
+При фиксации результата все проголосовавшие получают сообщение.',
+            'hilfe_auswahl_sammeln' => 'Пока карточка находится в «Открыто» или «В работе», любой участник круга может добавлять варианты изображений. Они получают буквы A, B, C … Для голосования нужен хотя бы один вариант.',
+            'hilfe_auswahl_abstimmen' => 'Под каждым вариантом вы выбираете:
+Я согласен — вариант вам нравится.
+Согласие с оговорками — подходит, но что-то бросается в глаза (коротко напишите).
+Серьёзное возражение — вариант вам совсем не подходит (коротко обоснуйте).
+Не обязательно высказываться о каждом варианте, а голос можно менять до конца раунда.',
+            'hilfe_auswahl_auswerten' => 'Выбрать можно только вариант без серьёзного возражения и хотя бы с одним согласием. Побеждает вариант с наибольшим числом согласий, при равенстве выбирает руководство.
+«Выбрать вариант …» завершает карточку, и все участники получают сообщение.
+Если ни один не подходит, продолжайте через «Назад к сбору».',
         ],
         'fr' => [
             'hilfe_label' => 'Aide',
@@ -228,6 +284,20 @@ Un doute ? Choisissez « Avis simple ». Vous pourrez le changer plus tard.',
             'hilfe_frist' => 'Date limite. La veille, la personne responsable reçoit un rappel.',
             'hilfe_teilschritte' => 'Une petite liste de contrôle, une étape par ligne. Les coches ne sont qu’un aide-mémoire – elles ne déclenchent rien, pas même un vote.',
             'hilfe_unterlagen' => 'Liens vers des documents, un lien par ligne sous la forme « Titre | Adresse ». Mieux vaut téléverser les fichiers directement : tout le monde les voit alors tout de suite dans la carte.',
+            'hilfe_auswerten' => 'Ici, en tant que direction, vous consignez le résultat du tour.
+Consigner comme acceptée – la carte passe dans « Terminé ». Avec le consentement et la majorité, ce bouton n’apparaît que si le résultat le permet.
+Consigner comme rejetée – la carte passe aussi dans « Terminé ».
+Retour à la révision – retour dans « En cours » pour améliorer la proposition.
+Lors de la consignation, tous ceux qui ont voté reçoivent un message.',
+            'hilfe_auswahl_sammeln' => 'Tant que la carte est « Ouverte » ou « En cours », tout membre du cercle peut ajouter des propositions d’image. Elles reçoivent les lettres A, B, C … Un vote nécessite au moins une proposition.',
+            'hilfe_auswahl_abstimmen' => 'Sous chaque proposition, vous choisissez :
+Je suis d’accord – elle vous plaît.
+Accord avec réserves – ça va, mais quelque chose vous frappe (écrivez-le brièvement).
+Objection grave – elle ne convient pas du tout (motivez brièvement).
+Vous n’êtes pas obligé de vous prononcer sur chacune et pouvez changer votre vote jusqu’à la fin du tour.',
+            'hilfe_auswahl_auswerten' => 'Seule une proposition sans objection grave et avec au moins un accord peut être retenue. Celle qui a le plus d’accords l’emporte ; en cas d’égalité, la direction choisit.
+« Choisir la proposition … » termine la carte et tous les participants reçoivent un message.
+Si aucune ne convient, on continue avec « Retour à la collecte ».',
         ],
     ];
 }

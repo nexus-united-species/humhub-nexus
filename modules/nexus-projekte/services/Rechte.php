@@ -66,7 +66,7 @@ class Rechte
 
     /**
      * Eine hochgeladene Datei einer Kachel loeschen: wer sie hochgeladen hat sowie Verantwortliche und Leitung
-     * (Rueckmeldung eines Mitglieds, 26.10.2026). Bei Vorschlaegen nur, solange nicht abgestimmt wird (31.10.2026: falsche
+     * (Rueckmeldung eines Mitglieds, 26.10.2026). Bei Vorschlaegen nur, solange nicht abgestimmt wird (30.10.2026: falsche
      * Datei hochgeladen) -- waehrend der Abstimmung und danach gehoeren die Fassungen zur Entscheidung; dann hilft nur eine
      * neue Fassung. Nicht bei der Bild-Auswahl (eigene Entwuerfe) und nicht bei fertigen Kacheln.
      */

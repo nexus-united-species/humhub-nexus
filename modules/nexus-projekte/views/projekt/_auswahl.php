@@ -13,6 +13,7 @@ use humhub\helpers\Html;
 use humhub\modules\user\models\User;
 use nexus\modules\projekte\services\Auswahl;
 use nexus\modules\projekte\services\Dateien;
+use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
 
@@ -95,7 +96,7 @@ $karteHtml = function ($o, bool $gross) use ($buchstaben, $stimmen, $darfAbstimm
 };
 ?>
 <div class="nx-pj-auswahl">
-    <div class="nx-pj-label"><i class="fa fa-picture-o"></i> <?= Html::encode(Texte::t('auswahl')) ?>
+    <div class="nx-pj-label"><i class="fa fa-picture-o"></i> <?= Html::encode(Texte::t('auswahl')) ?><?= $karte->spalte === 'fertig' ? '' : Hilfe::info($abstimmung ? 'auswahl_abstimmen' : 'auswahl_sammeln') ?>
         <span class="nx-pj-leise" style="font-weight:normal">– <?= Html::encode(Texte::t($abstimmung ? 'auswahl_erklaerung_abstimmung' : 'auswahl_erklaerung')) ?></span>
     </div>
 
@@ -144,7 +145,7 @@ $karteHtml = function ($o, bool $gross) use ($buchstaben, $stimmen, $darfAbstimm
         <?php if (Rechte::darfAuswahlEntscheiden($karte, $ich)) : ?>
             <?php $auswertung = Auswahl::auswertung($karte, $optionen); ?>
             <div class="nx-pj-auswerten">
-                <div class="nx-pj-label"><?= Html::encode(Texte::t('runde_auswerten')) ?></div>
+                <div class="nx-pj-label"><?= Html::encode(Texte::t('runde_auswerten')) ?><?= Hilfe::info('auswahl_auswerten') ?></div>
                 <?php foreach ($optionen as $o) : ?>
                     <div class="nx-pj-leise<?= in_array((int)$o->id, $auswertung['waehlbar'], true) ? '' : ' nx-pj-durch' ?>">
                         <?= Html::encode($buchstaben[(int)$o->id] . ' „' . $o->titel . '“: ' . Auswahl::zahlenText($auswertung['zahlen'][(int)$o->id])) ?>

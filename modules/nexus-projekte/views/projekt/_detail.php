@@ -239,7 +239,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
             <?php if (Rechte::darfEntscheiden($karte, $ich)) : ?>
                 <?php $auswertung = Entscheidung::auswertung($karte); ?>
                 <div class="nx-pj-auswerten">
-                    <div class="nx-pj-label"><?= Html::encode(Texte::t('runde_auswerten')) ?></div>
+                    <div class="nx-pj-label"><?= Html::encode(Texte::t('runde_auswerten')) ?><?= Hilfe::info('auswerten') ?></div>
                     <div class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('stand_jetzt'), Texte::t('ergebnis_' . $auswertung['ergebnis']) . ' – ' . $auswertung['text'])) ?></div>
                     <?php if ($auswertung['ergebnis'] !== 'angenommen' && $regel === 'konsent') : ?>
                         <div class="nx-pj-leise nx-pj-gelb"><?= Html::encode(Texte::t('einwand_blockiert')) ?></div>
