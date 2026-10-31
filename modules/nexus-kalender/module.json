@@ -1,0 +1,8 @@
+{
+    "id": "nexus-kalender",
+    "name": "N.E.X.U.S. Kalender",
+    "description": "Zeigt einen fertig gestalteten Kalender zum Umblaettern (eine HTML-Datei) fuer alle angemeldeten Mitglieder, mit Menuepunkt in ausgewaehlten Kreisen und Teilen in andere Kreise.",
+    "keywords": ["nexus", "kalender"],
+    "version": "1.0.0",
+    "humhub": { "minVersion": "1.18" }
+}
