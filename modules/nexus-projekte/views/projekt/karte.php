@@ -68,7 +68,7 @@ $this->title = Texte::t($neu ? 'neue_karte' : 'karte_bearbeiten');
                     <div class="nx-pj-ganz"><label for="nx-pj-dateien"><?= Html::encode(Texte::t('dateien_anhaengen')) ?></label>
                         <?php if (\nexus\modules\projekte\services\Dateien::hochladbar($kreis)) : ?>
                             <input id="nx-pj-dateien" class="form-control" type="file" name="dateien[]" multiple>
-                            <span class="nx-pj-leise"><?= Html::encode(Texte::t('dateien_anhaengen_hilfe')) ?></span>
+                            <span class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('dateien_anhaengen_hilfe'), \nexus\modules\projekte\services\Dateien::maxMb())) ?></span>
                         <?php else : ?>
                             <span class="nx-pj-leise"><?= Html::encode(Texte::t('dateien_aus')) ?></span>
                         <?php endif; ?>
