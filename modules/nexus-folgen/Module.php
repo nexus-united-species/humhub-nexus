@@ -26,11 +26,14 @@ class Module extends \humhub\components\Module
 {
     /*
      * Einstellungen / settings: protected/config/common.php
-     *   'modules' => ['nexus-folgen' => ['kreise' => [5, 6, 7]]]   // Space-IDs
+     *   'modules' => ['nexus-folgen' => ['kreise' => [5, 6, 7], 'personen' => [1]]]   // Space-IDs, Konto-IDs
      */
 
     /** @var int[] Space-IDs, denen neue Konten folgen */
     public $kreise = [];
+
+    /** @var int[] Konten, deren Profil neue Konten folgen */
+    public $personen = [];
 
     /** @var int[] Konten, die nie automatisch folgen (z. B. Bot-Konten) */
     public $ausnahmen = [];
@@ -78,6 +81,30 @@ class Module extends \humhub\components\Module
             }
             $folgt = Follow::find()->where(['user_id' => $mensch->id, 'object_model' => Space::class, 'object_id' => $id])->exists();
             if (!$folgt && ($probe || $kreis->follow($mensch->id, false))) {
+                $neu++;
+            }
+        }
+        return $neu + $this->personenFolgen($mensch, $probe);
+    }
+
+    /**
+     * Profilen folgen, still: follow(.., false) erzeugt bei HumHub weder Glocke noch E-Mail noch Aktivitaet.
+     *
+     * @return int Anzahl neu angelegter Folgen
+     */
+    public function personenFolgen(User $mensch, bool $probe = false): int
+    {
+        if (in_array((int)$mensch->id, array_map('intval', (array)$this->ausnahmen), true)) {
+            return 0;
+        }
+        $neu = 0;
+        foreach (array_map('intval', (array)$this->personen) as $id) {
+            $person = User::findOne(['id' => $id, 'status' => User::STATUS_ENABLED]);
+            if ($person === null || $id === (int)$mensch->id) {
+                continue;
+            }
+            $folgt = Follow::find()->where(['user_id' => $mensch->id, 'object_model' => User::class, 'object_id' => $id])->exists();
+            if (!$folgt && ($probe || $person->follow($mensch->id, false))) {
                 $neu++;
             }
         }
