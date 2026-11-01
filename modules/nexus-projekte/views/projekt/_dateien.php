@@ -45,7 +45,20 @@ $loeschen = function ($d, string $anzeige) use ($url, $darfLoeschen, $kompakt): 
 };
 $groesse = static fn(int $b): string => Yii::$app->formatter->asShortSize($b, 1);
 
-$liste = function (array $dateien) use ($kompakt, $loeschen, $groesse, $lesen): string {
+$symbol = static fn(string $name): string => match (strtolower(pathinfo($name, PATHINFO_EXTENSION))) {
+    'pdf' => 'fa-file-pdf-o',
+    'doc', 'docx', 'odt', 'rtf' => 'fa-file-word-o',
+    'xls', 'xlsx', 'ods', 'csv' => 'fa-file-excel-o',
+    'ppt', 'pptx', 'odp' => 'fa-file-powerpoint-o',
+    'zip', 'rar', '7z', 'gz' => 'fa-file-archive-o',
+    'mp3', 'wav', 'ogg', 'm4a' => 'fa-file-audio-o',
+    'mp4', 'mov', 'webm', 'avi' => 'fa-file-video-o',
+    'md', 'markdown', 'txt' => 'fa-file-text-o',
+    'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg' => 'fa-file-image-o',
+    default => 'fa-file-o',
+};
+
+$liste = function (array $dateien) use ($kompakt, $loeschen, $groesse, $lesen, $symbol): string {
     $bilder = $andere = [];
     foreach ($dateien as $d) {
         $info = $d->info();
@@ -62,10 +75,13 @@ $liste = function (array $dateien) use ($kompakt, $loeschen, $groesse, $lesen): 
                 . ' <span class="nx-pj-leise">' . Html::encode($groesse($info['groesse'])) . '</span></figcaption>'
                 . $loeschen($d, $info['anzeige']) . '</figure>';
         } else {
-            $andere[] = '<li><a href="' . Html::encode($info['url']) . '" target="_blank" rel="noopener"><i class="fa fa-file-o"></i> '
-                . Html::encode($info['anzeige']) . '</a> <span class="nx-pj-leise">(' . Html::encode($groesse($info['groesse'])) . ')</span> '
-                . ($info['lesbar'] && $lesen !== null ? '<a class="btn btn-xs btn-light" href="' . Html::encode($lesen($d)) . '"><i class="fa fa-book"></i> ' . Html::encode(Texte::t('datei_lesen')) . '</a> ' : '')
-                . $loeschen($d, $info['anzeige']) . '</li>';
+            // Der Vorschau-Link von nexus-markdown-preview setzt sich per Skript direkt hinter den Namen
+            $andere[] = '<li class="nx-pj-dk"><i class="fa ' . $symbol($info['anzeige']) . ' nx-pj-dk-symbol" aria-hidden="true"></i>'
+                . '<div class="nx-pj-dk-text"><a class="nx-pj-dk-name" href="' . Html::encode($info['url']) . '" target="_blank" rel="noopener">'
+                . Html::encode($info['anzeige']) . '</a><div class="nx-pj-leise">' . Html::encode($groesse($info['groesse'])) . '</div></div>'
+                . '<div class="nx-pj-dk-knoepfe">'
+                . ($info['lesbar'] && $lesen !== null ? '<a class="btn btn-sm btn-primary" href="' . Html::encode($lesen($d)) . '"><i class="fa fa-book"></i> ' . Html::encode(Texte::t('datei_lesen')) . '</a> ' : '')
+                . $loeschen($d, $info['anzeige']) . '</div></li>';
         }
     }
     return ($bilder !== [] ? '<div class="nx-pj-galerie">' . implode('', $bilder) . '</div>' : '')

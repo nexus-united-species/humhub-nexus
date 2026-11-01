@@ -99,7 +99,9 @@ $farbe = ['angenommen' => 'nx-pj-gruen', 'abgelehnt' => 'nx-pj-rot', 'zurueckgez
     <?php endif; ?>
 
     <?php if ($fassungen !== []) : ?>
-        <div class="nx-pj-label" style="margin-top:.6rem"><?= Html::encode(Texte::t('dateien')) ?></div>
-        <?= $this->render('_dateien', ['fassungen' => $fassungen, 'karte' => $karte, 'ich' => $ich, 'url' => fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/projekt/' . $aktion, ['k' => $karte->id] + $p), 'lesen' => fn($d) => $kreis->createUrl('/nexus-projekte/projekt/datei-lesen', ['k' => $karte->id, 'd' => $d->id])]) ?>
+        <div class="nx-pj-entwuerfe">
+            <div class="nx-pj-label"><i class="fa fa-paperclip"></i> <?= Html::encode(Texte::t('dateien')) ?></div>
+            <?= $this->render('_dateien', ['fassungen' => $fassungen, 'karte' => $karte, 'ich' => $ich, 'url' => fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/projekt/' . $aktion, ['k' => $karte->id] + $p), 'lesen' => fn($d) => $kreis->createUrl('/nexus-projekte/projekt/datei-lesen', ['k' => $karte->id, 'd' => $d->id])]) ?>
+        </div>
     <?php endif; ?>
 </div>

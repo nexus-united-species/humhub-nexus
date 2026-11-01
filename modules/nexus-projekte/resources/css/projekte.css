@@ -103,11 +103,12 @@
 .nx-pj .btn-default .fa { color: inherit; }
 
 /* Entwuerfe & Bilder in der Kachel -- groesser als bei Vorschlaegen, damit man beim Abstimmen etwas erkennt */
-.nx-pj .nx-pj-entwuerfe { margin-top: .8rem; padding: .6rem .7rem; border: 1px dashed var(--nx-pj-rand); border-radius: 8px; }
+.nx-pj .nx-pj-entwuerfe { margin-top: 1rem; padding: .85rem 1rem; background: var(--nx-pj-flaeche); border: 1px solid var(--nx-pj-rand); border-left: 4px solid var(--bs-primary); border-radius: 8px; }
+.nx-pj .nx-pj-entwuerfe > .nx-pj-label { font-size: 1.1rem; font-weight: 600; margin-bottom: .4rem; }
 .nx-pj .nx-pj-entwuerfe .nx-pj-bild { max-width: 320px; }
 .nx-pj .nx-pj-entwuerfe .nx-pj-bild img { max-height: 260px; }
 /* Dateien einer Kachel: Vorschaubilder im Raster, uebrige Dateien als Liste, Papierkorb an jeder Datei */
-.nx-pj .nx-pj-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .5rem; margin: .4rem 0 .6rem; }
+.nx-pj .nx-pj-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .6rem; margin: .4rem 0 .6rem; }
 .nx-pj .nx-pj-vorschau { position: relative; margin: 0; border: 1px solid var(--nx-pj-rand); border-radius: 6px; overflow: hidden; background: var(--nx-pj-flaeche); }
 .nx-pj .nx-pj-vorschau a { display: block; }
 .nx-pj .nx-pj-vorschau img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; max-height: none; }
@@ -115,6 +116,13 @@
 .nx-pj .nx-pj-dname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nx-pj .nx-pj-dateiliste { list-style: none; margin: .3rem 0 .6rem; padding: 0; }
 .nx-pj .nx-pj-dateiliste li { padding: .15rem 0; font-size: .9rem; }
+/* Jede Datei als eigene Karte: gross genug, dass man sie beim Lesen eines Vorschlags nicht uebersieht */
+.nx-pj .nx-pj-dateiliste li.nx-pj-dk { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; padding: .7rem .9rem; margin-bottom: .5rem; background: var(--bs-body-bg, #fff); border: 1px solid var(--nx-pj-rand); border-radius: 8px; font-size: 1rem; }
+.nx-pj .nx-pj-dk-symbol { font-size: 2rem; color: var(--bs-primary); flex: 0 0 auto; }
+.nx-pj .nx-pj-dk-text { flex: 1 1 14rem; min-width: 0; overflow-wrap: anywhere; }
+.nx-pj .nx-pj-dk-name { font-size: 1.05rem; font-weight: 600; }
+.nx-pj .nx-pj-dk-knoepfe { display: flex; align-items: center; gap: .4rem; flex: 0 0 auto; }
+.nx-pj .nx-pj-dk .nx-pj-x { font-size: 1.1rem; }
 .nx-pj .nx-pj-fassungskopf { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; }
 .nx-pj .nx-pj-datei-loeschen { display: inline; margin: 0; }
 .nx-pj .nx-pj-x { background: none; border: 0; padding: .1rem .35rem; color: var(--nx-pj-leise); cursor: pointer; border-radius: 4px; }
