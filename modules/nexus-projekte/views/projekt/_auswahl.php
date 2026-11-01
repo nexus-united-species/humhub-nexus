@@ -52,7 +52,7 @@ $karteHtml = function ($o, bool $gross) use ($buchstaben, $stimmen, $darfAbstimm
                 <?php if ($nachArt[$art] === []) { continue; } ?>
                 <div class="<?= $farbe ?>"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>: <?= Html::encode(implode(', ', array_map($name, $nachArt[$art]))) ?></div>
                 <?php foreach ($nachArt[$art] as $s) : ?>
-                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote><?php endif; ?>
+                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote><?php endif; ?>
                 <?php endforeach; ?>
             <?php endforeach; ?>
         <?php endif; ?>

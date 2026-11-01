@@ -169,7 +169,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                         <div class="<?= $farbe ?>" style="margin-top:.25rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
                             <?= Html::encode(implode(', ', array_map($name, $nachArtFrueher[$art]))) ?></div>
                         <?php foreach ($nachArtFrueher[$art] as $s) : ?>
-                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote>
+                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote>
                                 <?= $this->render('_antworten', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich, 's' => $s]) ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
@@ -178,7 +178,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                     <?php foreach ($nachArtFrueher as $art => $stimmenDerArt) : ?>
                         <?php if (isset($optionen[$art])) { continue; } ?>
                         <?php foreach ($stimmenDerArt as $s) : ?>
-                            <div style="margin-top:.25rem"><?= Html::encode($name($s)) ?><?= $s->text ? ': ' . Html::encode((string)$s->text) : '' ?></div>
+                            <div style="margin-top:.25rem"><?= Html::encode($name($s)) ?><?= $s->text ? ': ' . Html::encode((string)$s->text) . '<span class="nx-pj-leise"> · ' . Html::encode(Texte::zeit($s->created_at)) . '</span>' : '' ?></div>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                 </div>
@@ -200,7 +200,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 <div class="<?= $farbe ?>" style="margin-top:.3rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
                     <?= Html::encode($nachArt[$art] === [] ? '–' : implode(', ', array_map($name, $nachArt[$art]))) ?></div>
                 <?php foreach ($nachArt[$art] as $s) : ?>
-                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?></blockquote>
+                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote>
                         <?= $this->render('_antworten', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich, 's' => $s]) ?>
                     <?php endif; ?>
                 <?php endforeach; ?>

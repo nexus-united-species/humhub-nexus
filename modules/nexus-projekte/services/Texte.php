@@ -446,4 +446,10 @@ class Texte
     {
         return $datum ? Yii::$app->formatter->asDate($datum, $format) : '';
     }
+
+    /** Wann etwas geschrieben wurde, in der Zeitzone der lesenden Person */
+    public static function zeit(?string $datum): string
+    {
+        return self::datum($datum, 'php:d.m.Y H:i');
+    }
 }

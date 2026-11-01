@@ -22,7 +22,7 @@ $antworten = $s->antworten;
             <div class="nx-pj-antwort">
                 <strong><?= Html::encode($a->autor ? $a->autor->displayName : '?') ?>:</strong>
                 <?= Html::encode($a->text) ?>
-                <span class="nx-pj-leise"> · <?= Html::encode(Texte::datum($a->created_at, 'php:d.m. H:i')) ?></span>
+                <span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($a->created_at)) ?></span>
             </div>
         <?php endforeach; ?>
     </div>
