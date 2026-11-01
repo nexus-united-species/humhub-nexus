@@ -12,12 +12,14 @@ HumHub's dashboard only shows content from spaces you are a member of or follow.
 - Members of a space are skipped; existing follow settings are kept.
 - Everyone can click "Unfollow" in a space at any time.
 - `php yii folgen/alle [--probe]` applies it once to existing accounts (note: this also re-follows people who unfollowed in the meantime).
+- Optionally, new accounts also follow selected profiles (`personen`), silently: no bell, e-mail or activity. `php yii folgen/personen [--probe]` applies only this part to existing accounts.
 
 **Settings** (`protected/config/common.php`):
 
 ```php
 'modules' => ['nexus-folgen' => [
     'kreise' => [5, 6, 7],   // space IDs
+    'personen' => [1],       // optional: user IDs whose profile new accounts follow
     'ausnahmen' => [29],     // optional: user IDs that never follow automatically (e.g. bot accounts)
 ]],
 ```
@@ -26,4 +28,4 @@ Enable the module **before** adding the settings entry. **Requirements:** HumHub
 
 ## Deutsch
 
-**Neue Konten folgen automatisch ausgewählten Kreisen.** Die Startseite zeigt bei HumHub nur Beiträge aus Kreisen, in denen man Mitglied ist oder denen man folgt. Folgen bedeutet: Beiträge auf der Startseite sehen, schreiben und kommentieren erst als Mitglied. Ohne Benachrichtigungen; Mitglieder werden übersprungen; jeder kann jederzeit „Nicht mehr folgen“ klicken. Einmalig für bestehende Konten: `php yii folgen/alle` (vorher mit `--probe` zählen). Einstellungen siehe oben (`kreise`, `ausnahmen`).
+**Neue Konten folgen automatisch ausgewählten Kreisen.** Die Startseite zeigt bei HumHub nur Beiträge aus Kreisen, in denen man Mitglied ist oder denen man folgt. Folgen bedeutet: Beiträge auf der Startseite sehen, schreiben und kommentieren erst als Mitglied. Ohne Benachrichtigungen; Mitglieder werden übersprungen; jeder kann jederzeit „Nicht mehr folgen“ klicken. Einmalig für bestehende Konten: `php yii folgen/alle` (vorher mit `--probe` zählen). Optional auch Profilen folgen (`personen`, still, ohne Glocke, E-Mail und Aktivität; bestehende Konten: `php yii folgen/personen`). Einstellungen siehe oben (`kreise`, `personen`, `ausnahmen`).

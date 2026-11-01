@@ -12,6 +12,7 @@ use yii\console\ExitCode;
  *
  *   php yii folgen/alle --probe   nur zaehlen
  *   php yii folgen/alle           ausfuehren
+ *   php yii folgen/personen [--probe]   nur die eingestellten Profile, Kreise bleiben unberuehrt
  *
  * Achtung: Wer zwischenzeitlich "Nicht mehr folgen" geklickt hat, folgt danach wieder.
  */
@@ -22,7 +23,7 @@ class FolgenController extends Controller
 
     public function options($actionID)
     {
-        return array_merge(parent::options($actionID), $actionID === 'alle' ? ['probe'] : []);
+        return array_merge(parent::options($actionID), in_array($actionID, ['alle', 'personen'], true) ? ['probe'] : []);
     }
 
     public function actionAlle(): int
@@ -38,6 +39,24 @@ class FolgenController extends Controller
         foreach (User::find()->where(['status' => User::STATUS_ENABLED])->each() as $mensch) {
             $konten++;
             $neu += $modul->folgenLassen($mensch, $probe);
+        }
+        $this->stdout(($probe ? 'PROBE: ' : '') . "$konten Konten, $neu neue Folgen\n");
+        return ExitCode::OK;
+    }
+
+    public function actionPersonen(): int
+    {
+        $modul = Module::instanz();
+        if ($modul === null || $modul->personen === []) {
+            $this->stderr("Modul nexus-folgen ist nicht aktiv oder 'personen' ist leer.\n");
+            return ExitCode::CONFIG;
+        }
+        $probe = $this->probe !== null && $this->probe !== false && $this->probe !== '0';
+        $neu = 0;
+        $konten = 0;
+        foreach (User::find()->where(['status' => User::STATUS_ENABLED])->each() as $mensch) {
+            $konten++;
+            $neu += $modul->personenFolgen($mensch, $probe);
         }
         $this->stdout(($probe ? 'PROBE: ' : '') . "$konten Konten, $neu neue Folgen\n");
         return ExitCode::OK;
