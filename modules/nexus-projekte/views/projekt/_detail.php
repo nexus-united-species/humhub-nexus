@@ -188,7 +188,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 
     <?php if ($karte->spalte === 'abstimmung' && !$istAuswahl) : ?>
         <div class="nx-pj-abstimmung">
-            <div><?= Hilfe::info('abstimmung_' . $regel, 'hilfe_abstimmung_frage') ?></div>
+            <?php if (!$karte->projekt->istStillgelegt()) : ?><div><?= Hilfe::info('abstimmung_' . $regel, 'hilfe_abstimmung_frage') ?></div><?php endif; ?>
             <?php if ($karte->abstimmung_bis) : ?>
                 <div class="nx-pj-leise"><?= Html::encode(Texte::t('rueckmeldung_bis')) ?> <?= Html::encode(Texte::datum($karte->abstimmung_bis, 'php:D d.m.Y')) ?></div>
             <?php endif; ?>

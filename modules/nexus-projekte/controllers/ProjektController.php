@@ -75,7 +75,8 @@ class ProjektController extends ContentContainerController
         return $this->render('index', [
             'kreis' => $kreis,
             'aktive' => array_values(array_filter($projekte, fn($p) => $p->status === 'aktiv')),
-            'abgeschlossene' => array_values(array_filter($projekte, fn($p) => $p->status !== 'aktiv')),
+            'abgeschlossene' => array_values(array_filter($projekte, fn($p) => $p->status === 'abgeschlossen')),
+            'stillgelegte' => array_values(array_filter($projekte, fn($p) => $p->istStillgelegt())),
             'zahlen' => $zahlen,
             'darfAnlegen' => Rechte::darfProjektAnlegen($kreis, $ich),
         ]);
@@ -120,10 +121,21 @@ class ProjektController extends ContentContainerController
         $projekt = $p > 0 ? $this->projekt($p) : new Projekt(['space_id' => $kreis->id, 'created_by' => $this->ich()->id]);
         $this->pruefe($projekt->isNewRecord ? Rechte::darfProjektAnlegen($kreis, $this->ich()) : Rechte::darfLeiten($projekt, $this->ich()));
         $r = Yii::$app->request;
+        $status = in_array($r->post('status'), Projekt::STATUS, true) ? $r->post('status') : 'aktiv';
+        $nachfolger = $this->nachfolgerAusFormular($projekt);
+        // Stillgelegt: nur Stand und Nachfolger aendern sich, sonst nichts -- das Formular zeigt auch nur diese Felder
+        if ($projekt->istStillgelegt()) {
+            $projekt->status = $status;
+            $projekt->nachfolger_id = $status === 'stillgelegt' ? $nachfolger : null;
+            $projekt->save(false);
+            Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert'));
+            return $this->redirect($projekt->url());
+        }
         $projekt->titel = trim((string)$r->post('titel'));
         $projekt->ziel = trim((string)$r->post('ziel')) ?: null;
         $projekt->frist = trim((string)$r->post('frist')) ?: null;
-        $projekt->status = $r->post('status') === 'abgeschlossen' ? 'abgeschlossen' : 'aktiv';
+        $projekt->status = $status;
+        $projekt->nachfolger_id = $status === 'stillgelegt' ? $nachfolger : null;
         $projekt->regel = Entscheidung::regel((string)$r->post('regel'));
         $projekt->frist_tage = (int)$r->post('frist_tage', 14);
         $projekt->weitergabe = trim((string)$r->post('weitergabe')) ?: null;
@@ -135,6 +147,15 @@ class ProjektController extends ContentContainerController
         $projekt->setzeLeitung($leitung !== [] ? $leitung : [(int)$this->ich()->id]);
         Yii::$app->session->setFlash(self::FLASH, Texte::t('gespeichert'));
         return $this->redirect($projekt->url());
+    }
+
+    /** Nur ein anderes, laufendes Projekt desselben Kreises */
+    private function nachfolgerAusFormular(Projekt $projekt): ?int
+    {
+        $id = (int)Yii::$app->request->post('nachfolger');
+        $treffer = $id > 0 && $id !== (int)$projekt->id
+            && Projekt::find()->where(['id' => $id, 'space_id' => $this->kreis()->id, 'status' => 'aktiv'])->exists();
+        return $treffer ? $id : null;
     }
 
     public function actionLoeschen(int $p)

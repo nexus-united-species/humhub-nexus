@@ -17,6 +17,8 @@ use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Texte;
 
 $neu = $projekt->isNewRecord;
+$still = !$neu && $projekt->istStillgelegt();
+$andere = $neu ? [] : Projekt::find()->where(['space_id' => $kreis->id, 'status' => 'aktiv'])->andWhere(['<>', 'id', $projekt->id])->orderBy('titel')->all();
 $zurueck = $neu ? $kreis->createUrl('/nexus-projekte/projekt/index') : $projekt->url();
 $this->title = Texte::t($neu ? 'projekt_anlegen' : 'projekt_bearbeiten');
 ?>
@@ -27,6 +29,9 @@ $this->title = Texte::t($neu ? 'projekt_anlegen' : 'projekt_bearbeiten');
 
         <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/speichern', $neu ? [] : ['p' => $projekt->id]), 'post') ?>
             <div class="nx-pj-felder">
+                <?php if ($still) : ?>
+                    <div class="nx-pj-ganz nx-pj-still-hinweis"><i class="fa fa-lock"></i> <strong><?= Html::encode($projekt->titel) ?></strong><br><?= Html::encode(Texte::t('stillgelegt_formular')) ?></div>
+                <?php else : ?>
                 <div class="nx-pj-ganz"><label for="nx-pj-titel"><?= Html::encode(Texte::t('titel')) ?></label>
                     <input id="nx-pj-titel" class="form-control" name="titel" value="<?= Html::encode($projekt->titel) ?>" required maxlength="190"></div>
                 <div class="nx-pj-ganz"><label for="nx-pj-ziel"><?= Html::encode(Texte::t('ziel')) ?></label><?= Hilfe::info('ziel') ?>
@@ -52,12 +57,22 @@ $this->title = Texte::t($neu ? 'projekt_anlegen' : 'projekt_bearbeiten');
                 <div><label for="nx-pj-weitergabe"><?= Html::encode(Texte::t('weitergabe')) ?></label><?= Hilfe::info('weitergabe') ?>
                     <input id="nx-pj-weitergabe" class="form-control" name="weitergabe" maxlength="100" value="<?= Html::encode((string)$projekt->weitergabe) ?>">
                     <span class="nx-pj-leise"><?= Html::encode(Texte::t('weitergabe_hilfe')) ?></span></div>
+                <?php endif; ?>
                 <?php if (!$neu) : ?>
                     <div><label for="nx-pj-status"><?= Html::encode(Texte::t('status')) ?></label><?= Hilfe::info('status') ?>
                         <select id="nx-pj-status" class="form-control" name="status">
                             <option value="aktiv" <?= $projekt->status === 'aktiv' ? 'selected' : '' ?>><?= Html::encode(Texte::t('aktiv')) ?></option>
                             <option value="abgeschlossen" <?= $projekt->status === 'abgeschlossen' ? 'selected' : '' ?>><?= Html::encode(Texte::t('abgeschlossen')) ?></option>
+                            <option value="stillgelegt" <?= $still ? 'selected' : '' ?>><?= Html::encode(Texte::t('stillgelegt')) ?></option>
                         </select></div>
+                    <div><label for="nx-pj-nachfolger"><?= Html::encode(Texte::t('nachfolger')) ?></label>
+                        <select id="nx-pj-nachfolger" class="form-control" name="nachfolger">
+                            <option value="0"><?= Html::encode(Texte::t('nachfolger_keins')) ?></option>
+                            <?php foreach ($andere as $a) : ?>
+                                <option value="<?= (int)$a->id ?>" <?= (int)$projekt->nachfolger_id === (int)$a->id ? 'selected' : '' ?>><?= Html::encode($a->titel) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="nx-pj-leise"><?= Html::encode(Texte::t('nachfolger_hilfe')) ?></span></div>
                 <?php endif; ?>
             </div>
             <div class="nx-pj-knoepfe">
@@ -66,7 +81,7 @@ $this->title = Texte::t($neu ? 'projekt_anlegen' : 'projekt_bearbeiten');
             </div>
         <?= Html::endForm() ?>
 
-        <?php if (!$neu && Rechte::istKreisAdmin($kreis, Yii::$app->user->getIdentity())) : ?>
+        <?php if (!$neu && !$still && Rechte::istKreisAdmin($kreis, Yii::$app->user->getIdentity())) : ?>
             <hr>
             <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/loeschen', ['p' => $projekt->id]), 'post', ['data-nx-pj-frage' => Texte::t('loeschen_frage')]) ?>
                 <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> <?= Html::encode(Texte::t('loeschen')) ?></button>

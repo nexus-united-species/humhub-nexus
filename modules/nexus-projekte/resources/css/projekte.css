@@ -201,3 +201,9 @@
     background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #212529); box-shadow: 0 4px 16px rgba(0, 0, 0, .18); font-size: .88rem; font-weight: normal; line-height: 1.45; text-align: left; white-space: normal; }
 .nx-pj .nx-pj-info:hover .nx-pj-info-text, .nx-pj .nx-pj-info.offen .nx-pj-info-text { display: block; }
 .nx-pj .nx-pj-tafelhilfe { margin: 0 0 .4rem; min-height: 1.4rem; }
+
+/* Stillgelegtes Projekt: nur noch lesen -- auf den ersten Blick erkennbar */
+.nx-pj.nx-pj-stillgelegt { border: 3px solid #c0392b; }
+.nx-pj .nx-pj-still-hinweis { background: rgba(192, 57, 43, .1); border: 1px solid #c0392b; border-radius: 8px; padding: .6rem .8rem; margin: .4rem 0 .8rem; }
+.nx-pj .nx-pj-still-hinweis .fa-lock { color: #c0392b; }
+.nx-pj .nx-pj-still-liste li { border-left: 3px solid #c0392b; padding-left: .5rem; margin-bottom: .25rem; }

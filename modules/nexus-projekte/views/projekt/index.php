@@ -6,6 +6,7 @@
  * @var $kreis humhub\modules\space\models\Space
  * @var $aktive nexus\modules\projekte\models\Projekt[]
  * @var $abgeschlossene nexus\modules\projekte\models\Projekt[]
+ * @var $stillgelegte nexus\modules\projekte\models\Projekt[]
  * @var $zahlen array<int, array{gesamt: int, fertig: int, warten: int, ueberfaellig: int}>
  * @var $darfAnlegen bool
  */
@@ -54,6 +55,16 @@ $this->title = Texte::t('projekte');
             <h2 style="font-size:1.05rem"><?= Html::encode(Texte::t('abgeschlossene')) ?></h2>
             <ul class="nx-pj-liste">
                 <?php foreach ($abgeschlossene as $p) : ?>
+                    <li><a href="<?= Html::encode($p->url()) ?>"><?= Html::encode($p->titel) ?></a>
+                        <span class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('fertig_von'), $zahlen[$p->id]['fertig'], $zahlen[$p->id]['gesamt'])) ?></span></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+
+        <?php if ($stillgelegte !== []) : ?>
+            <h2 style="font-size:1.05rem;margin-top:1rem"><i class="fa fa-lock"></i> <?= Html::encode(Texte::t('stillgelegte')) ?></h2>
+            <ul class="nx-pj-liste nx-pj-still-liste">
+                <?php foreach ($stillgelegte as $p) : ?>
                     <li><a href="<?= Html::encode($p->url()) ?>"><?= Html::encode($p->titel) ?></a>
                         <span class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('fertig_von'), $zahlen[$p->id]['fertig'], $zahlen[$p->id]['gesamt'])) ?></span></li>
                 <?php endforeach; ?>

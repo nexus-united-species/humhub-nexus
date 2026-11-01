@@ -23,18 +23,29 @@ use nexus\modules\projekte\services\Texte;
 $fertig = count(array_filter($karten, fn($k) => $k->spalte === 'fertig'));
 $prozent = $karten === [] ? 0 : round(100 * $fertig / count($karten));
 $darfLeiten = Rechte::darfLeiten($projekt, $ich);
+$still = $projekt->istStillgelegt();
+$nachfolger = $still ? $projekt->nachfolger() : null;
 $istMitglied = Rechte::istMitglied($kreis, $ich);
 $machtMit = in_array((int)$ich->id, $projekt->mitmacherIds(), true);
 $hatVorschlaege = array_filter($karten, fn($k) => $k->istVorschlag()) !== [];
 $symbole = ['offen' => 'circle-o', 'arbeit' => 'pencil', 'abstimmung' => 'thumbs-o-up', 'fertig' => 'check-circle'];
 $this->title = $projekt->titel;
 ?>
-<div class="panel panel-default nx-pj">
+<div class="panel panel-default nx-pj<?= $still ? ' nx-pj-stillgelegt' : '' ?>">
     <div class="panel-body">
         <div class="nx-pj-leise"><a href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/index')) ?>"><i class="fa fa-columns"></i> <?= Html::encode(Texte::t('projekte')) ?></a></div>
+        <?php if ($still) : ?>
+            <div class="nx-pj-still-hinweis" role="status">
+                <i class="fa fa-lock"></i> <strong><?= Html::encode(Texte::t('stillgelegt_titel')) ?></strong>
+                <?= Html::encode(Texte::t('stillgelegt_hinweis')) ?>
+                <?php if ($nachfolger !== null) : ?>
+                    <div style="margin-top:.35rem"><?= Html::encode(Texte::t('stillgelegt_weiter')) ?> <a href="<?= Html::encode($nachfolger->url()) ?>"><strong><?= Html::encode($nachfolger->titel) ?></strong></a></div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
         <div class="nx-pj-kopf nx-pj-kopf-projekt">
             <div style="flex:1;min-width:220px">
-                <h1><?= Html::encode($projekt->titel) ?><?php if ($projekt->status !== 'aktiv') : ?> <span class="nx-pj-leise">(<?= Html::encode(Texte::t('abgeschlossen')) ?>)</span><?php endif; ?></h1>
+                <h1><?= Html::encode($projekt->titel) ?><?php if ($projekt->status !== 'aktiv') : ?> <span class="nx-pj-leise">(<?= Html::encode(Texte::t($projekt->status)) ?>)</span><?php endif; ?></h1>
                 <?php if ($projekt->ziel) : ?><div style="white-space:pre-wrap"><?= Html::encode($projekt->ziel) ?></div><?php endif; ?>
                 <div class="nx-pj-leise">
                     <?= Html::encode(Texte::t('leitung')) ?>: <?= Html::encode($projekt->leitungNamen()) ?>
@@ -46,7 +57,9 @@ $this->title = $projekt->titel;
                 <div class="nx-pj-balken"><span style="width:<?= (int)$prozent ?>%"></span></div>
                 <div class="nx-pj-knoepfe" style="margin-top:.4rem">
                     <?php if ($darfLeiten) : ?>
-                        <a class="btn btn-primary btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/karte', ['p' => $projekt->id])) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('neue_karte')) ?></a>
+                        <?php if (!$still) : ?>
+                            <a class="btn btn-primary btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/karte', ['p' => $projekt->id])) ?>"><i class="fa fa-plus"></i> <?= Html::encode(Texte::t('neue_karte')) ?></a>
+                        <?php endif; ?>
                         <a class="btn btn-default btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/projekt/formular', ['p' => $projekt->id])) ?>"><i class="fa fa-pencil"></i> <?= Html::encode(Texte::t('bearbeiten')) ?></a>
                     <?php endif; ?>
                     <?php /* Die Leitung legt Text-Kacheln ueber "Neue Kachel" an (gleiches Formular) -- der zweite Knopf waere doppelt */ ?>
@@ -56,7 +69,7 @@ $this->title = $projekt->titel;
                     <?php if ($hatVorschlaege) : ?>
                         <a class="btn btn-light btn-sm" href="<?= Html::encode($kreis->createUrl('/nexus-projekte/vorschlag/beschluesse', ['p' => $projekt->id])) ?>"><i class="fa fa-gavel"></i> <?= Html::encode(Texte::t('beschluesse')) ?></a>
                     <?php endif; ?>
-                    <?php if ($istMitglied && !$projekt->istLeitung((int)$ich->id)) : ?>
+                    <?php if (!$still && $istMitglied && !$projekt->istLeitung((int)$ich->id)) : ?>
                         <?= Html::beginForm($kreis->createUrl('/nexus-projekte/projekt/mitmachen', ['p' => $projekt->id]), 'post', ['title' => Texte::t('mitmacher_hinweis')]) ?>
                             <?= Html::hiddenInput('an', $machtMit ? '0' : '1') ?>
                             <button type="submit" class="btn btn-default btn-sm"><i class="fa fa-<?= $machtMit ? 'check' : 'hand-paper-o' ?>"></i> <?= Html::encode(Texte::t($machtMit ? 'nicht_mehr' : 'mitmachen')) ?></button>
@@ -68,7 +81,7 @@ $this->title = $projekt->titel;
 
         <?php if ($meldung) : ?><div class="nx-pj-meldung"><?= Html::encode($meldung) ?></div><?php endif; ?>
 
-        <div class="nx-pj-tafelhilfe"><?= Hilfe::info('tafel', 'hilfe_tafel_frage') ?></div>
+        <?php if (!$still) : ?><div class="nx-pj-tafelhilfe"><?= Hilfe::info('tafel', 'hilfe_tafel_frage') ?></div><?php endif; ?>
         <div class="nx-pj-tafel">
             <?php foreach (Karte::SPALTEN as $spalte) : ?>
                 <?php $inSpalte = array_filter($karten, fn($k) => $k->spalte === $spalte); ?>
@@ -81,7 +94,7 @@ $this->title = $projekt->titel;
                             <span class="nx-pj-meta">
                                 <?php if ($k->verantwortlich) : ?>
                                     <span><i class="fa fa-user"></i> <?= Html::encode($k->verantwortlich->displayName) ?></span>
-                                <?php elseif ($spalte !== 'fertig') : ?>
+                                <?php elseif ($spalte !== 'fertig' && !$still) : ?>
                                     <span class="nx-pj-blau"><i class="fa fa-hand-paper-o"></i> <?= Html::encode(Texte::t('wer_mag')) ?></span>
                                 <?php endif; ?>
                                 <?php $datum = $spalte === 'abstimmung' ? $k->abstimmung_bis : ($spalte !== 'fertig' ? $k->frist : null); ?>

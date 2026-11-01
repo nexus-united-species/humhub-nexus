@@ -42,11 +42,15 @@ class Rechte
     /** Verantwortliche duerfen ihre Kachel bearbeiten und verschieben -- nur "Fertig" setzt die Leitung */
     public static function darfKarteBearbeiten(Karte $karte, ?User $mensch): bool
     {
-        return $mensch !== null && ((int)$karte->verantwortlich_id === (int)$mensch->id || self::darfLeiten($karte->projekt, $mensch));
+        return $mensch !== null && !$karte->projekt->istStillgelegt()
+            && ((int)$karte->verantwortlich_id === (int)$mensch->id || self::darfLeiten($karte->projekt, $mensch));
     }
 
     public static function darfVerschieben(Karte $karte, string $ziel, ?User $mensch): bool
     {
+        if ($karte->projekt->istStillgelegt()) {
+            return false;
+        }
         // Vorschlag und Bild-Auswahl werden nicht einfach "fertig" geschoben, sondern entschieden
         // (Ergebnis wird festgehalten)
         if (($karte->istVorschlag() || $karte->istAuswahl()) && $ziel === 'fertig') {
@@ -61,7 +65,8 @@ class Rechte
     /** Teilschritte abhaken: wer an der Kachel beteiligt ist */
     public static function darfAbhaken(Karte $karte, ?User $mensch): bool
     {
-        return $mensch !== null && (self::darfKarteBearbeiten($karte, $mensch) || $karte->istHelfer((int)$mensch->id));
+        return $mensch !== null && !$karte->projekt->istStillgelegt()
+            && (self::darfKarteBearbeiten($karte, $mensch) || $karte->istHelfer((int)$mensch->id));
     }
 
     /**
@@ -72,7 +77,7 @@ class Rechte
      */
     public static function darfDateiLoeschen(Karte $karte, Datei $datei, ?User $mensch): bool
     {
-        return $mensch !== null && !$karte->istAuswahl() && $karte->spalte !== 'fertig'
+        return $mensch !== null && !$karte->projekt->istStillgelegt() && !$karte->istAuswahl() && $karte->spalte !== 'fertig'
             && !($karte->istVorschlag() && $karte->spalte === 'abstimmung')
             && ((int)$datei->created_by === (int)$mensch->id || self::darfKarteBearbeiten($karte, $mensch));
     }
@@ -85,13 +90,13 @@ class Rechte
 
     public static function darfAbstimmen(Karte $karte, ?User $mensch): bool
     {
-        return $karte->spalte === 'abstimmung' && self::istMitglied($karte->projekt->kreis, $mensch);
+        return $karte->spalte === 'abstimmung' && !$karte->projekt->istStillgelegt() && self::istMitglied($karte->projekt->kreis, $mensch);
     }
 
     /** Auf eine Rueckmeldung antworten: jedes Kreismitglied, in jeder Spalte (auch spaeter, in frueheren Runden) */
     public static function darfAntworten(Karte $karte, ?User $mensch): bool
     {
-        return self::istMitglied($karte->projekt->kreis, $mensch);
+        return !$karte->projekt->istStillgelegt() && self::istMitglied($karte->projekt->kreis, $mensch);
     }
 
     /** Vorschlaege bringt jedes Kreismitglied ein -- es wird damit verantwortlich fuer den eigenen Vorschlag */
@@ -109,7 +114,7 @@ class Rechte
     /** Runde auswerten und Ergebnis festhalten, Weitergabe und Umsetzung vermerken: die Leitung */
     public static function darfEntscheiden(Karte $karte, ?User $mensch): bool
     {
-        return $karte->istVorschlag() && self::darfLeiten($karte->projekt, $mensch);
+        return $karte->istVorschlag() && !$karte->projekt->istStillgelegt() && self::darfLeiten($karte->projekt, $mensch);
     }
 
     /** Bild-Auswahl: Entwuerfe einstellen darf jedes Kreismitglied, solange gesammelt wird */
@@ -122,14 +127,14 @@ class Rechte
     /** Eigenen Entwurf zuruecknehmen (die Leitung jeden) -- nur waehrend gesammelt wird */
     public static function darfEntwurfLoeschen(Karte $karte, ?int $vonId, ?User $mensch): bool
     {
-        return $mensch !== null && $karte->istAuswahl() && in_array($karte->spalte, ['offen', 'arbeit'], true)
+        return $mensch !== null && !$karte->projekt->istStillgelegt() && $karte->istAuswahl() && in_array($karte->spalte, ['offen', 'arbeit'], true)
             && ((int)$vonId === (int)$mensch->id || self::darfLeiten($karte->projekt, $mensch));
     }
 
     /** Ergebnis der Bild-Auswahl festhalten oder zurueck ins Sammeln: die Leitung */
     public static function darfAuswahlEntscheiden(Karte $karte, ?User $mensch): bool
     {
-        return $karte->istAuswahl() && $karte->spalte === 'abstimmung' && self::darfLeiten($karte->projekt, $mensch);
+        return $karte->istAuswahl() && $karte->spalte === 'abstimmung' && !$karte->projekt->istStillgelegt() && self::darfLeiten($karte->projekt, $mensch);
     }
 
     public static function darfZurueckziehen(Karte $karte, ?User $mensch): bool

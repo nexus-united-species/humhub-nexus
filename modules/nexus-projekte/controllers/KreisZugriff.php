@@ -17,6 +17,15 @@ use yii\web\NotFoundHttpException;
  */
 trait KreisZugriff
 {
+    /**
+     * Stillgelegte Projekte: nur diese Aktionen laufen noch -- alles andere lehnt projekt() ab, auch wenn eine Ansicht
+     * oder Rechte-Pruefung etwas uebersehen sollte. "projekt/speichern" aendert dort nur Stand und Nachfolger.
+     */
+    private static array $beiStillgelegt = [
+        'projekt/ansicht', 'projekt/datei-lesen', 'projekt/formular', 'projekt/speichern',
+        'vorschlag/vorlage', 'vorschlag/beschluesse',
+    ];
+
     protected function kreis(): Space
     {
         return $this->contentContainer;
@@ -41,6 +50,9 @@ trait KreisZugriff
             throw new NotFoundHttpException();
         }
         $projekt->populateRelation('kreis', $this->kreis());
+        if ($projekt->istStillgelegt() && !in_array($this->id . '/' . $this->action->id, self::$beiStillgelegt, true)) {
+            throw new ForbiddenHttpException(Texte::t('stillgelegt_gesperrt'));
+        }
         return $projekt;
     }
 

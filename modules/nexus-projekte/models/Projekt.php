@@ -13,7 +13,8 @@ use nexus\modules\projekte\services\Entscheidung;
  * @property string $titel
  * @property string|null $ziel
  * @property string|null $frist
- * @property string $status      aktiv | abgeschlossen
+ * @property string $status      aktiv | abgeschlossen | stillgelegt (nur noch lesen, siehe KreisZugriff::projekt)
+ * @property int|null $nachfolger_id  stillgelegt: hier geht es weiter
  * @property string $created_at
  * @property int|null $created_by
  * @property string $updated_at
@@ -26,7 +27,7 @@ use nexus\modules\projekte\services\Entscheidung;
  */
 class Projekt extends ActiveRecord
 {
-    public const STATUS = ['aktiv', 'abgeschlossen'];
+    public const STATUS = ['aktiv', 'abgeschlossen', 'stillgelegt'];
     public const MITMACHER_TABELLE = 'nexus_projekt_mitmacher';
     public const LEITUNG_TABELLE = 'nexus_projekt_leitung';
     public const MAX_LEITUNG = 5;
@@ -45,10 +46,22 @@ class Projekt extends ActiveRecord
             ['ziel', 'string', 'max' => 5000],
             ['frist', 'date', 'format' => 'php:Y-m-d'],
             ['status', 'in', 'range' => self::STATUS],
+            ['nachfolger_id', 'integer'],
             ['regel', 'in', 'range' => Entscheidung::REGELN],
             ['frist_tage', 'integer', 'min' => 1, 'max' => self::MAX_FRIST_TAGE],
             ['weitergabe', 'string', 'max' => 100],
         ];
+    }
+
+    public function istStillgelegt(): bool
+    {
+        return $this->status === 'stillgelegt';
+    }
+
+    /** Das Projekt, in dem es weitergeht -- nur im selben Kreis */
+    public function nachfolger(): ?self
+    {
+        return $this->nachfolger_id ? self::findOne(['id' => $this->nachfolger_id, 'space_id' => $this->space_id]) : null;
     }
 
     public function beforeSave($insert)
