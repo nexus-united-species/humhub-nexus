@@ -107,6 +107,8 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 <?= Html::beginForm($url('dateien'), 'post', [
                     'enctype' => 'multipart/form-data', 'class' => 'nx-pj-hochladen',
                     'data-nx-pj-max' => \nexus\modules\projekte\models\Datei::MAX_JE_FASSUNG,
+                    'data-nx-pj-max-bytes' => Dateien::maxBytes(), 'data-nx-pj-max-mb' => Dateien::maxMb(),
+                    'data-nx-pj-t-zugross' => Texte::t('upload_zu_gross'),
                     'data-nx-pj-t-gewaehlt' => Texte::t('upload_gewaehlt'), 'data-nx-pj-t-zuviele' => Texte::t('upload_zuviele'),
                     'data-nx-pj-t-laeuft' => Texte::t('upload_laeuft'), 'data-nx-pj-t-verarbeite' => Texte::t('upload_verarbeite'),
                     'data-nx-pj-t-fehler' => Texte::t('upload_fehler'),

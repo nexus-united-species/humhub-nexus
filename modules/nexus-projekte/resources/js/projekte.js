@@ -76,6 +76,13 @@
     }
     // ── Hochladen mit Fortschritt (Rueckmeldung eines Mitglieds, 26.10.2026: "den Hochladeprozess nicht verfolgen") ──
     // Zeigt vorher, was ausgewaehlt ist, und beim Hochladen einen Balken mit Prozent; danach laedt die Seite neu.
+    // Zu grosse Dateien gleich sagen: Sonst laedt jemand minutenlang hoch, und erst danach kommt die Absage.
+    function zuGross(form, dateien) {
+        var grenze = parseInt(form.getAttribute('data-nx-pj-max-bytes') || '0', 10);
+        return grenze > 0 ? dateien.filter(function (d) { return d.size > grenze; }).map(function (d) {
+            return vorlage(form.getAttribute('data-nx-pj-t-zugross'), { name: d.name, max: form.getAttribute('data-nx-pj-max-mb') });
+        }).join(' ') : '';
+    }
     function mb(bytes) { return (bytes / 1048576).toFixed(1).replace('.', ','); }
     function vorlage(text, werte) {
         return (text || '').replace(/\{(\w+)\}/g, function (all, name) { return werte[name] !== undefined ? werte[name] : all; });
@@ -93,6 +100,8 @@
         var text = vorlage(form.getAttribute('data-nx-pj-t-gewaehlt'), { n: dateien.length, mb: mb(summe) })
             + ': ' + dateien.slice(0, 12).map(function (d) { return d.name; }).join(', ') + (dateien.length > 12 ? ' …' : '');
         if (dateien.length > max) { text += ' ' + vorlage(form.getAttribute('data-nx-pj-t-zuviele'), { max: max }); }
+        var hinweis = zuGross(form, dateien);
+        if (hinweis) { text += ' ' + hinweis; }
         anzeige.textContent = text;
         anzeige.hidden = false;
     });
@@ -115,6 +124,8 @@
         function zurueck() {
             if (knopf) { knopf.disabled = false; }
         }
+        var absage = zuGross(form, Array.prototype.slice.call(feld.files));
+        if (absage) { melden(absage, true); return; }
         if (knopf) { knopf.disabled = true; }
         melden(vorlage(form.getAttribute('data-nx-pj-t-laeuft'), { p: 0, a: '0,0', b: '…' }));
         if (balken) { balken.style.width = '0%'; }

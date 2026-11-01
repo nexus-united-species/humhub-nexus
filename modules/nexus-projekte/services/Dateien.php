@@ -20,7 +20,20 @@ use yii\web\UploadedFile;
 class Dateien
 {
     public const ORDNER = 'Projekte';
-    public const MAX_BYTES = 50 * 1024 * 1024;
+
+    /**
+     * Groesste Datei: die Grenze des Portals (Verwaltung > Dateien). Eine eigene, kleinere Grenze liess Druckdaten
+     * mit 88 MB erst nach vier Minuten Hochladen scheitern.
+     */
+    public static function maxBytes(): int
+    {
+        return (int)Yii::$app->getModule('file')->settings->get('maxFileSize') ?: 100 * 1024 * 1024;
+    }
+
+    public static function maxMb(): int
+    {
+        return (int)floor(self::maxBytes() / 1048576);
+    }
 
     public static function verfuegbar(): bool
     {
@@ -59,8 +72,8 @@ class Dateien
         $ordner = self::ordner($karte);
         $gespeichert = 0;
         foreach (array_slice($dateien, 0, Datei::MAX_JE_FASSUNG) as $datei) {
-            if ($datei->size > self::MAX_BYTES) {
-                $fehler[] = $datei->name . ': ' . Texte::t('datei_zu_gross');
+            if ($datei->size > self::maxBytes()) {
+                $fehler[] = $datei->name . ': ' . sprintf(Texte::t('datei_zu_gross'), self::maxMb());
                 continue;
             }
             // Eindeutiger Name je Fassung: sonst ersetzte das Dateimodul die aeltere Fassung
