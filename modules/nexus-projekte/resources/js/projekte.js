@@ -169,4 +169,95 @@
             if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
         });
     }, true);
+    // Uebersetzen auf Knopfdruck: holt je Text die Uebersetzung (hoechstens drei gleichzeitig) und tauscht sie aus.
+    // Original und Uebersetzung bleiben am Element, ein weiterer Klick schaltet ohne neue Anfrage um.
+    var TR_GLEICHZEITIG = 3;
+    function trBereich(knopf) {
+        return knopf.closest('.nx-pj-detail') || knopf.closest('.nx-pj');
+    }
+    function trZeigen(el, uebersetzt) {
+        var inhalt = uebersetzt ? el.nxPjUebersetzt : el.nxPjOriginal;
+        if (!inhalt) { return; }
+        if (inhalt.html !== undefined) { el.innerHTML = inhalt.html; } else { el.textContent = inhalt.text; }
+        el.setAttribute('data-nx-pj-tr-an', uebersetzt ? '1' : '0');
+    }
+    function trBeschriften() {
+        document.querySelectorAll('[data-nx-pj-tr-knopf]').forEach(function (k) {
+            if (k.disabled) { return; }
+            var an = trBereich(k).querySelector('[data-nx-pj-tr-an="1"]') !== null;
+            k.querySelector('span').textContent = k.getAttribute(an ? 'data-t-aus' : 'data-t-an');
+            var hinweis = k.parentNode.querySelector('.nx-pj-tr-hinweis');
+            if (!an && !hinweis.hasAttribute('data-fehler')) { hinweis.hidden = true; }
+            if (an && !hinweis.hasAttribute('data-fehler')) { hinweis.textContent = k.getAttribute('data-t-hinweis'); hinweis.hidden = false; }
+        });
+    }
+    function trHolen(k, el) {
+        var teile = el.getAttribute('data-nx-pj-tr').split(':');
+        var koerper = new URLSearchParams();
+        koerper.set('art', teile[0]);
+        koerper.set('id', teile[1]);
+        var meta = document.querySelector('meta[name="csrf-token"]');
+        return fetch(k.getAttribute('data-url'), {
+            method: 'POST', body: koerper, credentials: 'same-origin',
+            headers: { 'X-CSRF-Token': meta ? meta.getAttribute('content') : '', 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (r) {
+            return r.ok ? r.json() : Promise.reject(new Error(String(r.status)));
+        }).then(function (daten) {
+            if (daten.html !== undefined) {
+                el.nxPjOriginal = { html: el.innerHTML };
+                el.nxPjUebersetzt = { html: daten.html };
+            } else {
+                el.nxPjOriginal = { text: el.textContent };
+                el.nxPjUebersetzt = { text: daten.text };
+            }
+            trZeigen(el, true);
+        });
+    }
+    document.addEventListener('click', function (e) {
+        var k = e.target.closest('[data-nx-pj-tr-knopf]');
+        if (!k || k.disabled) { return; }
+        e.preventDefault();
+        var elemente = Array.prototype.slice.call(trBereich(k).querySelectorAll('[data-nx-pj-tr]'));
+        var hinweis = k.parentNode.querySelector('.nx-pj-tr-hinweis');
+        hinweis.removeAttribute('data-fehler');
+        if (elemente.some(function (el) { return el.getAttribute('data-nx-pj-tr-an') === '1'; })) {
+            elemente.forEach(function (el) { trZeigen(el, false); });
+            trBeschriften();
+            return;
+        }
+        var offen = [];
+        elemente.forEach(function (el) {
+            if (el.nxPjUebersetzt) { trZeigen(el, true); } else { offen.push(el); }
+        });
+        var gesamt = offen.length, fertig = 0, fehler = 0;
+        function stand() {
+            hinweis.textContent = k.getAttribute('data-t-laeuft').replace('{a}', fertig).replace('{b}', gesamt);
+            hinweis.hidden = false;
+        }
+        function schluss() {
+            k.disabled = false;
+            if (fehler > 0) {
+                hinweis.setAttribute('data-fehler', '1');
+                hinweis.textContent = k.getAttribute('data-t-fehler');
+                hinweis.hidden = false;
+            }
+            trBeschriften();
+        }
+        if (gesamt === 0) { trBeschriften(); return; }
+        k.disabled = true;
+        stand();
+        var laufend = 0;
+        function weiter() {
+            while (laufend < TR_GLEICHZEITIG && offen.length > 0) {
+                laufend++;
+                trHolen(k, offen.shift()).catch(function () { fehler++; }).then(function () {
+                    laufend--;
+                    fertig++;
+                    stand();
+                    if (offen.length === 0 && laufend === 0) { schluss(); } else { weiter(); }
+                });
+            }
+        }
+        weiter();
+    });
 })();

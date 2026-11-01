@@ -17,6 +17,7 @@ use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
+use nexus\modules\projekte\services\Uebersetzen;
 
 $url = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/projekt/' . $aktion, ['k' => $karte->id] + $p);
 $vUrl = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/vorschlag/' . $aktion, ['k' => $karte->id] + $p);
@@ -52,7 +53,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
 <div class="nx-pj-detail" id="karte">
     <div style="display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap">
         <div>
-            <h2><?php if ($istVorschlag) : ?><i class="fa fa-lightbulb-o"></i> <?php elseif ($istAuswahl) : ?><i class="fa fa-picture-o"></i> <?php endif; ?><?= Html::encode($karte->titel) ?></h2>
+            <h2><?php if ($istVorschlag) : ?><i class="fa fa-lightbulb-o"></i> <?php elseif ($istAuswahl) : ?><i class="fa fa-picture-o"></i> <?php endif; ?><span<?= Uebersetzen::attr('kt', (int)$karte->id) ?>><?= Html::encode($karte->titel) ?></span></h2>
             <div class="nx-pj-leise">
                 <?php if ($karte->verantwortlich) : ?>
                     <?php if ($istVorschlag) : ?>
@@ -70,8 +71,12 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         <span class="nx-pj-leise"><?= Html::encode(Texte::t('spalte_' . $karte->spalte)) ?></span>
     </div>
 
+    <?php if (Uebersetzen::noetig(Uebersetzen::texteDerKarte($karte))) : ?>
+        <?= $this->render('_uebersetzen', ['kreis' => $kreis]) ?>
+    <?php endif; ?>
+
     <?php if ($karte->beschreibung) : ?>
-        <div style="white-space:pre-wrap;margin-top:.6rem"><?= Html::encode($karte->beschreibung) ?></div>
+        <div style="white-space:pre-wrap;margin-top:.6rem"<?= Uebersetzen::attr('kb', (int)$karte->id) ?>><?= Html::encode($karte->beschreibung) ?></div>
     <?php endif; ?>
 
     <?php if ($istVorschlag) : ?>
@@ -135,10 +140,10 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 <li>
                     <?php if ($darfAbhaken) : ?>
                         <?= Html::beginForm($url('schritt', ['s' => $s->id]), 'post', ['style' => 'display:inline']) ?>
-                            <button type="submit" class="<?= $s->erledigt ? 'nx-pj-erledigt' : '' ?>"><i class="fa fa-<?= $s->erledigt ? 'check-square-o' : 'square-o' ?>"></i> <?= Html::encode($s->text) ?></button>
+                            <button type="submit" class="<?= $s->erledigt ? 'nx-pj-erledigt' : '' ?>"><i class="fa fa-<?= $s->erledigt ? 'check-square-o' : 'square-o' ?>"></i> <span<?= Uebersetzen::attr('s', (int)$s->id) ?>><?= Html::encode($s->text) ?></span></button>
                         <?= Html::endForm() ?>
                     <?php else : ?>
-                        <span class="<?= $s->erledigt ? 'nx-pj-erledigt' : '' ?>"><i class="fa fa-<?= $s->erledigt ? 'check-square-o' : 'square-o' ?>"></i> <?= Html::encode($s->text) ?></span>
+                        <span class="<?= $s->erledigt ? 'nx-pj-erledigt' : '' ?>"><i class="fa fa-<?= $s->erledigt ? 'check-square-o' : 'square-o' ?>"></i> <span<?= Uebersetzen::attr('s', (int)$s->id) ?>><?= Html::encode($s->text) ?></span></span>
                     <?php endif; ?>
                 </li>
             <?php endforeach; ?>
@@ -169,7 +174,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                         <div class="<?= $farbe ?>" style="margin-top:.25rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
                             <?= Html::encode(implode(', ', array_map($name, $nachArtFrueher[$art]))) ?></div>
                         <?php foreach ($nachArtFrueher[$art] as $s) : ?>
-                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote>
+                            <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <span<?= Uebersetzen::attr('v', (int)$s->id) ?>><?= Html::encode((string)$s->text) ?></span><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote>
                                 <?= $this->render('_antworten', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich, 's' => $s]) ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
@@ -178,7 +183,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                     <?php foreach ($nachArtFrueher as $art => $stimmenDerArt) : ?>
                         <?php if (isset($optionen[$art])) { continue; } ?>
                         <?php foreach ($stimmenDerArt as $s) : ?>
-                            <div style="margin-top:.25rem"><?= Html::encode($name($s)) ?><?= $s->text ? ': ' . Html::encode((string)$s->text) . '<span class="nx-pj-leise"> · ' . Html::encode(Texte::zeit($s->created_at)) . '</span>' : '' ?></div>
+                            <div style="margin-top:.25rem"><?= Html::encode($name($s)) ?><?= $s->text ? ': <span' . Uebersetzen::attr('v', (int)$s->id) . '>' . Html::encode((string)$s->text) . '</span><span class="nx-pj-leise"> · ' . Html::encode(Texte::zeit($s->created_at)) . '</span>' : '' ?></div>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                 </div>
@@ -200,7 +205,7 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 <div class="<?= $farbe ?>" style="margin-top:.3rem"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>:
                     <?= Html::encode($nachArt[$art] === [] ? '–' : implode(', ', array_map($name, $nachArt[$art]))) ?></div>
                 <?php foreach ($nachArt[$art] as $s) : ?>
-                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote>
+                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <span<?= Uebersetzen::attr('v', (int)$s->id) ?>><?= Html::encode((string)$s->text) ?></span><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote>
                         <?= $this->render('_antworten', ['kreis' => $kreis, 'karte' => $karte, 'ich' => $ich, 's' => $s]) ?>
                     <?php endif; ?>
                 <?php endforeach; ?>

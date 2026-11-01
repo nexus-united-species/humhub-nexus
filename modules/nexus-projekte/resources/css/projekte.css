@@ -215,3 +215,5 @@
 .nx-pj .nx-pj-still-hinweis { background: rgba(192, 57, 43, .1); border: 1px solid #c0392b; border-radius: 8px; padding: .6rem .8rem; margin: .4rem 0 .8rem; }
 .nx-pj .nx-pj-still-hinweis .fa-lock { color: #c0392b; }
 .nx-pj .nx-pj-still-liste li { border-left: 3px solid #c0392b; padding-left: .5rem; margin-bottom: .25rem; }
+/* Uebersetzen-Knopf */
+.nx-pj .nx-pj-tr { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin: .5rem 0; }

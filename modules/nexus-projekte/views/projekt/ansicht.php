@@ -19,6 +19,7 @@ use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
+use nexus\modules\projekte\services\Uebersetzen;
 
 $fertig = count(array_filter($karten, fn($k) => $k->spalte === 'fertig'));
 $prozent = $karten === [] ? 0 : round(100 * $fertig / count($karten));
@@ -45,12 +46,15 @@ $this->title = $projekt->titel;
         <?php endif; ?>
         <div class="nx-pj-kopf nx-pj-kopf-projekt">
             <div style="flex:1;min-width:220px">
-                <h1><?= Html::encode($projekt->titel) ?><?php if ($projekt->status !== 'aktiv') : ?> <span class="nx-pj-leise">(<?= Html::encode(Texte::t($projekt->status)) ?>)</span><?php endif; ?></h1>
-                <?php if ($projekt->ziel) : ?><div style="white-space:pre-wrap"><?= Html::encode($projekt->ziel) ?></div><?php endif; ?>
+                <h1><span<?= Uebersetzen::attr('pt', (int)$projekt->id) ?>><?= Html::encode($projekt->titel) ?></span><?php if ($projekt->status !== 'aktiv') : ?> <span class="nx-pj-leise">(<?= Html::encode(Texte::t($projekt->status)) ?>)</span><?php endif; ?></h1>
+                <?php if ($projekt->ziel) : ?><div style="white-space:pre-wrap"<?= Uebersetzen::attr('pz', (int)$projekt->id) ?>><?= Html::encode($projekt->ziel) ?></div><?php endif; ?>
                 <div class="nx-pj-leise">
                     <?= Html::encode(Texte::t('leitung')) ?>: <?= Html::encode($projekt->leitungNamen()) ?>
                     · <?= Html::encode($projekt->frist ? sprintf(Texte::t('bis'), Texte::datum($projekt->frist)) : Texte::t('laufend')) ?>
                 </div>
+                <?php if (Uebersetzen::noetig(array_merge([$projekt->titel, $projekt->ziel], array_map(fn($k) => $k->titel, $karten)))) : ?>
+                    <?= $this->render('_uebersetzen', ['kreis' => $kreis]) ?>
+                <?php endif; ?>
             </div>
             <div>
                 <div class="nx-pj-leise"><?= Html::encode(sprintf(Texte::t('fertig_von'), $fertig, count($karten))) ?></div>
@@ -90,7 +94,7 @@ $this->title = $projekt->titel;
                     <?php foreach ($inSpalte as $k) : ?>
                         <?php $schritte = $k->schritte; $erledigt = count(array_filter($schritte, fn($s) => $s->erledigt)); ?>
                         <a class="nx-pj-karte<?= $gewaehlt && $gewaehlt->id === $k->id ? ' nx-pj-gewaehlt' : '' ?>" href="<?= Html::encode($k->url()) ?>">
-                            <strong><?php if ($k->istVorschlag()) : ?><i class="fa fa-lightbulb-o" title="<?= Html::encode(Texte::t('vorschlag')) ?>"></i> <?php elseif ($k->istAuswahl()) : ?><i class="fa fa-picture-o" title="<?= Html::encode(Texte::t('auswahl')) ?>"></i> <?php endif; ?><?= Html::encode($k->titel) ?></strong>
+                            <strong><?php if ($k->istVorschlag()) : ?><i class="fa fa-lightbulb-o" title="<?= Html::encode(Texte::t('vorschlag')) ?>"></i> <?php elseif ($k->istAuswahl()) : ?><i class="fa fa-picture-o" title="<?= Html::encode(Texte::t('auswahl')) ?>"></i> <?php endif; ?><span<?= Uebersetzen::attr('kt', (int)$k->id) ?>><?= Html::encode($k->titel) ?></span></strong>
                             <span class="nx-pj-meta">
                                 <?php if ($k->verantwortlich) : ?>
                                     <span><i class="fa fa-user"></i> <?= Html::encode($k->verantwortlich->displayName) ?></span>

@@ -16,6 +16,7 @@ use nexus\modules\projekte\services\Diff;
 use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
+use nexus\modules\projekte\services\Uebersetzen;
 
 $projekt = $karte->projekt;
 $url = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/vorschlag/' . $aktion, ['k' => $karte->id] + $p);
@@ -74,11 +75,11 @@ $farbe = ['angenommen' => 'nx-pj-gruen', 'abgelehnt' => 'nx-pj-rot', 'zurueckgez
 
     <?php if ($karte->zusammenfassung) : ?>
         <div class="nx-pj-label" style="margin-top:.6rem"><?= Html::encode(Texte::t('zusammenfassung')) ?></div>
-        <div style="white-space:pre-wrap"><?= Html::encode($karte->zusammenfassung) ?></div>
+        <div style="white-space:pre-wrap"<?= Uebersetzen::attr('kz', (int)$karte->id) ?>><?= Html::encode($karte->zusammenfassung) ?></div>
     <?php endif; ?>
     <?php if ($karte->begruendung) : ?>
         <div class="nx-pj-label" style="margin-top:.6rem"><?= Html::encode(Texte::t('begruendung')) ?></div>
-        <div style="white-space:pre-wrap"><?= Html::encode($karte->begruendung) ?></div>
+        <div style="white-space:pre-wrap"<?= Uebersetzen::attr('kg', (int)$karte->id) ?>><?= Html::encode($karte->begruendung) ?></div>
     <?php endif; ?>
 
     <?php if ($karte->aenderungen !== []) : ?>

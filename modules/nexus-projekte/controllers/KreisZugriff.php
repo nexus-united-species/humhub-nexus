@@ -22,7 +22,7 @@ trait KreisZugriff
      * oder Rechte-Pruefung etwas uebersehen sollte. "projekt/speichern" aendert dort nur Stand und Nachfolger.
      */
     private static array $beiStillgelegt = [
-        'projekt/ansicht', 'projekt/datei-lesen', 'projekt/formular', 'projekt/speichern',
+        'projekt/ansicht', 'projekt/datei-lesen', 'projekt/uebersetzen', 'projekt/formular', 'projekt/speichern',
         'vorschlag/vorlage', 'vorschlag/beschluesse',
     ];
 

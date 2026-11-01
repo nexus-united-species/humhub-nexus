@@ -21,9 +21,12 @@ use nexus\modules\projekte\services\Entscheidung;
 use nexus\modules\projekte\services\Nachrichten;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
+use nexus\modules\projekte\services\Uebersetzen;
 use Yii;
 use yii\helpers\HtmlPurifier;
+use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use yii\web\UploadedFile;
 
 /**
@@ -44,7 +47,7 @@ class ProjektController extends ContentContainerController
         return [
             [ControllerAccess::RULE_LOGGED_IN_ONLY],
             [ControllerAccess::RULE_POST => ['speichern', 'loeschen', 'mitmachen', 'karte-speichern', 'karte-loeschen',
-                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'antwort', 'dateien', 'datei-loeschen', 'fassung-loeschen']],
+                'uebernehmen', 'verschieben', 'schritt', 'stimme', 'antwort', 'dateien', 'datei-loeschen', 'fassung-loeschen', 'uebersetzen']],
         ];
     }
 
@@ -276,15 +279,101 @@ class ProjektController extends ContentContainerController
             throw new NotFoundHttpException();
         }
         $html = null;
+        $text = '';
         if ($info['groesse'] <= 1024 * 1024) {
-            $pfad = $datei->kreisDatei->baseFile->getStore()->get();
-            $text = (string)@file_get_contents($pfad);
-            $text = preg_replace('/^\xEF\xBB\xBF/', '', $text);
-            $html = preg_match('/\.txt$/i', $info['name'])
-                ? '<pre class="nx-pj-lesen-text">' . \humhub\helpers\Html::encode($text) . '</pre>'
-                : HtmlPurifier::process((new GithubMarkdown())->parse($text));
+            $text = $this->dateiText($datei);
+            $html = $this->dateiHtml($text, $info['name']);
         }
-        return $this->render('datei_lesen', ['kreis' => $this->kreis(), 'karte' => $karte, 'info' => $info, 'html' => $html]);
+        return $this->render('datei_lesen', [
+            'kreis' => $this->kreis(), 'karte' => $karte, 'datei' => $datei, 'info' => $info, 'html' => $html,
+            'zuLang' => mb_strlen($text) > Uebersetzen::MAX_ZEICHEN_DATEI,
+            'uebersetzbar' => Uebersetzen::noetig([$text]),
+        ]);
+    }
+
+    private function dateiText(Datei $datei): string
+    {
+        $text = (string)@file_get_contents($datei->kreisDatei->baseFile->getStore()->get());
+        // Aeltere Windows-Dateien sind kein UTF-8: Die Uebersetzung bekaeme sonst eine leere Anfrage ("contents is not specified")
+        if (!mb_check_encoding($text, 'UTF-8')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'Windows-1252');
+        }
+        return preg_replace('/^\xEF\xBB\xBF/', '', $text);
+    }
+
+    private function dateiHtml(string $text, string $name): string
+    {
+        return preg_match('/\.txt$/i', $name)
+            ? '<pre class="nx-pj-lesen-text">' . \humhub\helpers\Html::encode($text) . '</pre>'
+            : HtmlPurifier::process((new GithubMarkdown())->parse($text));
+    }
+
+    /**
+     * Ein Text aus diesem Kreis in der Sprache der lesenden Person. Die Zugriffspruefung steckt in projekt()/karteImKreis():
+     * Uebersetzt wird nur, was die Person auf der Tafel ohnehin lesen darf.
+     */
+    public function actionUebersetzen()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $art = (string)Yii::$app->request->post('art');
+        $id = (int)Yii::$app->request->post('id');
+        if (!Uebersetzen::moeglich()) {
+            throw new NotFoundHttpException();
+        }
+        $datei = null;
+        switch ($art) {
+            case 'pt':
+            case 'pz':
+                $projekt = $this->projekt($id);
+                $text = (string)($art === 'pt' ? $projekt->titel : $projekt->ziel);
+                break;
+            case 'kt':
+            case 'kb':
+            case 'kz':
+            case 'kg':
+                $karte = $this->karteImKreis($id);
+                $text = (string)['kt' => $karte->titel, 'kb' => $karte->beschreibung, 'kz' => $karte->zusammenfassung, 'kg' => $karte->begruendung][$art];
+                break;
+            case 's':
+                $schritt = Schritt::findOne($id) ?? throw new NotFoundHttpException();
+                $this->karteImKreis((int)$schritt->karte_id);
+                $text = (string)$schritt->text;
+                break;
+            case 'v':
+                $stimme = Stimme::findOne($id) ?? throw new NotFoundHttpException();
+                $this->karteImKreis((int)$stimme->karte_id);
+                $text = (string)$stimme->text;
+                break;
+            case 'a':
+                $antwort = Antwort::findOne($id) ?? throw new NotFoundHttpException();
+                $stimme = Stimme::findOne((int)$antwort->stimme_id) ?? throw new NotFoundHttpException();
+                $this->karteImKreis((int)$stimme->karte_id);
+                $text = (string)$antwort->text;
+                break;
+            case 'd':
+                $datei = Datei::findOne($id) ?? throw new NotFoundHttpException();
+                $this->karteImKreis((int)$datei->karte_id);
+                $info = $datei->info();
+                if ($info === null || !$info['lesbar'] || $info['groesse'] > 1024 * 1024) {
+                    throw new NotFoundHttpException();
+                }
+                $text = $this->dateiText($datei);
+                if (mb_strlen($text) > Uebersetzen::MAX_ZEICHEN_DATEI) {
+                    throw new BadRequestHttpException();
+                }
+                break;
+            default:
+                throw new NotFoundHttpException();
+        }
+        set_time_limit(280);
+        try {
+            $uebersetzt = Uebersetzen::text('pj' . $art, $id, $text, in_array($art, ['pt', 'kt', 's'], true));
+        } catch (\Throwable $e) {
+            Yii::error('Uebersetzung im Projekt fehlgeschlagen (' . $art . ':' . $id . '): ' . $e->getMessage(), 'nexus-projekte');
+            Yii::$app->response->statusCode = 502;
+            return ['ok' => false];
+        }
+        return $datei !== null ? ['ok' => true, 'html' => $this->dateiHtml($uebersetzt, $info['name'])] : ['ok' => true, 'text' => $uebersetzt];
     }
 
     public function actionKarteLoeschen(int $k)

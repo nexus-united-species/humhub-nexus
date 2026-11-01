@@ -16,6 +16,7 @@ use nexus\modules\projekte\services\Dateien;
 use nexus\modules\projekte\services\Hilfe;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
+use nexus\modules\projekte\services\Uebersetzen;
 
 $aUrl = fn(string $aktion, array $p = []) => $kreis->createUrl('/nexus-projekte/auswahl/' . $aktion, ['k' => $karte->id] + $p);
 $optionen = Auswahl::optionen($karte);
@@ -52,7 +53,7 @@ $karteHtml = function ($o, bool $gross) use ($buchstaben, $stimmen, $darfAbstimm
                 <?php if ($nachArt[$art] === []) { continue; } ?>
                 <div class="<?= $farbe ?>"><i class="fa fa-<?= $symbol ?>"></i> <?= Html::encode(Texte::t($text)) ?>: <?= Html::encode(implode(', ', array_map($name, $nachArt[$art]))) ?></div>
                 <?php foreach ($nachArt[$art] as $s) : ?>
-                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <?= Html::encode((string)$s->text) ?><span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote><?php endif; ?>
+                    <?php if ($s->text) : ?><blockquote><strong><?= Html::encode($name($s)) ?>:</strong> <span<?= Uebersetzen::attr('v', (int)$s->id) ?>><?= Html::encode((string)$s->text) ?></span><span class="nx-pj-leise"> ·<?= Html::encode(Texte::zeit($s->created_at)) ?></span></blockquote><?php endif; ?>
                 <?php endforeach; ?>
             <?php endforeach; ?>
         <?php endif; ?>

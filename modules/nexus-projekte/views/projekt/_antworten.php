@@ -13,6 +13,7 @@ use humhub\helpers\Html;
 use nexus\modules\projekte\models\Antwort;
 use nexus\modules\projekte\services\Rechte;
 use nexus\modules\projekte\services\Texte;
+use nexus\modules\projekte\services\Uebersetzen;
 
 $antworten = $s->antworten;
 ?>
@@ -21,7 +22,7 @@ $antworten = $s->antworten;
         <?php foreach ($antworten as $a) : ?>
             <div class="nx-pj-antwort">
                 <strong><?= Html::encode($a->autor ? $a->autor->displayName : '?') ?>:</strong>
-                <?= Html::encode($a->text) ?>
+                <span<?= Uebersetzen::attr('a', (int)$a->id) ?>><?= Html::encode($a->text) ?></span>
                 <span class="nx-pj-leise"> · <?= Html::encode(Texte::zeit($a->created_at)) ?></span>
             </div>
         <?php endforeach; ?>
