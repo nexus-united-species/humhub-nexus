@@ -26,8 +26,11 @@ class Module extends \humhub\components\Module
     private const TEILGROESSE = 2000;
     /** So viele Stuecke laufen gleichzeitig. */
     private const GLEICHZEITIG = 8;
-    /** Zeitlimit je Stueck in Sekunden; Haengende werden in einer zweiten Runde gemeinsam wiederholt. */
+    /** Zeitlimit je Stueck in Sekunden; Haengende werden in weiteren Runden gemeinsam wiederholt. */
     private const TEIL_ZEITLIMIT = 35;
+    /** Eine grosse Tabelle bleibt EIN Absatz und braucht mehr Zeit: gemessen bis 7 ms je Zeichen, mit Reserve 10. */
+    private const MS_JE_ZEICHEN = 10;
+    private const RUNDEN = 3;
 
     public function getName()
     {
@@ -76,7 +79,9 @@ class Module extends \humhub\components\Module
         $absaetze = [];
         $aktuell = [];
         $imCode = false;
-        foreach (preg_split('/\R/', $text) as $zeile) {
+        // Mit /u: Ohne das trifft \R auch das Byte 0x85 mitten in Zeichen wie ✅, Å oder dem russischen х
+        // -- das zerbrochene Zeichen liess die Anfrage leer werden ("contents is not specified").
+        foreach (preg_split('/\R/u', $text) as $zeile) {
             if (preg_match('/^\s*```/', $zeile)) {
                 $imCode = !$imCode;
             }
@@ -124,7 +129,7 @@ class Module extends \humhub\components\Module
     /**
      * Uebersetzt die Stuecke in Gruppen gleichzeitig (curl_multi). Der Dienst haengt gelegentlich ("0 bytes
      * received") -- ein haengendes Stueck kostet dann sein ganzes Zeitlimit. Deshalb kurzes Limit je Stueck und
-     * zwei Runden: was in Runde 1 scheitert, wird in Runde 2 GEMEINSAM und gleichzeitig noch einmal versucht.
+     * mehrere Runden: was scheitert, wird in der naechsten Runde GEMEINSAM und gleichzeitig noch einmal versucht.
      *
      * @param string[] $teile
      * @return string[] in derselben Reihenfolge
@@ -134,14 +139,14 @@ class Module extends \humhub\components\Module
         $ergebnis = [];
         $offen = array_keys($teile);
         $letzter = null;
-        for ($runde = 1; $runde <= 2 && $offen !== []; $runde++) {
+        for ($runde = 1; $runde <= self::RUNDEN && $offen !== []; $runde++) {
             $nochOffen = [];
             foreach (array_chunk($offen, self::GLEICHZEITIG) as $gruppe) {
                 $multi = curl_multi_init();
                 $handles = [];
                 foreach ($gruppe as $nr) {
                     [$url, $koerper] = $this->vorbereiten($teile[$nr], $zielsprache, $zusatz, $markdown);
-                    $ch = $this->curlHandle($url, $koerper, self::TEIL_ZEITLIMIT);
+                    $ch = $this->curlHandle($url, $koerper, max(self::TEIL_ZEITLIMIT, (int)ceil(mb_strlen($teile[$nr]) * self::MS_JE_ZEICHEN / 1000)));
                     curl_multi_add_handle($multi, $ch);
                     $handles[$nr] = $ch;
                 }
@@ -235,6 +240,10 @@ class Module extends \humhub\components\Module
     {
         if ($fehler) {
             throw new RuntimeException("Verbindung zum Uebersetzungsdienst fehlgeschlagen: {$fehler}");
+        }
+        // curl_multi meldet eine Zeitueberschreitung nicht in curl_error, sondern nur mit Code 0
+        if ($code === 0) {
+            throw new RuntimeException('Der Uebersetzungsdienst hat nicht rechtzeitig geantwortet.');
         }
 
         $daten = json_decode($antwort, true);
