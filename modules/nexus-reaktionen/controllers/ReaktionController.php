@@ -3,17 +3,21 @@
 namespace nexus\modules\reaktionen\controllers;
 
 use humhub\components\behaviors\AccessControl;
-use humhub\modules\content\components\ContentAddonController;
+use humhub\components\Controller;
+use humhub\models\RecordMap;
+use humhub\modules\content\interfaces\ContentProvider;
+use humhub\modules\like\services\LikeService;
 use nexus\modules\reaktionen\services\Reaktionen;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
- * Eine Reaktion setzen. Die Basisklasse laedt Beitrag/Kommentar aus contentModel + contentId und prueft, dass der
- * Mensch ihn sehen darf -- dieselbe Pruefung wie beim Gefaellt-mir-Link.
+ * Eine Reaktion setzen. Beitrag oder Kommentar kommen ueber dieselbe Kennung wie beim Gefaellt-mir-Link (recordId, im
+ * Skript als contentModel=R), geprueft wird wie dort: sehen duerfen und reagieren duerfen.
  */
-class ReaktionController extends ContentAddonController
+class ReaktionController extends Controller
 {
     public function behaviors()
     {
@@ -25,8 +29,12 @@ class ReaktionController extends ContentAddonController
     public function actionSetzen()
     {
         $this->forcePostRequest();
-        $likeModul = Yii::$app->getModule('like');
-        if ($likeModul === null || !$likeModul->canLike($this->parentContent)) {
+        $satz = (int)Yii::$app->request->get('contentId');
+        $ziel = Yii::$app->request->get('contentModel') === 'R' ? RecordMap::getById($satz, ContentProvider::class) : null;
+        if ($ziel === null) {
+            throw new NotFoundHttpException();
+        }
+        if (!$ziel->content->canView() || !(new LikeService($ziel))->canLike()) {
             throw new ForbiddenHttpException();
         }
         $emoji = (string)Yii::$app->request->post('emoji', '');
@@ -34,11 +42,11 @@ class ReaktionController extends ContentAddonController
             throw new HttpException(400, 'Unbekanntes Emoji.');
         }
 
-        $was = Reaktionen::setzen((int)Yii::$app->user->id, $this->contentModel, (int)$this->contentId, $emoji);
-        $key = $this->contentModel . '|' . $this->contentId;
-        $alle = Reaktionen::zusammenfassung([[$this->contentModel, (int)$this->contentId]], (int)Yii::$app->user->id);
+        $was = Reaktionen::setzen((int)Yii::$app->user->id, get_class($ziel), (int)$ziel->getPrimaryKey(), $emoji);
+        $schluessel = get_class($ziel) . '|' . $ziel->getPrimaryKey();
+        $alle = Reaktionen::zusammenfassung([[get_class($ziel), (int)$ziel->getPrimaryKey()]], (int)Yii::$app->user->id);
 
         Yii::$app->response->format = 'json';
-        return ['ok' => true, 'was' => $was, 'key' => $key, 'reaktionen' => $alle[$key] ?? []];
+        return ['ok' => true, 'was' => $was, 'key' => 'R|' . $satz, 'reaktionen' => $alle[$schluessel] ?? []];
     }
 }
