@@ -11,6 +11,23 @@ use Yii;
 
 class Events
 {
+    /**
+     * HumHub 1.19 wertet rememberMe bei Anmeldungen ueber Authentik nicht mehr aus: Sie gelten nur fuer die Browsersitzung
+     * und laufen nach gut 20 Minuten Pause ab. Deshalb hier nachgezogen, nur fuer den Ablauf der echten Anmeldung.
+     */
+    public static function onAngemeldet($event): void
+    {
+        try {
+            $controller = Yii::$app->controller;
+            if ($event->duration > 0 || $event->cookieBased || !$controller instanceof \humhub\modules\user\controllers\AuthController) {
+                return;
+            }
+            $event->sender->switchIdentity($event->identity, (int)Yii::$app->getModule('user')->loginRememberMeDuration);
+        } catch (Throwable $e) {
+            Yii::error('nexus-orientierung: ' . $e->getMessage(), 'nexus-orientierung');
+        }
+    }
+
     /** Zwischen "Stream" (200) und "Ueber mich" (300) */
     private const MENUE_POSITION = 250;
 

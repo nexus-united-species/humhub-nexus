@@ -34,7 +34,12 @@ class Standbild
         if (!self::istVideo($datei) || !is_file(self::FFMPEG)) {
             return null;
         }
-        $quelle = realpath((string)$datei->store->get());
+        $quelle = realpath((string)(static function (\humhub\modules\file\models\File $f): ?string {
+            // ffmpeg braucht eine echte Datei: nur beim Datenspeicher auf der eigenen Platte
+            $mount = Yii::$app->fs->getDataMountConfig();
+            return $mount instanceof \humhub\components\fs\LocalMountConfig && $f->store->has()
+                ? Yii::getAlias($mount->path) . DIRECTORY_SEPARATOR . $f->store->get() : null;
+        })($datei));
         if ($quelle === false || !is_file($quelle)) {
             return null;
         }

@@ -14,12 +14,12 @@ class Events
             return;
         }
 
-        $event->sender->addItem([
+        $event->sender->addEntry(new \humhub\modules\ui\menu\MenuLink([
             'label' => 'Unterstuetzer-Bibliothek',
             'icon' => 'book',
             'url' => ['/nexus-protected-library/admin/index'],
             'sortOrder' => 970,
-        ]);
+        ]));
     }
 
     /**

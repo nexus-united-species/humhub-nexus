@@ -63,7 +63,7 @@ class Events
         $links = $event->sender;
         $links->addWidget(
             CommentTranslateLink::class,
-            ['object' => $links->object],
+            ['object' => $links->comment],
             ['sortOrder' => 250]
         );
     }

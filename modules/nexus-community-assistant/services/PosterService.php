@@ -59,10 +59,13 @@ class PosterService
         $bot = $this->assistant();
         Yii::$app->user->setIdentity($bot);
 
+        $inhalt = \humhub\modules\content\models\Content::findOne(['object_model' => $objectModel, 'object_id' => $objectId]);
+        if ($inhalt === null) {
+            throw new RuntimeException('Inhalt zum Kommentieren nicht gefunden: ' . $objectModel . ' ' . $objectId);
+        }
         $kommentar = new \humhub\modules\comment\models\Comment([
             'message' => $message,
-            'object_model' => $objectModel,
-            'object_id' => $objectId,
+            'content_id' => $inhalt->id,
         ]);
         if (!$kommentar->save()) {
             throw new RuntimeException('Kommentar konnte nicht gespeichert werden: ' . json_encode($kommentar->errors));

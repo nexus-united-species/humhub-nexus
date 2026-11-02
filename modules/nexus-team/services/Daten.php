@@ -251,7 +251,7 @@ class Daten
                JOIN contentcontainer cc ON cc.id = c.contentcontainer_id AND cc.class = :space
                JOIN space s ON s.id = cc.pk AND s.status = 1 AND s.visibility > 0
               WHERE c.state = :st AND c.created_at BETWEEN :von AND :bis$bot$bedingung
-                AND NOT EXISTS (SELECT 1 FROM comment k WHERE k.object_model = c.object_model AND k.object_id = c.object_id)
+                AND NOT EXISTS (SELECT 1 FROM comment k WHERE k.content_id = c.id)
               ORDER BY c.created_at DESC LIMIT " . (int)$max,
             $params
         )->queryAll();

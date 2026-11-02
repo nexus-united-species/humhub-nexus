@@ -70,7 +70,7 @@ class WeeklySummaryService
         $kommentare = (new \yii\db\Query())
             ->select(['comment.message', 'comment.created_at', 'comment.created_by', 'content.contentcontainer_id'])
             ->from('comment')
-            ->innerJoin('content', 'content.object_model = comment.object_model AND content.object_id = comment.object_id')
+            ->innerJoin('content', 'content.id = comment.content_id')
             ->where(['>=', 'comment.created_at', $seit])
             ->orderBy(['comment.created_at' => SORT_ASC])
             ->all();

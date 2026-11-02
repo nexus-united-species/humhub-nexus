@@ -51,7 +51,12 @@ class Events
             return;
         }
 
-        $pfad = $file->store->get();
+        $pfad = (string)(static function (\humhub\modules\file\models\File $f): ?string {
+            // ffmpeg braucht eine echte Datei: nur beim Datenspeicher auf der eigenen Platte
+            $mount = Yii::$app->fs->getDataMountConfig();
+            return $mount instanceof \humhub\components\fs\LocalMountConfig && $f->store->has()
+                ? Yii::getAlias($mount->path) . DIRECTORY_SEPARATOR . $f->store->get() : null;
+        })($file);
         if (!is_file($pfad) || filesize($pfad) === 0) {
             return;
         }

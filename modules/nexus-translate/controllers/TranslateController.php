@@ -224,7 +224,7 @@ class TranslateController extends Controller
         if (!$aktivitaet->content->canView()) {
             return [];
         }
-        $quelle = $aktivitaet->getSource();
+        $quelle = $aktivitaet->content?->getModel();
         // Genau die Kuerzung, die HumHubs Aktivitaets-Vorlage benutzt -- sonst wird der
         // Auszug im Text nicht wiedergefunden: "Neuer Kommentar" = RichText::preview(…, 100)
         // (comment/activities/views/newComment.php), "erstellt"/"gefaellt" =

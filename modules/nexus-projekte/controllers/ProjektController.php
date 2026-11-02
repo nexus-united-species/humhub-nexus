@@ -293,7 +293,7 @@ class ProjektController extends ContentContainerController
 
     private function dateiText(Datei $datei): string
     {
-        $text = (string)@file_get_contents($datei->kreisDatei->baseFile->getStore()->get());
+        $text = (string)$datei->kreisDatei->baseFile->getStore()->getContent();
         // Aeltere Windows-Dateien sind kein UTF-8: Die Uebersetzung bekaeme sonst eine leere Anfrage ("contents is not specified")
         if (!mb_check_encoding($text, 'UTF-8')) {
             $text = mb_convert_encoding($text, 'UTF-8', 'Windows-1252');

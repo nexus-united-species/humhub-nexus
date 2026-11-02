@@ -178,6 +178,8 @@
         if (!anker) { return null; }
         try {
             var u = new URL(anker.getAttribute('data-action-url'), location.href);
+            var satz = u.searchParams.get('recordId');
+            if (satz) { return { modell: 'R', id: satz, key: 'R|' + satz }; }
             var modell = u.searchParams.get('contentModel');
             var id = u.searchParams.get('contentId');
             return modell && id ? { modell: modell, id: id, key: modell + '|' + id } : null;

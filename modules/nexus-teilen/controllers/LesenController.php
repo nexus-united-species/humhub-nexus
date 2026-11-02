@@ -161,8 +161,7 @@ class LesenController extends Controller
             'object_model' => get_class($record),
             'object_id' => $record->id,
         ]);
-        $pfad = $datei?->store->get();
-        if ($datei === null || !is_file((string)$pfad)) {
+        if ($datei === null || !$datei->store->has()) {
             throw new NotFoundHttpException();
         }
         header_remove('Pragma');
@@ -172,9 +171,10 @@ class LesenController extends Controller
         Yii::$app->response->headers->set('X-Content-Type-Options', 'nosniff');
         $mime = strtolower((string)$datei->mime_type);
         $direkt = in_array($mime, self::DIREKT_ANZEIGBAR, true);
-        return Yii::$app->response->sendFile($pfad, $datei->file_name, [
+        return Yii::$app->response->sendStreamAsFile($datei->store->getContentStream(), $datei->file_name, [
             'mimeType' => $direkt ? $mime : 'application/octet-stream',
             'inline' => $direkt,
+            'fileSize' => $datei->store->fileSize(),
         ]);
     }
 

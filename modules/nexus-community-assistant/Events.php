@@ -17,12 +17,12 @@ class Events
             return;
         }
 
-        $event->sender->addItem([
+        $event->sender->addEntry(new \humhub\modules\ui\menu\MenuLink([
             'label' => 'Nova (KI-Assistent)',
             'icon' => 'android',
             'url' => ['/nexus-community-assistant/admin/index'],
             'sortOrder' => 960,
-        ]);
+        ]));
     }
 
     /** "Nova" in der oberen Leiste -- nur wer die Nova-Gespraeche nutzen darf, sieht den Punkt */

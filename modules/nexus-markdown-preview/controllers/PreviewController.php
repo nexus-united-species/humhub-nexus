@@ -39,12 +39,11 @@ class PreviewController extends Controller
             throw new ForbiddenHttpException('Keine Berechtigung fuer diese Datei.');
         }
 
-        $pfad = $file->store->get();
-        if (!is_file($pfad)) {
+        if (!$file->store->has()) {
             throw new NotFoundHttpException('Datei nicht gefunden.');
         }
 
-        $rohHtml = (new GithubMarkdown())->parse((string)file_get_contents($pfad));
+        $rohHtml = (new GithubMarkdown())->parse($file->store->getContent());
 
         return $this->render('render', [
             'dateiname' => $file->file_name,

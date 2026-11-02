@@ -36,10 +36,11 @@ class MentionReplyService
             $rohtext = (string)($quelle->message ?? '');
             $urheberId = $quelle->content->created_by ?? null;
         } elseif ($quelle instanceof ContentAddonActiveRecord) {
-            $zielModel = $quelle->object_model;
-            $zielId = (int)$quelle->object_id;
+            // Kommentar: die Antwort kommt an den Inhalt, unter dem er steht
+            $zielModel = $quelle->content->object_model;
+            $zielId = (int)$quelle->content->object_id;
             $rohtext = (string)($quelle->message ?? '');
-            $urheberId = $quelle->user_id ?? null;
+            $urheberId = $quelle->created_by ?? null;
         } else {
             return;
         }
