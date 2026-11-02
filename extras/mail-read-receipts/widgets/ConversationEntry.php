@@ -15,19 +15,6 @@ use humhub\modules\mail\models\MessageEntry;
 use humhub\widgets\JsWidget;
 use Yii;
 
-/**
- * Lesestatus-Ergaenzung (Josh, 14.09.2026): HumHub speichert pro
- * Unterhaltung und Person bereits ein "last_viewed"-Datum
- * (UserMessage::last_viewed), nutzt es aber nur intern fuer den eigenen
- * Ungelesen-Zaehler -- nirgends sichtbar fuer den Absender. Diese Klasse
- * (Marktplatz-Modul, liegt in /data/modules/mail, NICHT HumHub-Kern) wird
- * deshalb ergaenzt: bei der jeweils LETZTEN eigenen Nachricht im Thread
- * wird geprueft, ob alle anderen Beteiligten seither (last_viewed >
- * created_at dieser Nachricht) draufgeschaut haben, und das Ergebnis als
- * kleine Zeile unter der Nachricht angezeigt (siehe conversationEntry.php).
- * Absichtlich nur bei der letzten eigenen Nachricht, nicht bei jeder --
- * genau wie bei WhatsApp/Telegram, sonst wird die Unterhaltung unruhig.
- */
 class ConversationEntry extends JsWidget
 {
     /**
