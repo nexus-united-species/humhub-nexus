@@ -6,6 +6,10 @@ Stand / as of: 2026-10-09, HumHub 1.19.0-beta.3. Quelle / source:
 [`docs/develop/module-migrate-1.19.md`](https://github.com/humhub/humhub/blob/develop/docs/develop/module-migrate-1.19.md).
 Die Module laufen derzeit unter HumHub **1.18**. / The modules currently run on HumHub **1.18**.
 
+**Zweig `humhub-1.19` (seit 2026-11-02, geprüft mit 1.19.3):** Die Punkte 1–5 sind dort umgesetzt, dazu mehrere, die die Anleitung nicht nennt: Gefällt-mir-Kennung `recordId` (`nexus-reaktionen`), `AdminMenu::addEntry`, `CommentEntryLinks::comment`, das Mail-Layout des Themes (`MailHeaderImage::hasImage` entfällt, sonst scheitert jede E-Mail) und das Mail-Modul 3.4.6 in `extras/mail-read-receipts`. „Angemeldet bleiben“ setzt `nexus-orientierung` nach der Anmeldung selbst. Der Zweig läuft nur unter 1.19, er kommt erst beim Update nach `main`. **Einzige Lücke:** Die Übersetzung der Auszüge in „Letzte Aktivitäten“ greift nicht mehr, weil die Links keine Aktivitäts-Nummer mehr tragen; sie bleiben im Original.
+
+**Branch `humhub-1.19` (since 2026-11-02, checked with 1.19.3):** Items 1–5 are done there, plus several the guide does not mention: like link id `recordId` (`nexus-reaktionen`), `AdminMenu::addEntry`, `CommentEntryLinks::comment`, the theme's mail layout (`MailHeaderImage::hasImage` is gone, otherwise every e-mail fails) and mail module 3.4.6 in `extras/mail-read-receipts`. `nexus-orientierung` restores "stay signed in" after login. The branch only runs on 1.19 and goes to `main` with the upgrade. **Known gap:** excerpts in "Latest activities" are no longer translated, because the links no longer carry an activity id; they stay in the original language.
+
 ## Deutsch
 
 | # | Änderung in 1.19 | Betroffen | Was zu tun ist |
