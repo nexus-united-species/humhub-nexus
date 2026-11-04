@@ -14,13 +14,20 @@ use Yii;
  * Je Mensch EINE fortlaufende Unterhaltung pro Titel ("⏱ Arbeitsstunden zur Freigabe" bzw.
  * "⏱ Deine Arbeitsstunden"), nicht fuer jeden Eintrag eine neue -- sonst liefe das Postfach der
  * Admins voll. Ein fehlgeschlagener Versand darf das Eintragen/Freigeben nie verhindern.
+ *
+ * Diese Unterhaltungen haben kein Antwortfeld (siehe BenachrichtigungAnzeige): wer dort antwortete,
+ * schrieb dem Assistenten statt der gemeinten Person. Stattdessen Knoepfe je Nachricht, $knoepfe:
+ *   ['link' => 'https://…', 'art' => 'kachel'|'antworten'|'anfrage'|'oeffnen']  -> Link-Knopf
+ *   ['person' => <user_id>]                                                   -> "<Name> direkt schreiben"
+ * Bewusst einfache Felder statt Hilfsmethoden: die anderen Module rufen diese Klasse ueber ihren Namen
+ * auf und sollen auch mit einer aelteren Fassung dieses Moduls nicht abbrechen.
  */
 class Benachrichtigung
 {
     public const TITEL_ADMIN = '⏱ Arbeitsstunden zur Freigabe';
     public const TITEL_MITGLIED = '⏱ Deine Arbeitsstunden';
 
-    public static function senden(int $empfaengerId, string $titel, string $text): void
+    public static function senden(int $empfaengerId, string $titel, string $text, array $knoepfe = []): void
     {
         $botId = (int)getenv('ASSISTANT_USER_ID');
         $bot = $botId > 0 ? User::findOne(['id' => $botId]) : null;
@@ -48,11 +55,32 @@ class Benachrichtigung
             if (!$eintrag->save()) {
                 throw new \RuntimeException(json_encode($eintrag->errors));
             }
+            self::merken((int)$nachricht->id, (int)$eintrag->id, $knoepfe);
             $eintrag->notify(true);
         } catch (Throwable $e) {
             Yii::error('nexus-arbeitszeit: Benachrichtigung an ' . $empfaengerId . ' fehlgeschlagen: ' . $e->getMessage(), 'nexus-arbeitszeit');
         } finally {
             Yii::$app->user->setIdentity($vorher);
+        }
+    }
+
+    /** Unterhaltung als Benachrichtigung markieren, Knoepfe der Nachricht ablegen (Fehler nur protokollieren). */
+    private static function merken(int $nachrichtId, int $eintragId, array $knoepfe): void
+    {
+        try {
+            $db = Yii::$app->db;
+            if ($db->getTableSchema('nexus_benachrichtigung') === null) {
+                return;
+            }
+            $db->createCommand('INSERT IGNORE INTO nexus_benachrichtigung (message_id, created_at) VALUES (:m, NOW())', [':m' => $nachrichtId])->execute();
+            $knoepfe = array_values(array_filter($knoepfe, fn($k) => is_array($k) && (!empty($k['link']) || !empty($k['person']))));
+            if ($knoepfe !== []) {
+                $db->createCommand()->insert('nexus_benachrichtigung_knopf', [
+                    'entry_id' => $eintragId, 'message_id' => $nachrichtId, 'knoepfe' => json_encode($knoepfe, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                ])->execute();
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-arbeitszeit: Benachrichtigung nicht markiert: ' . $e->getMessage(), 'nexus-arbeitszeit');
         }
     }
 

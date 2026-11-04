@@ -6,8 +6,10 @@ class uninstall extends Migration
 {
     public function up()
     {
-        if ($this->db->getTableSchema('nexus_arbeitszeit', true) !== null) {
-            $this->dropTable('nexus_arbeitszeit');
+        foreach (['nexus_arbeitszeit', 'nexus_benachrichtigung_knopf', 'nexus_benachrichtigung'] as $tabelle) {
+            if ($this->db->getTableSchema($tabelle, true) !== null) {
+                $this->dropTable($tabelle);
+            }
         }
     }
 }

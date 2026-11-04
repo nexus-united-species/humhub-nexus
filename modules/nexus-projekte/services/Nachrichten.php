@@ -7,7 +7,6 @@ use humhub\modules\user\models\User;
 use nexus\modules\projekte\models\Antwort;
 use nexus\modules\projekte\models\Karte;
 use nexus\modules\projekte\models\Option;
-use nexus\modules\projekte\models\Projekt;
 use nexus\modules\projekte\models\Stimme;
 use nexus\modules\projekte\Module;
 use Throwable;
@@ -74,14 +73,14 @@ class Nachrichten
         }
         $was = $rolle === 'verantwortlich' ? 'Du bist jetzt verantwortlich für' : 'Du hilfst jetzt mit bei';
         $frist = $karte->frist ? ' Frist: ' . Yii::$app->formatter->asDate($karte->frist, 'medium') . '.' : '';
-        self::senden($an, $karte->projekt, sprintf("%s **%s** (eingetragen von %s).%s\n\n%s", $was, $karte->titel, $von->displayName, $frist, $karte->url(true)));
+        self::senden($an, $karte, sprintf("%s **%s** (eingetragen von %s).%s\n\n%s", $was, $karte->titel, $von->displayName, $frist, $karte->url(true)), $von);
     }
 
     public static function uebernommen(Karte $karte, User $von): void
     {
         foreach ($karte->projekt->leitungen() as $leitung) {
             if ((int)$leitung->id !== (int)$von->id) {
-                self::senden($leitung, $karte->projekt, sprintf("🙋 %s übernimmt **%s**.\n\n%s", $von->displayName, $karte->titel, $karte->url(true)));
+                self::senden($leitung, $karte, sprintf("🙋 %s übernimmt **%s**.\n\n%s", $von->displayName, $karte->titel, $karte->url(true)), $von);
             }
         }
     }
@@ -98,7 +97,7 @@ class Nachrichten
             $von->displayName, $karte->titel, str_replace("\n", "\n> ", trim((string)$stimme->text)), $karte->url(true), self::hinweisAntworten($von));
         foreach (self::verantwortlicheUndLeitung($karte) as $mensch) {
             if ((int)$mensch->id !== (int)$von->id) {
-                self::senden($mensch, $karte->projekt, $text);
+                self::senden($mensch, $karte, $text, $von, 'antworten');
             }
         }
     }
@@ -124,7 +123,7 @@ class Nachrichten
         $text = sprintf("💬 %s antwortet auf die Rückmeldung von %s zu **%s**:\n\n> %s\n\n%s\n\n%s",
             $von->displayName, $autor, $karte->titel, str_replace("\n", "\n> ", trim($antwort->text)), $karte->url(true), self::hinweisAntworten($von));
         foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text, $von, 'antworten');
         }
     }
 
@@ -135,7 +134,7 @@ class Nachrichten
     private static function hinweisAntworten(User $von): string
     {
         return sprintf(
-            '👉 Um %1$s zu antworten, öffne den Link und klicke dort unter der Rückmeldung auf „Antworten“. Was du hier in dieser Unterhaltung schreibst, erreicht %1$s nicht.',
+            '👉 Um %1$s zu antworten, nimm den Knopf „In der Kachel antworten“ (oder den Link oben) und klicke dort unter der Rückmeldung auf „Antworten“.',
             $von->displayName
         );
     }
@@ -148,7 +147,7 @@ class Nachrichten
             $von->displayName, $entwurf, $karte->titel, str_replace("\n", "\n> ", trim((string)$stimme->text)), $karte->url(true));
         foreach (self::verantwortlicheUndLeitung($karte) as $mensch) {
             if ((int)$mensch->id !== (int)$von->id) {
-                self::senden($mensch, $karte->projekt, $text);
+                self::senden($mensch, $karte, $text, $von);
             }
         }
     }
@@ -162,7 +161,7 @@ class Nachrichten
         $ids = array_diff(array_unique(array_filter($ids)), [(int)$von->id]);
         $text = sprintf("🖼️ Für **%s** ist entschieden: %s.\n\n%s", $karte->titel, (string)$karte->ergebnis_text, $karte->url(true));
         foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text, $von);
         }
     }
 
@@ -177,7 +176,7 @@ class Nachrichten
         $text = sprintf("🔄 **%s** wurde geändert (von %s). Deine bisherige Stellungnahme galt der alten Fassung – bitte schau es dir noch einmal an und nimm neu Stellung.\n\n%s",
             $karte->titel, $von->displayName, $karte->url(true));
         foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text, $von);
         }
     }
 
@@ -197,7 +196,7 @@ class Nachrichten
         $stand = $karte->ergebnis_text ? ' (' . $karte->ergebnis_text . ')' : '';
         $text = sprintf("Der Vorschlag **%s** ist %s%s.%s\n\n%s", $karte->titel, $wort, $stand, $weiter, $karte->url(true));
         foreach (User::find()->where(['id' => $ids])->all() as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text, $von);
         }
     }
 
@@ -207,7 +206,7 @@ class Nachrichten
         $text = sprintf("🗳️ Die Runde zu **%s** ist zu Ende (%s). Bitte werte sie aus und halte das Ergebnis fest.\n\n%s",
             $karte->titel, Entscheidung::auswertung($karte)['text'], $karte->url(true));
         foreach ($karte->projekt->leitungen() as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text);
         }
     }
 
@@ -217,7 +216,7 @@ class Nachrichten
             $karte->titel, Yii::$app->formatter->asDate($karte->frist, 'medium'), $karte->url(true));
         $empfaenger = $karte->verantwortlich ? [$karte->verantwortlich] : [];
         foreach (array_merge($empfaenger, $karte->helfer()) as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text);
         }
     }
 
@@ -226,7 +225,7 @@ class Nachrichten
         $text = sprintf("⏳ **%s** war bis %s geplant und ist noch nicht fertig. Passt die Frist noch, oder braucht es Unterstützung?\n\n%s",
             $karte->titel, Yii::$app->formatter->asDate($karte->frist, 'medium'), $karte->url(true));
         foreach (self::verantwortlicheUndLeitung($karte) as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text);
         }
     }
 
@@ -237,7 +236,7 @@ class Nachrichten
         $text = sprintf("🗳️ Zu **%s** fehlt noch deine Rückmeldung – die Abstimmung endet morgen. %s\n\n%s",
             $karte->titel, $klick, $karte->url(true));
         foreach ($menschen as $mensch) {
-            self::senden($mensch, $karte->projekt, $text);
+            self::senden($mensch, $karte, $text);
         }
     }
 
@@ -253,15 +252,24 @@ class Nachrichten
         return array_values($liste);
     }
 
-    private static function senden(User $an, Projekt $projekt, string $text): void
+    /**
+     * Knoepfe unter der Nachricht (siehe nexus-arbeitszeit, Benachrichtigung): zur Kachel bzw. "In der Kachel
+     * antworten" und, wenn ein Mensch dahintersteht, "<Name> direkt schreiben" -- im Antwortfeld der
+     * Benachrichtigung landete die Antwort sonst beim Assistenten.
+     */
+    private static function senden(User $an, Karte $karte, string $text, ?User $person = null, string $art = 'kachel'): void
     {
         $modul = Module::instanz();
         if ($modul === null || !$modul->erinnern || !class_exists(self::VERSAND) || $an->status != User::STATUS_ENABLED) {
             return;
         }
+        $knoepfe = [['link' => $karte->url(true), 'art' => $art]];
+        if ($person !== null && (int)$person->id !== (int)$an->id) {
+            $knoepfe[] = ['person' => (int)$person->id];
+        }
         try {
             $versand = self::VERSAND;
-            $versand::senden((int)$an->id, self::SYMBOL . ' Projekt: ' . $projekt->titel, $text);
+            $versand::senden((int)$an->id, self::SYMBOL . ' Projekt: ' . $karte->projekt->titel, $text, $knoepfe);
         } catch (Throwable $e) {
             Yii::error('nexus-projekte: Nachricht nicht gesendet: ' . $e->getMessage(), 'nexus-projekte');
         }

@@ -164,7 +164,7 @@ class Teams
             $m->nachricht ? "\n\n> " . str_replace("\n", "\n> ", $m->nachricht) : '', $ich->displayName, $team->url('ansicht', [], true));
         foreach (self::leitung($team) as $l) {
             if ((int)$l->id !== (int)$ich->id) {
-                self::senden($l, $team, $text);
+                self::senden($l, $team, $text, $ich);
             }
         }
         return $m;
@@ -191,7 +191,7 @@ class Teams
                 self::SYMBOL, $team->titel, $ich->displayName);
         }
         if ($mensch !== null) {
-            self::senden($mensch, $team, $text);
+            self::senden($mensch, $team, $text, $ich);
         }
     }
 
@@ -215,7 +215,7 @@ class Teams
             $vertretung = $a->vertretung_id ? User::findOne($a->vertretung_id) : null;
             if ($vertretung !== null) {
                 self::senden($vertretung, $team, sprintf("%s %s ist bis %s nicht da. Du vertrittst bei: **%s**\n%s",
-                    self::SYMBOL, $wer?->displayName ?? '?', Texte::datum($bis), $a->titel, $team->url('ansicht', [], true)));
+                    self::SYMBOL, $wer?->displayName ?? '?', Texte::datum($bis), $a->titel, $team->url('ansicht', [], true)), $wer);
             }
         }
     }
@@ -233,7 +233,7 @@ class Teams
         foreach (self::leitung($team) as $l) {
             if ((int)$l->id !== (int)$m->user_id) {
                 self::senden($l, $team, sprintf("%s %s hört im Team **%s** auf. Die Aufgaben sind wieder frei:\n%s",
-                    self::SYMBOL, $wer?->displayName ?? '?', $team->titel, $team->url('ansicht', [], true)));
+                    self::SYMBOL, $wer?->displayName ?? '?', $team->titel, $team->url('ansicht', [], true)), $wer);
             }
         }
     }
@@ -339,7 +339,7 @@ class Teams
                 self::teilnehmen((int)$p->message_id, $l);
                 if ((int)$l->id !== (int)$ich->id) {
                     self::senden($l, $team, sprintf("%s Das Team **%s** braucht dich bei einer Nachricht: „%s“ (von %s)\n%s",
-                        self::SYMBOL, $team->titel, $p->betreff, $ich->displayName, Projekt::voll($p->adresse())));
+                        self::SYMBOL, $team->titel, $p->betreff, $ich->displayName, Projekt::voll($p->adresse())), $ich, Projekt::voll($p->adresse()));
                 }
             }
         }
@@ -400,14 +400,19 @@ class Teams
         return $p;
     }
 
-    private static function senden(User $an, Team $team, string $text): void
+    /** Knoepfe unter der Nachricht wie bei den Projekten (siehe Nachrichten::senden): Teamseite bzw. Postfach, Mensch dahinter */
+    private static function senden(User $an, Team $team, string $text, ?User $person = null, ?string $link = null): void
     {
         if (!class_exists(self::VERSAND) || $an->status != User::STATUS_ENABLED) {
             return;
         }
+        $knoepfe = [['link' => $link ?? $team->url('ansicht', [], true), 'art' => 'oeffnen']];
+        if ($person !== null && (int)$person->id !== (int)$an->id) {
+            $knoepfe[] = ['person' => (int)$person->id];
+        }
         try {
             $versand = self::VERSAND;
-            $versand::senden((int)$an->id, self::SYMBOL . ' Team: ' . $team->titel, $text);
+            $versand::senden((int)$an->id, self::SYMBOL . ' Team: ' . $team->titel, $text, $knoepfe);
         } catch (Throwable $e) {
             Yii::error('nexus-projekte: Team-Nachricht nicht gesendet: ' . $e->getMessage(), 'nexus-projekte');
         }

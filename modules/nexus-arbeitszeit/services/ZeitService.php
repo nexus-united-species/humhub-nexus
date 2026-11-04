@@ -105,7 +105,7 @@ class ZeitService
                   'es' => "\n\nLo mejor es que escribas un mensaje breve a " . $admin->displayName . '.',
                   'ru' => "\n\nЛучше всего написать " . $admin->displayName . ' короткое сообщение.',
                   'fr' => "\n\nLe mieux est d’écrire un court message à " . $admin->displayName . '.'][$sprache];
-        Benachrichtigung::senden($eintrag->user_id, Benachrichtigung::TITEL_MITGLIED, $text);
+        Benachrichtigung::senden($eintrag->user_id, Benachrichtigung::TITEL_MITGLIED, $text, [['person' => (int)$admin->id]]);
     }
 
     private static function pruefen(Eintrag $eintrag, User $admin, string $status, ?string $grund): void
@@ -151,7 +151,7 @@ class ZeitService
             Benachrichtigung::senden($admin->id, Benachrichtigung::TITEL_ADMIN, sprintf(
                 "⏱ **%s** hat %s Std. eingetragen (%s, %s):\n\n> %s\n\nFreigeben: %s",
                 $name, $eintrag->stundenText(), self::datumText($eintrag->datum), $kreis, $eintrag->beschreibung, $link
-            ));
+            ), array_filter([['link' => $link, 'art' => 'oeffnen'], $eintrag->user_id ? ['person' => (int)$eintrag->user_id] : null]));
         }
     }
 

@@ -77,7 +77,8 @@ class Support
             }
             $b::senden((int)$mitgliedId, self::TITEL_TEAM, "🆘 **Neue Anfrage #{$nummer}** von {$wer} – " . Texte::themaDeutsch($thema)
                 . "\n\n> " . str_replace("\n", "\n> ", $auszug)
-                . "\n\nZur Anfrage: " . $b::link($post->content->getUrl()));
+                . "\n\nZur Anfrage: " . $b::link($post->content->getUrl()),
+                array_filter([['link' => $b::link($post->content->getUrl()), 'art' => 'anfrage'], $mensch !== null ? ['person' => (int)$mensch->id] : null]));
         }
 
         if ($bestaetigen && $mensch !== null) {

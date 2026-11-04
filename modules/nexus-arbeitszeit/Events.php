@@ -2,8 +2,12 @@
 
 namespace nexus\modules\arbeitszeit;
 
+use humhub\modules\mail\widgets\ConversationEntry;
+use humhub\modules\mail\widgets\Messages;
 use humhub\modules\ui\menu\MenuLink;
+use nexus\modules\arbeitszeit\assets\BenachrichtigungAsset;
 use nexus\modules\arbeitszeit\models\Eintrag;
+use nexus\modules\arbeitszeit\services\BenachrichtigungAnzeige;
 use nexus\modules\arbeitszeit\services\NextcloudBericht;
 use nexus\modules\arbeitszeit\services\Texte;
 use Throwable;
@@ -48,5 +52,41 @@ class Events
     public static function onHourly($event): void
     {
         NextcloudBericht::stuendlich();
+    }
+
+    /** Knoepfe unter einer Nachricht des Assistenten in einer Benachrichtigungs-Unterhaltung */
+    public static function onNachrichtGezeigt($event): void
+    {
+        try {
+            if ($event->sender instanceof ConversationEntry && $event->sender->entry !== null) {
+                $event->result .= BenachrichtigungAnzeige::knoepfe($event->sender->entry);
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-arbeitszeit (Knoepfe): ' . $e->getMessage(), 'nexus-arbeitszeit');
+        }
+    }
+
+    /** Hinweis statt Antwortfeld am Ende einer Benachrichtigungs-Unterhaltung */
+    public static function onUnterhaltungGezeigt($event): void
+    {
+        try {
+            // Nur beim ersten Aufbau der Unterhaltung -- beim Nachladen (aeltere/neue Nachrichten) gibt es "entries"
+            if ($event->sender instanceof Messages && $event->sender->message !== null && $event->sender->entries === null) {
+                $event->result .= BenachrichtigungAnzeige::hinweis($event->sender->message);
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-arbeitszeit (Hinweis): ' . $e->getMessage(), 'nexus-arbeitszeit');
+        }
+    }
+
+    public static function onLayoutAddonInit($event): void
+    {
+        try {
+            if (!Yii::$app->user->isGuest) {
+                BenachrichtigungAsset::register(Yii::$app->view);
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-arbeitszeit (Skript): ' . $e->getMessage(), 'nexus-arbeitszeit');
+        }
     }
 }

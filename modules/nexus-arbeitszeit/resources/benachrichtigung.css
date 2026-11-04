@@ -1,0 +1,39 @@
+/* Benachrichtigungen des Assistenten (siehe services/BenachrichtigungAnzeige.php):
+   kein Antwortfeld -- Mitglieder schrieben dort laufend dem Assistenten statt der gemeinten Person. */
+.conversation-entry-container:has(.nx-bn-unterhaltung) ~ .mail-message-form,
+.conversation-entry-container:has(.nx-bn-unterhaltung) .nx-nm-antwort {
+    display: none !important;
+}
+.nx-bn-hinweis {
+    margin: 0 15px 15px;
+    padding: 12px 14px;
+    border: 1px solid #D4AF37;
+    border-left-width: 4px;
+    border-radius: 6px;
+    background: rgba(212, 175, 55, .08);
+}
+.nx-bn-hinweis p {
+    margin: 0 0 10px;
+    font-weight: 500;
+}
+.nx-bn-zeile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+}
+.nx-bn-klein {
+    font-size: .85em;
+    opacity: .8;
+}
+.nx-bn-knoepfe {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 4px;
+}
+.nx-bn-knoepfe .nx-bn-knopf,
+.nx-bn-hinweis .nx-bn-knopf {
+    white-space: normal;
+    text-align: left;
+}
