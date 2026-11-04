@@ -25,10 +25,14 @@ $this->title = $dateiname;
     .nexus-md-preview-content h1,
     .nexus-md-preview-content h2,
     .nexus-md-preview-content h3 { margin-top: 1.2em; }
-    .nexus-md-preview-content pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
-    .nexus-md-preview-content code { background: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
-    .nexus-md-preview-content blockquote { border-left: 3px solid #ddd; padding-left: 12px; color: #666; }
+    /* Keine festen hellen Farben: im dunklen Modus stand sonst helle (goldene) Schrift auf fast weissem
+       Grund und war nicht lesbar (Rueckmeldung eines Mitglieds mit Sehschwaeche). Durchsichtige Toenung
+       und die Schriftfarbe der Seite passen in beiden Modi. */
+    .nexus-md-preview-content pre { background: rgba(127, 127, 127, .15); color: inherit; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    .nexus-md-preview-content code { background: rgba(127, 127, 127, .15); color: inherit; padding: 2px 4px; border-radius: 3px; }
+    .nexus-md-preview-content pre code { background: none; padding: 0; }
+    .nexus-md-preview-content blockquote { border-left: 3px solid rgba(127, 127, 127, .5); padding-left: 12px; opacity: .85; }
     .nexus-md-preview-content table { border-collapse: collapse; }
     .nexus-md-preview-content table td,
-    .nexus-md-preview-content table th { border: 1px solid #ddd; padding: 6px 10px; }
+    .nexus-md-preview-content table th { border: 1px solid rgba(127, 127, 127, .45); padding: 6px 10px; }
 </style>
