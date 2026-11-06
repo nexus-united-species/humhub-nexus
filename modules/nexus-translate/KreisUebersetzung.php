@@ -16,14 +16,20 @@ use Yii;
  * gespeichert und erst beim Ausliefern einer Seite ausgetauscht
  * (Events::onResponseAfterPrepare). Den HumHub-Kern fassen wir nicht an.
  *
+ * Seit 06.11.2026 auch nach Deutsch: Kreise wie "Decretos del Alma" (Spanisch)
+ * oder "Abundomy Movement" (Englisch) sind nicht auf Deutsch angelegt; deutsch
+ * eingestellte Leser sahen sie bis dahin im Original. Die deutsche Fassung
+ * entsteht nur, wenn der Kreis eindeutig in einer anderen Sprache geschrieben ist
+ * (deutsche Originale bleiben unangetastet) und sich vom Original unterscheidet.
+ *
  * Bewusst NICHT ausgetauscht wird auf Verwaltungs-/Bearbeitungsseiten: dort
  * stehen Name und Beschreibung in Formularfeldern, und wer dort speichert,
  * wuerde sonst die Uebersetzung als neuen deutschen Namen eintragen.
  */
 class KreisUebersetzung
 {
-    /** Zielsprachen neben dem deutschen Original. */
-    public const SPRACHEN = ['en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French'];
+    /** Zielsprachen. "de" nur fuer Kreise, die eindeutig nicht deutsch angelegt sind (eindeutigFremd). */
+    public const SPRACHEN = ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French'];
 
     public const FELDER = ['name', 'description'];
 
@@ -34,6 +40,8 @@ class KreisUebersetzung
      * und in den Nextcloud-Ordnern (Circle / Círculo) und Eigennamen bleiben.
      */
     public const BEGRIFFE = [
+        'de' => 'The text may already be German -- then return it exactly unchanged. Translate "Circle" as "Kreis". Keep these unchanged: '
+            . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh, and names of movements or projects. Keep dashes and numbering exactly as in the original.',
         'en' => 'Always translate "Kreis" as "Circle" and "Kreise" as "Circles", "Bauplan" as "Blueprint", "Unterstützer" as "Supporters". Keep these unchanged: '
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
         'es' => 'Always translate "Kreis" as "Círculo" and "Kreise" as "Círculos", "Bauplan" as "Plano" (never "Plano de construcción"), "Unterstützer" as "Colaboradores". Keep these unchanged: '
@@ -44,7 +52,7 @@ class KreisUebersetzung
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
     ];
 
-    /** Kurzcode der Sprache des angemeldeten Menschen (de, en, es) oder null. */
+    /** Kurzcode der Sprache des angemeldeten Menschen (de, en, es, ru, fr) oder null. */
     public static function leserSprache(): ?string
     {
         if (Yii::$app->user->isGuest) {
@@ -60,6 +68,7 @@ class KreisUebersetzung
         $ergebnis = [];
         /** @var Module $module */
         $module = Yii::$app->getModule('nexus-translate');
+        $nachDeutsch = self::eindeutigFremd($space);
         foreach (self::FELDER as $feld) {
             $original = trim((string)$space->$feld);
             if ($original === '') {
@@ -67,6 +76,9 @@ class KreisUebersetzung
             }
             $hash = md5($original);
             foreach (self::SPRACHEN as $code => $sprachname) {
+                if ($code === 'de' && !$nachDeutsch) {
+                    continue;
+                }
                 $eintrag = SpaceTranslation::findOne(['space_id' => $space->id, 'language' => $code, 'feld' => $feld]);
                 if (!$erzwingen && $eintrag !== null && $eintrag->quelle_hash === $hash) {
                     continue;
@@ -74,7 +86,7 @@ class KreisUebersetzung
                 $text = $module->uebersetzen($original, $code, self::BEGRIFFE[$code]);
                 // Keine Zeichen, die im ausgelieferten HTML/JSON stoeren koennten.
                 $text = trim(str_replace(['"', '\\', "\n", "\r"], ['', '', ' ', ' '], $text));
-                if ($text === '') {
+                if ($text === '' || ($code === 'de' && $text === $original)) {
                     continue;
                 }
                 $eintrag ??= new SpaceTranslation(['space_id' => $space->id, 'language' => $code, 'feld' => $feld]);
@@ -88,6 +100,18 @@ class KreisUebersetzung
         }
         self::cacheLeeren();
         return $ergebnis;
+    }
+
+    /**
+     * Ist der Kreis eindeutig NICHT auf Deutsch angelegt? Im Zweifel nein: Lieber einen
+     * fremdsprachigen Kreis im Original zeigen, als einen deutschen Namen umschreiben
+     * zu lassen. Kurze deutsche Kreise ("Digitale Selbstbestimmung") erkennt
+     * SprachErkennung nicht sicher (null) -- die bekommen deshalb keine deutsche Fassung.
+     */
+    private static function eindeutigFremd(Space $space): bool
+    {
+        $sprache = SprachErkennung::erkenne(trim($space->name . '. ' . $space->description . ' ' . $space->about));
+        return $sprache !== null && $sprache !== 'de';
     }
 
     public static function cacheLeeren(): void

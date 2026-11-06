@@ -195,7 +195,8 @@ class Events
 
     /**
      * Tauscht beim Ausliefern Kreis-Namen/-Beschreibungen gegen die Uebersetzung in
-     * der Sprache des Lesers. Nur HTML/JSON, nur angemeldete Nicht-Deutsch-Leser,
+     * der Sprache des Lesers. Nur HTML/JSON, nur angemeldete Leser (seit 06.11.2026 auch
+     * deutsche -- fuer Kreise, die nicht auf Deutsch angelegt sind),
      * nie auf Bearbeitungsseiten, und nur wenn in den Modul-Einstellungen
      * eingeschaltet ("kreisnamenAktiv" -- erst nach Josh' Durchsicht der Liste).
      */
