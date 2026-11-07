@@ -71,7 +71,8 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
         <span class="nx-pj-leise"><?= Html::encode(Texte::t('spalte_' . $karte->spalte)) ?></span>
     </div>
 
-    <?php if (Uebersetzen::noetig(Uebersetzen::texteDerKarte($karte))) : ?>
+    <?php $nxPjTrNoetig = Uebersetzen::noetig(Uebersetzen::texteDerKarte($karte)); ?>
+    <?php if ($nxPjTrNoetig) : ?>
         <?= $this->render('_uebersetzen', ['kreis' => $kreis]) ?>
     <?php endif; ?>
 
@@ -263,6 +264,11 @@ $name = fn($s) => $s->autor ? $s->autor->displayName : '?';
                 </div>
             <?php endif; ?>
         </div>
+    <?php endif; ?>
+
+    <?php /* Zweiter Knopf unten: Rueckmeldungen und Antworten stehen weit unten, der obere ist dort nicht mehr zu sehen */ ?>
+    <?php if ($nxPjTrNoetig) : ?>
+        <div style="margin-top:.6rem"><?= $this->render('_uebersetzen', ['kreis' => $kreis]) ?></div>
     <?php endif; ?>
 
     <div class="nx-pj-knoepfe">

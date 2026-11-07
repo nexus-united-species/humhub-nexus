@@ -235,7 +235,7 @@
             hinweis.hidden = false;
         }
         function schluss() {
-            k.disabled = false;
+            alleKnoepfe.forEach(function (x) { x.disabled = false; });
             if (fehler > 0) {
                 hinweis.setAttribute('data-fehler', '1');
                 hinweis.textContent = k.getAttribute('data-t-fehler');
@@ -244,7 +244,9 @@
             trBeschriften();
         }
         if (gesamt === 0) { trBeschriften(); return; }
-        k.disabled = true;
+        // Alle Knoepfe des Bereichs sperren (oben und unten), sonst startet ein zweiter Klick denselben Lauf nochmal
+        var alleKnoepfe = Array.prototype.slice.call(trBereich(k).querySelectorAll('[data-nx-pj-tr-knopf]'));
+        alleKnoepfe.forEach(function (x) { x.disabled = true; });
         stand();
         var laufend = 0;
         function weiter() {
