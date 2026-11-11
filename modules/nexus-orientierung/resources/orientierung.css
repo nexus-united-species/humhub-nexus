@@ -1,5 +1,5 @@
 /* Zurueck an dieselbe Stelle: der angeklickte Eintrag leuchtet kurz auf */
-#activityStream [data-stream-entry].nx-or-markiert { outline: 3px solid #D4AF37; outline-offset: -3px; border-radius: 6px;
+#activity-box-content .activity-entry.nx-or-markiert { outline: 3px solid #D4AF37; outline-offset: -3px; border-radius: 6px;
     background: rgba(212, 175, 55, .15); transition: background .6s; }
 
 /* Beitraege & Kommentare: gross, ruhig, gut lesbar */

@@ -1,10 +1,14 @@
 /*
  * Zurueck an dieselbe Stelle in "Letzte Aktivitaeten" (Kasten rechts auf der Uebersicht).
  *
- * HumHub laedt den Kasten beim Zurueckkommen neu -- mit nur den ersten 10 Eintraegen, ganz oben.
+ * HumHub laedt den Kasten beim Zurueckkommen neu -- nur mit den ersten Eintraegen, ganz oben.
  * Wer weit hinuntergescrollt hatte, verlor die Stelle. Deshalb: beim Anklicken eines Eintrags merken,
  * welcher es war (nur im Browser, nur fuer diesen Tab), und beim Zurueckkommen so lange nachladen,
  * bis er wieder da ist, dorthin scrollen und ihn kurz hervorheben.
+ *
+ * Ab HumHub 1.19 ist der Kasten kein "Stream" mehr, sondern das Widget activity.ActivityBox:
+ * Kasten #activity-box-content, Eintraege .activity-entry[data-activity-id], am Ende .stream-end,
+ * solange es mehr gibt; nachgeladen wird mit loadMore() (je 10 Eintraege).
  */
 (function () {
     if (window.nexusOrientierung) { return; }
@@ -34,32 +38,33 @@
     }
     function hier() { return location.pathname + location.search; }
 
+    var KASTEN = '#activity-box-content';
+
     // Klick auf einen Eintrag im Kasten: Stelle merken
     document.addEventListener('click', function (e) {
-        var eintrag = e.target.closest && e.target.closest('#activityStream [data-stream-entry]');
+        var eintrag = e.target.closest && e.target.closest(KASTEN + ' [data-activity-id]');
         if (!eintrag) { return; }
-        var inhalt = document.getElementById('activityContents');
+        var kasten = document.querySelector(KASTEN);
         schreiben({
             seite: hier(),
-            key: eintrag.getAttribute('data-content-key'),
-            oben: inhalt ? inhalt.scrollTop : 0,
+            id: eintrag.getAttribute('data-activity-id'),
+            oben: kasten ? kasten.scrollTop : 0,
             fenster: window.scrollY,
             zeit: Date.now()
         });
     }, true);
 
-    function strom() {
+    function kastenWidget(kasten) {
         try {
-            var activity = humhub.require('activity');
-            return activity && activity.getStream ? activity.getStream() : null;
+            var w = humhub.require('ui.widget').Widget.instance(kasten);
+            return w && typeof w.loadMore === 'function' ? w : null;
         } catch (e) { return null; }
     }
 
-    function zeigen(stream, el, stelle) {
-        var inhalt = stream.$content && stream.$content[0];
-        if (inhalt && inhalt.scrollHeight > inhalt.clientHeight + 5) {
-            inhalt.scrollTop += el.getBoundingClientRect().top - inhalt.getBoundingClientRect().top - inhalt.clientHeight / 3;
-            try { stream.$content.getNiceScroll().resize(); } catch (e) { /* ohne Zierleiste */ }
+    function zeigen(kasten, el, stelle) {
+        if (kasten.scrollHeight > kasten.clientHeight + 5) {
+            kasten.scrollTop += el.getBoundingClientRect().top - kasten.getBoundingClientRect().top - kasten.clientHeight / 3;
+            try { window.jQuery(kasten).getNiceScroll().resize(); } catch (e) { /* ohne Zierleiste */ }
         }
         if (stelle.fenster > 0) { window.scrollTo(0, stelle.fenster); }
         var r = el.getBoundingClientRect();
@@ -78,24 +83,28 @@
         }
         zurueck = false;
         schreiben(null);
+        if (!stelle.id) { return; }       // gemerkt mit einer alten Fassung dieses Skripts
         var gewartet = 0, nachgeladen = 0;
         (function versuch() {
-            var stream = strom();
-            if (!stream || !stream.$ || !stream.state) {
+            var kasten = document.querySelector(KASTEN);
+            var widget = kasten && kastenWidget(kasten);
+            if (!widget) {
                 if (gewartet++ < MAX_WARTEN) { setTimeout(versuch, WARTEN_MS); }
                 return;
             }
-            var el = stream.$.find('[data-stream-entry][data-content-key="' + stelle.key + '"]')[0];
-            if (el) { zeigen(stream, el, stelle); return; }
-            if (stream.isLoading() || !stream.state.firstRequest) {
+            var el = kasten.querySelector('[data-activity-id="' + String(stelle.id).replace(/[^0-9]/g, '') + '"]');
+            if (el) { zeigen(kasten, el, stelle); return; }
+            var ende = kasten.querySelector('.stream-end');
+            if (ende && window.jQuery(ende).data('isLoading')) {
                 if (gewartet++ < MAX_WARTEN) { setTimeout(versuch, WARTEN_MS); }
                 return;
             }
-            if (!stream.canLoadMore() || nachgeladen++ >= MAX_NACHLADEN) {
+            if (!ende || nachgeladen++ >= MAX_NACHLADEN) {
                 if (stelle.fenster > 0) { window.scrollTo(0, stelle.fenster); }
                 return;
             }
-            stream.load().then(function () { setTimeout(versuch, 50); }, function () { /* aufgeben */ });
+            widget.loadMore();                // laedt 10 weitere; danach erneut nachsehen
+            setTimeout(versuch, WARTEN_MS);
         })();
     }
 
