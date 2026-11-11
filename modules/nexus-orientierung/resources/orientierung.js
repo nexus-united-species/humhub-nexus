@@ -93,6 +93,8 @@
                 return;
             }
             var el = kasten.querySelector('[data-activity-id="' + String(stelle.id).replace(/[^0-9]/g, '') + '"]');
+            // Kasten noch nicht fertig aufgebaut (Hoehe 0)? Kurz warten, sonst greift das Rollen nicht.
+            if (el && kasten.clientHeight === 0 && gewartet++ < MAX_WARTEN) { setTimeout(versuch, WARTEN_MS); return; }
             if (el) { zeigen(kasten, el, stelle); return; }
             var ende = kasten.querySelector('.stream-end');
             if (ende && window.jQuery(ende).data('isLoading')) {
