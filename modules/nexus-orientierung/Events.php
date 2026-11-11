@@ -31,6 +31,22 @@ class Events
     /** Zwischen "Stream" (200) und "Ueber mich" (300) */
     private const MENUE_POSITION = 250;
 
+    /**
+     * Die Nachlade-Aktion der Benachrichtigungsliste durch controllers/BenachrichtigungenController ersetzen
+     * (Begruendung dort). Nur dieser eine Controller des Moduls "notification", die Seite "Alle anzeigen" nicht.
+     */
+    public static function onAnfrage($event): void
+    {
+        try {
+            $modul = Yii::$app->getModule('notification');
+            if ($modul !== null) {
+                $modul->controllerMap['list'] = controllers\BenachrichtigungenController::class;
+            }
+        } catch (Throwable $e) {
+            Yii::error('nexus-orientierung (Benachrichtigungen): ' . $e->getMessage(), 'nexus-orientierung');
+        }
+    }
+
     public static function onLayoutAddonInit($event): void
     {
         try {
