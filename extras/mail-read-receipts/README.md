@@ -10,7 +10,7 @@
 
 **Einspielen:** die Dateien über die gleichnamigen Dateien in `modules/mail/widgets/` bzw. `modules/mail/models/` legen (vorher sichern) und den Zwischenspeicher leeren.
 
-**Achtung:** Ein Update des Mail-Moduls überschreibt die Änderung. Vor einem Update prüfen, ob sich `ConversationEntry.php` / `views/conversationEntry.php` im Original geändert haben, und die Änderung danach neu übertragen. Getestet mit Mail-Modul 3.3.13 und 3.3.15 (die drei Dateien sind in beiden Versionen im Original gleich). Die Texte sind fest Deutsch.
+**Achtung:** Ein Update des Mail-Moduls überschreibt die Änderung. Vor einem Update prüfen, ob sich `ConversationEntry.php` / `views/conversationEntry.php` im Original geändert haben, und die Änderung danach neu übertragen. Getestet mit Mail-Modul 3.3.13, 3.3.15 und 3.4.6 (HumHub 1.19). Ab 3.4 liefert die Nachrichtenliste die neueste Nachricht zuerst -- ob eine Nachricht die letzte ist, wird deshalb in der Datenbank nachgesehen, nicht an der Reihenfolge. Die Texte sind fest Deutsch.
 
 ## English
 
@@ -20,4 +20,4 @@
 
 **Installation:** copy the files over the files of the same name in `modules/mail/widgets/` and `modules/mail/models/` (back them up first) and flush the cache.
 
-**Caution:** updating the mail module overwrites this change. Before updating, check whether `ConversationEntry.php` / `views/conversationEntry.php` changed upstream, and re-apply the change afterwards. Tested with mail module 3.3.13 and 3.3.15 (the three files are identical upstream in both). The texts are German only.
+**Caution:** updating the mail module overwrites this change. Before updating, check whether `ConversationEntry.php` / `views/conversationEntry.php` changed upstream, and re-apply the change afterwards. Tested with mail module 3.3.13, 3.3.15 and 3.4.6 (HumHub 1.19). From 3.4 on the message list delivers the newest message first, so whether a message is the last one is checked in the database, not by order. The texts are German only.

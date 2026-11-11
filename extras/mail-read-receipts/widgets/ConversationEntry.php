@@ -72,6 +72,22 @@ class ConversationEntry extends JsWidget
     }
 
     /**
+     * Gibt es in der Unterhaltung eine neuere Nachricht (egal von wem)?
+     *
+     * Bewusst NICHT ueber $this->nextEntry: Ab Mail 3.4 (HumHub 1.19) liefert
+     * Messages::run() die Eintraege neueste zuerst -- "nextEntry" ist dort die
+     * AELTERE Nachricht, der Lesestatus erschien dadurch nie. Hinweise wie
+     * "X ist beigetreten" (andere Eintragsart) zaehlen nicht als Nachricht.
+     */
+    private function hatNeuereNachricht(): bool
+    {
+        return MessageEntry::find()
+            ->where(['message_id' => $this->entry->message_id, 'type' => MessageEntry::type()])
+            ->andWhere(['>', 'id', $this->entry->id])
+            ->exists();
+    }
+
+    /**
      * Nur fuer die letzte eigene Nachricht im Thread: ob alle anderen
      * Beteiligten die Unterhaltung seit dieser Nachricht schon geoeffnet
      * haben. Liefert null, wenn hier kein Lesestatus angezeigt werden soll
@@ -80,7 +96,7 @@ class ConversationEntry extends JsWidget
      */
     private function getReadStatus(): ?string
     {
-        if (!$this->isOwnMessage() || $this->nextEntry !== null) {
+        if (!$this->isOwnMessage() || $this->hatNeuereNachricht()) {
             return null;
         }
 
