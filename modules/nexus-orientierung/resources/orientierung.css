@@ -20,3 +20,9 @@
 .nx-or-text { display: block; margin-top: .35rem; }
 .nx-or-blaettern { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.25rem; }
 .nx-or-blaettern .btn { font-size: 1.05rem; padding: .5rem 1.1rem; }
+
+/* "Letzte Aktivitaeten" laedt beim Scrollen nach, sobald die Endmarke .stream-end sichtbar wird
+   (IntersectionObserver in humhub.activity.js). Die Marke ist in HumHub 1.19 0 Pixel hoch und wird
+   im Kasten (overflow) dadurch nie als sichtbar gemeldet -- es blieb bei den ersten Eintraegen.
+   Mit etwas Hoehe greift das Nachladen wieder (im Portal geprueft 11.11.2026: 30 -> 40 -> 50 -> 60). */
+#activity-box-content .stream-end { min-height: 10px; }
