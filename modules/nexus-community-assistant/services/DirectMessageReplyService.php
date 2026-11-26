@@ -129,6 +129,8 @@ class DirectMessageReplyService
                 . "Я передала его команде поддержки, человек свяжется с тобой.\n\nНова (ИИ)",
             'fr' => "Désolée – je n’ai pas pu répondre à ta question à l’instant à cause d’un problème technique. "
                 . "Je l’ai transmise à l’équipe d’assistance, une personne te répondra.\n\nNova (IA)",
+            'nl' => "Sorry – door een technische storing kon ik je vraag zojuist niet beantwoorden. "
+                . "Ik heb hem doorgegeven aan het supportteam; een mens neemt contact met je op.\n\nNova (AI)",
         ];
         $sprache = substr((string)($absender->language ?? 'de'), 0, 2);
         try {

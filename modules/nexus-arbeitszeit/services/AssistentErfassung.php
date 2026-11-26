@@ -21,9 +21,9 @@ use Yii;
  */
 class AssistentErfassung
 {
-    private const ZEITANGABE = '/\d+(?:[.,]\d+)?\s*(?:h\b|std\b|std\.|stunde|stunden|hours?\b|hrs?\b|horas?\b)|halbe[n]?\s+stunde|dreiviertel\s*stunde|viertelstunde|half\s+an\s+hour|an\s+hour\b|media\s+hora|una\s+hora|eine\s+stunde|\d+(?:[.,]\d+)?\s*(?:ч\b|час(?:а|ов)?\b)|полчаса|пол\s+часа|час\s+работ|\d+(?:[.,]\d+)?\s*(?:heures?\b)|demi[-\s]heure|une\s+heure|un\s+quart\s+d.heure/iu';
-    private const UEBERSICHT = '/\b(meine\s+(arbeits)?stunden|my\s+(working\s+)?hours|mis\s+horas|мои\s+(рабочие\s+)?часы|mes\s+heures)\b/iu';
-    private const ABBRUCH = '/^\s*(abbrechen|nein|stopp|cancel|no|cancelar|отмена|отменить|нет|стоп|annuler|non)\s*[.!]?\s*$/iu';
+    private const ZEITANGABE = '/\d+(?:[.,]\d+)?\s*(?:h\b|std\b|std\.|stunde|stunden|hours?\b|hrs?\b|horas?\b)|halbe[n]?\s+stunde|dreiviertel\s*stunde|viertelstunde|half\s+an\s+hour|an\s+hour\b|media\s+hora|una\s+hora|eine\s+stunde|\d+(?:[.,]\d+)?\s*(?:ч\b|час(?:а|ов)?\b)|полчаса|пол\s+часа|час\s+работ|\d+(?:[.,]\d+)?\s*(?:heures?\b)|demi[-\s]heure|une\s+heure|un\s+quart\s+d.heure|\d+(?:[.,]\d+)?\s*(?:uur\b|uren\b)|half\s+uur|halfuur|een\s+uur\b|kwartier/iu';
+    private const UEBERSICHT = '/\b(meine\s+(arbeits)?stunden|my\s+(working\s+)?hours|mis\s+horas|мои\s+(рабочие\s+)?часы|mes\s+heures|mijn\s+(werk)?uren)\b/iu';
+    private const ABBRUCH = '/^\s*(abbrechen|nein|stopp|cancel|no|cancelar|отмена|отменить|нет|стоп|annuler|non|annuleren|nee|stoppen)\s*[.!]?\s*$/iu';
     private const ENTWURF_GUELTIG_STUNDEN = 48;
 
     public static function verarbeiten(User $user, string $text): ?string
@@ -96,7 +96,7 @@ class AssistentErfassung
         if (preg_match('/^\s*(\d{1,2})\s*[.)]?\s*$/u', $text, $m) && isset($ids[(int)$m[1] - 1])) {
             return $ids[(int)$m[1] - 1];
         }
-        $norm = fn(string $s) => preg_replace('/\b(circle|c[ií]rculo|круг|cercle)\b/u', 'kreis', mb_strtolower($s));
+        $norm = fn(string $s) => preg_replace('/\b(circle|c[ií]rculo|круг|cercle|kring)\b/u', 'kreis', mb_strtolower($s));
         $antwort = $norm($text);
         if (preg_match('/kreis\s*(\d+)/u', $antwort, $m)) {
             foreach ($kreise as $id => $name) {
@@ -249,6 +249,25 @@ class AssistentErfassung
         ];
         if ($sprache === 'fr' && isset($fr[$schluessel])) {
             return $fr[$schluessel];
+        }
+        // Niederländisch (seit 26.11.2026)
+        $nl = [
+            'eingetragen' => "✅ Ingevoerd: **%s uur** op %s – %s\n> %s",
+            'danach' => 'Een beheerder keurt het goed, daarna krijg je een bericht. Jouw overzicht:',
+            'welcher_kreis' => "Bedankt! Ik voer **%s uur** op %s in:\n> %s\n\nVoor welke kring was dat?",
+            'nummer' => 'Antwoord gewoon met het **nummer** (bijv. ‘3’) – of met ‘annuleren’.',
+            'nicht_erkannt' => 'Die kring heb ik helaas niet herkend.',
+            'abgebrochen' => 'Prima, ik heb niets ingevoerd.',
+            'unklar' => 'Dit kon ik helaas niet invoeren:',
+            'beispiel' => 'Schrijf het bijvoorbeeld zo: ‘Vandaag 2 uur aan de nieuwsbrief voor Kring 7 gewerkt.’',
+            'uebersicht' => "⏱ Jouw werkuren:\n• goedgekeurd in totaal: **%s uur**\n• waarvan deze maand: **%s uur**\n• wacht op goedkeuring: **%s uur**",
+            'fehler_stunden' => 'de uren (tussen 0,25 en 16)',
+            'fehler_datum' => 'de dag (niet in de toekomst)',
+            'fehler_text' => 'wat je hebt gedaan',
+            'fehler_kreis' => 'de kring (je moet er lid van zijn)',
+        ];
+        if ($sprache === 'nl' && isset($nl[$schluessel])) {
+            return $nl[$schluessel];
         }
         return $t[$schluessel][$sprache] ?? $t[$schluessel]['de'] ?? $schluessel;
     }

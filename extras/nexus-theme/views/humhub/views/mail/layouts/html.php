@@ -60,6 +60,11 @@ $nexusNichtAntworten = [
         'text' => 'Cet e-mail a été envoyé automatiquement. Une réponse par e-mail n’arrive chez personne. Si tu veux répondre, fais-le directement dans ton portail N.E.X.U.S. :',
         'knopf' => 'Répondre dans ton portail N.E.X.U.S.',
     ],
+    'nl' => [
+        'titel' => 'Beantwoord deze e-mail alsjeblieft NIET',
+        'text' => 'Deze e-mail is automatisch verstuurd. Een antwoord per e-mail komt bij niemand aan. Wil je reageren, doe dat dan direct in je N.E.X.U.S.-portaal:',
+        'knopf' => 'Reageren in je N.E.X.U.S.-portaal',
+    ],
 ];
 $nexusSprache = strtolower(explode('-', (string)Yii::$app->language)[0]);
 $nexusHinweis = $nexusNichtAntworten[$nexusSprache] ?? $nexusNichtAntworten['en'];

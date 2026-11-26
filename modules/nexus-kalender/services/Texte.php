@@ -5,7 +5,7 @@ namespace nexus\modules\kalender\services;
 use nexus\modules\kalender\Module;
 use Yii;
 
-/** Oberflaechentexte in Deutsch, Englisch, Spanisch, Russisch und Franzoesisch; fehlt eine Sprache, gilt Englisch. */
+/** Oberflaechentexte in Deutsch, Englisch, Spanisch, Russisch, Franzoesisch und Niederlaendisch; fehlt eine Sprache, gilt Englisch. */
 class Texte
 {
     private const T = [
@@ -78,6 +78,20 @@ class Texte
             'teilen_hinweis' => 'Cela devient ta propre publication dans ce cercle. Tous les membres connectés peuvent lire le calendrier.',
             'teilen_senden' => 'Partager',
             'teilen_fehler' => 'Le partage n’a pas fonctionné.',
+        ],
+        'nl' => [
+            'kalender' => 'Kalender',
+            'ansehen' => 'Kalender bekijken en doorbladeren',
+            'neuer_tab' => 'Openen in nieuw tabblad',
+            'bestellen' => 'Bestellen',
+            'entwurf' => 'Dit is nog een concept. Deel het alsjeblieft nog niet.',
+            'fehlt' => 'De kalender is op dit moment niet beschikbaar.',
+            'teilen' => 'Delen in een kring',
+            'teilen_kreis' => 'In welke kring?',
+            'teilen_satz' => 'Een eigen zin erbij (optioneel)',
+            'teilen_hinweis' => 'Dit wordt je eigen bericht in deze kring. Alle ingelogde leden kunnen de kalender lezen.',
+            'teilen_senden' => 'Delen',
+            'teilen_fehler' => 'Het delen is niet gelukt.',
         ],
     ];
 

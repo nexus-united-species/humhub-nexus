@@ -68,6 +68,8 @@ class Events
                 'antworten' => 'Ответить', 'antwortAuf' => 'Ответ на', 'abbrechen' => 'Отменить ответ', 'geloescht' => 'Исходное сообщение больше не доступно', 'eigene' => 'ваше сообщение'],
             'fr' => ['knopf' => 'Réagir', 'sie' => 'Toi', 'und' => 'et', 'weitere' => 'autres', 'fehler' => 'La réaction n’a pas pu être enregistrée.',
                 'antworten' => 'Répondre', 'antwortAuf' => 'Réponse à', 'abbrechen' => 'Annuler la réponse', 'geloescht' => 'Le message d’origine n’existe plus', 'eigene' => 'ton message'],
+            'nl' => ['knopf' => 'Reageren', 'sie' => 'Jij', 'und' => 'en', 'weitere' => 'anderen', 'fehler' => 'De reactie kon niet worden opgeslagen.',
+                'antworten' => 'Antwoorden', 'antwortAuf' => 'Antwoord op', 'abbrechen' => 'Antwoord annuleren', 'geloescht' => 'Het oorspronkelijke bericht bestaat niet meer', 'eigene' => 'je bericht'],
         ];
         return $alle[$sprache] ?? $alle['en'];
     }

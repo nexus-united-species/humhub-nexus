@@ -4,7 +4,7 @@ namespace nexus\modules\hilfe\services;
 
 use Yii;
 
-/** Texte der Hilfe-Seite in DE/EN/ES (feste Texte, wie in den anderen N.E.X.U.S.-Modulen). */
+/** Texte der Hilfe-Seite in DE/EN/ES/RU/FR/NL (feste Texte, wie in den anderen N.E.X.U.S.-Modulen). */
 class Texte
 {
     public const THEMEN = ['konto', 'fehler', 'frage', 'sonstiges', 'nova'];
@@ -164,6 +164,37 @@ class Texte
             'fehler_viele' => 'Tu viens d’envoyer plusieurs demandes. Patiente un peu, nous te répondrons.',
             'fehler_allgemein' => 'Malheureusement, ça n’a pas fonctionné. Réessaie dans un instant.',
             'bestaetigung' => "Bonjour %s, ta demande #%d est bien arrivée à l’équipe d’assistance. Une personne de l’équipe te répondra dans les 24 heures.\n\nTon équipe d’assistance N.E.X.U.S.",
+        ],
+        'nl' => [
+            'titel' => 'Hulp & support',
+            'intro' => 'Hier vind je snel antwoorden – en lukt dat niet, dan helpt ons supportteam je verder.',
+            'anleitungen' => 'Handleidingen',
+            'anleitungen_text' => 'Stap-voor-stap-handleidingen voor de belangrijkste dingen in het portaal:',
+            'nova' => 'Vraag het Nova',
+            'nova_text' => 'Nova is onze AI-assistent en beantwoordt vragen over N.E.X.U.S. en het portaal – dag en nacht. Kan Nova je niet helpen, dan gaat je vraag door naar het supportteam.',
+            'nova_knopf' => 'Bericht aan Nova schrijven',
+            'formular' => 'Vraag aan het supportteam',
+            'formular_text' => 'Beschrijf kort waar het om gaat. Iemand van het supportteam neemt binnen 24 uur contact met je op.',
+            'formular_gast' => 'Kom je niet in het portaal? Schrijf ons dan hier – we antwoorden binnen 24 uur per e-mail.',
+            'thema' => 'Waar gaat het om?',
+            'themen' => ['konto' => 'Inloggen of account', 'fehler' => 'Iets werkt niet', 'frage' => 'Vraag over N.E.X.U.S.', 'sonstiges' => 'Overig', 'nova' => 'Doorgestuurd door Nova'],
+            'beschreibung' => 'Je bericht',
+            'beschreibung_hilfe' => 'Hoe preciezer, hoe sneller we kunnen helpen: wat wilde je doen en wat gebeurde er?',
+            'bild' => 'Schermafbeelding (vrijwillig)',
+            'name' => 'Je naam',
+            'email' => 'Je e-mailadres (voor ons antwoord)',
+            'senden' => 'Vraag versturen',
+            'danke_titel' => 'Dank je – je vraag is aangekomen',
+            'danke_text' => 'Je vraag heeft nummer #%d. Iemand van het supportteam neemt binnen 24 uur contact met je op.',
+            'danke_nachricht' => 'Je krijgt ons antwoord als bericht in het portaal (bovenaan bij de envelop) en per e-mail.',
+            'danke_gast' => 'We antwoorden je per e-mail.',
+            'zurueck' => 'Terug naar hulp',
+            'fehler_text' => 'Schrijf alsjeblieft minstens een paar woorden, zodat we kunnen helpen.',
+            'fehler_email' => 'Vul je naam en een geldig e-mailadres in, zodat we kunnen antwoorden.',
+            'fehler_bild' => 'De afbeelding is te groot of geen afbeelding (toegestaan: JPG, PNG, WebP tot 10 MB).',
+            'fehler_viele' => 'Je hebt net al meerdere vragen verstuurd. Wacht even, we nemen contact met je op.',
+            'fehler_allgemein' => 'Dat is helaas niet gelukt. Probeer het zo nog een keer.',
+            'bestaetigung' => "Hallo %s, je vraag #%d is aangekomen bij het supportteam. Iemand van het team neemt binnen 24 uur contact met je op.\n\nJe N.E.X.U.S.-supportteam",
         ],
     ];
 

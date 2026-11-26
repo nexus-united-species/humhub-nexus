@@ -37,7 +37,10 @@
               fehler: 'Не удалось открыть встречу в окне. Сейчас она откроется на отдельной странице.' },
         fr: { live: 'En direct', beitreten: 'Rejoindre', ausblenden: 'Masquer', gross: 'Grand', klein: 'Petit', vollbild: 'Plein écran', vollbildAus: 'Quitter le plein écran', ziehen: 'Maintiens ici et fais glisser pour déplacer',
               schliessen: 'Quitter', schliessenFrage: 'Quitter la réunion ?', laedt: 'Chargement de la réunion …',
-              fehler: 'La réunion n’a pas pu s’ouvrir dans la fenêtre. Elle s’ouvre maintenant sur sa propre page.' }
+              fehler: 'La réunion n’a pas pu s’ouvrir dans la fenêtre. Elle s’ouvre maintenant sur sa propre page.' },
+        nl: { live: 'Nu live', beitreten: 'Deelnemen', ausblenden: 'Verbergen', gross: 'Groot', klein: 'Klein', vollbild: 'Volledig scherm', vollbildAus: 'Volledig scherm sluiten', ziehen: 'Houd hier vast en sleep om te verplaatsen',
+              schliessen: 'Verlaten', schliessenFrage: 'De vergadering verlaten?', laedt: 'Vergadering wordt geladen …',
+              fehler: 'De vergadering kon niet in het venster worden geopend. Ze wordt nu op een eigen pagina geopend.' }
     };
     // Offene Tuer (Josh, 18.10.2026): "Menschen sehen, wenn ich am Rechner bin, und koennen einfach reinkommen"
     var TUER_TEXTE = {
@@ -75,7 +78,14 @@
               direkt: 'Tout le monde entre directement', warteraum: 'Je laisse entrer chaque personne une par une (salle d’attente)', oeffnen: 'Ouvrir la porte', abbrechen: 'Annuler',
               zuFrage: 'Fermer la porte ? Ta fenêtre de discussion se fermera aussi.', verlassen: 'Quitter la discussion ? Ta porte sera alors fermée.',
               abgelaufen: 'Ta porte ouverte s’est fermée toute seule après %d heures.', fehlerTuer: 'La porte n’a pas pu s’ouvrir à l’instant. Réessaie, s’il te plaît.',
-              warteraumAn: 'La salle d’attente est activée – la personne qui frappe apparaît chez toi pour que tu la laisses entrer.' }
+              warteraumAn: 'La salle d’attente est activée – la personne qui frappe apparaît chez toi pour que tu la laisses entrer.' },
+        nl: { offeneTuer: 'Open deur', istDa: '%s is er nu', kommRein: 'kom gewoon binnen', klopfAn: 'klop aan – je wordt binnengelaten',
+              reinkommen: 'Binnenkomen', anklopfen: 'Aankloppen', gespraechMit: 'Gesprek met %s', meineOffen: 'Je deur staat open', rein: 'Naar binnen', tuerZu: 'Deur dicht',
+              frageTitel: 'Open deur', frageText: 'Alle leden zien dan op elke pagina dat je er bent en kunnen met één klik bij je komen. De deur gaat vanzelf dicht als je de browser sluit, uiterlijk na %d uur.',
+              direkt: 'Iedereen komt direct binnen', warteraum: 'Ik laat iedereen afzonderlijk binnen (wachtkamer)', oeffnen: 'Deur openen', abbrechen: 'Annuleren',
+              zuFrage: 'De deur sluiten? Je gespreksvenster gaat dan ook dicht.', verlassen: 'Het gesprek verlaten? Je deur gaat dan dicht.',
+              abgelaufen: 'Je open deur is na %d uur vanzelf dichtgegaan.', fehlerTuer: 'De deur kon nu niet worden geopend. Probeer het nog eens.',
+              warteraumAn: 'De wachtkamer staat aan – wie aanklopt, verschijnt bij jou zodat je hem of haar kunt binnenlaten.' }
     };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;

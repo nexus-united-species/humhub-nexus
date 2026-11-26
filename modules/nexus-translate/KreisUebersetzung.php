@@ -29,7 +29,7 @@ use Yii;
 class KreisUebersetzung
 {
     /** Zielsprachen. "de" nur fuer Kreise, die eindeutig nicht deutsch angelegt sind (eindeutigFremd). */
-    public const SPRACHEN = ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French'];
+    public const SPRACHEN = ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French', 'nl' => 'Dutch'];
 
     public const FELDER = ['name', 'description'];
 
@@ -50,9 +50,11 @@ class KreisUebersetzung
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
         'fr' => 'Always translate "Kreis" as "Cercle" and "Kreise" as "Cercles", "Bauplan" as "Plan directeur", "Unterstützer" as "Contributeurs". Keep these unchanged: '
             . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
+        'nl' => 'Always translate "Kreis" as "Kring" and "Kreise" as "Kringen", "Bauplan" as "Blauwdruk", "Unterstützer" as "Supporters". Keep these unchanged: '
+            . 'N.E.X.U.S., AETHER, OneApp, DAO, VITA, TERRA, AURA, Mesh. Keep dashes and numbering exactly as in the original.',
     ];
 
-    /** Kurzcode der Sprache des angemeldeten Menschen (de, en, es, ru, fr) oder null. */
+    /** Kurzcode der Sprache des angemeldeten Menschen (de, en, es, ru, fr, nl) oder null. */
     public static function leserSprache(): ?string
     {
         if (Yii::$app->user->isGuest) {

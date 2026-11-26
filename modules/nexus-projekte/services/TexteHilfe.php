@@ -299,5 +299,63 @@ Vous n’êtes pas obligé de vous prononcer sur chacune et pouvez changer votre
 « Choisir la proposition … » termine la carte et tous les participants reçoivent un message.
 Si aucune ne convient, on continue avec « Retour à la collecte ».',
         ],
+        'nl' => [
+            'hilfe_label' => 'Hulp',
+            'hilfe_tafel_frage' => 'Zo werkt het bord',
+            'hilfe_tafel' => 'Elke kaart is een werkstap en schuift van links naar rechts.
+Open – nog niemand is begonnen.
+Bezig – iemand zorgt ervoor.
+Ter stemming – uitgedacht, nu is ieders mening gevraagd.
+Klaar – afgerond.
+Klik op een kaart om de inhoud te zien.',
+            'hilfe_abstimmung_frage' => 'Zo wordt hier gestemd',
+            'hilfe_abstimmung_einfach' => '„Prima zo” betekent: je bent het ermee eens. „Ik heb een wijziging” betekent: je zou iets anders doen – schrijf kort wat en waarom. Je kunt je mening tot het einde van de ronde nog veranderen.',
+            'hilfe_abstimmung_konsent' => 'Er wordt besloten met consent: het voorstel is aangenomen als aan het einde van de ronde niemand een zwaarwegend bezwaar heeft.
+Ik stem in – akkoord.
+Instemming met bedenkingen – akkoord, maar met een zorg (beschrijf die kort).
+Zwaarwegend bezwaar – dit schaadt ons gezamenlijke doel. Het is geen nee voor altijd, maar een aanwijzing wat er nog ontbreekt (graag onderbouwen).
+Ik onthoud me – je legt je niet vast.',
+            'hilfe_abstimmung_mehrheit' => 'Er wordt besloten bij meerderheid: het voorstel is aangenomen als er aan het einde van de ronde meer ja- dan nee-stemmen zijn. „Ik onthoud me” telt niet mee. Je kunt je stem tot het einde van de ronde nog veranderen.',
+            'hilfe_uebernehmen' => 'Je neemt deze taak op je. Je naam staat dan op de kaart en de projectleiding krijgt een privébericht.',
+            'hilfe_zur_abstimmung' => 'De kaart schuift naar de kolom „Ter stemming”, en in de kring verschijnt een bericht met het verzoek om feedback. Kies vooraf tot wanneer de feedback wordt verzameld. Voor het versturen wordt het je nog een keer gevraagd.',
+            'hilfe_in_arbeit' => 'De kaart gaat terug naar „Bezig” – bijvoorbeeld als er wijzigingsverzoeken zijn binnengekomen of als je hem per ongeluk ter stemming hebt voorgelegd.',
+            'hilfe_als_fertig' => 'De taak is afgerond, de kaart schuift naar „Klaar”. Dat mag alleen de projectleiding.',
+            'hilfe_wieder_oeffnen' => 'De kaart gaat terug naar „Bezig”, zodat eraan verder gewerkt kan worden.',
+            'hilfe_ziel' => 'Wat moet er uiteindelijk uitkomen? Een of twee zinnen. De tekst staat bovenaan het bord en legt iedereen uit waar het om gaat.',
+            'hilfe_leitung' => 'De projectleiding maakt kaarten aan, wijst taken toe, schuift ze door de kolommen en beslist over voorstellen. Tot vijf mensen kunnen samen de leiding hebben.',
+            'hilfe_projekt_frist' => 'Wanneer het project klaar moet zijn. Het veld mag leeg blijven – dan staat er „zonder datum”.',
+            'hilfe_regel' => 'Zo wordt over voorstellen beslist:
+Eenvoudige feedback – „Prima zo” of „Ik heb een wijziging”; daarna beslist de leiding.
+Consent – aangenomen als aan het einde van de ronde niemand een zwaarwegend bezwaar heeft.
+Meerderheid – aangenomen als er meer ja- dan nee-stemmen zijn.
+Twijfel je? Kies „Eenvoudige feedback”. Je kunt het later nog veranderen.',
+            'hilfe_frist_tage' => 'Hoelang een stemronde duurt, bijvoorbeeld 14 dagen. Te korte termijnen sluiten mensen uit die niet elke dag in het portaal kijken.',
+            'hilfe_weitergabe' => 'Optioneel. Staat hier bijvoorbeeld „DAO”, dan komt er bij elk aangenomen voorstel een besluitvoorstel om aan dit orgaan door te geven.',
+            'hilfe_status' => '„Afgerond” zet het project in de lijst met afgeronde projecten, zodat het overzicht van de kring overzichtelijk blijft. Je kunt het later weer activeren. „Stilgelegd” betekent: hier wordt niet meer aan gewerkt, alles blijft leesbaar, maar niemand kan nog iets wijzigen. Dat kun je op elk moment terugzetten.',
+            'hilfe_zusammenfassung' => 'Wat moet er veranderen? Drie tot vijf zinnen, zodat het ook zonder bijlage te begrijpen is.',
+            'hilfe_begruendung' => 'Waarom is de wijziging nodig of beter? Dat helpt de anderen om zich een oordeel te vormen.',
+            'hilfe_textaenderungen' => 'Voor kleinere wijzigingen: noem de plek (document, versie, hoofdstuk), de huidige tekst en de nieuwe formulering. Het portaal toont het verschil in kleur, en er wordt precies over deze formulering gestemd. Voor grotere herzieningen kun je beter een bestand uploaden.',
+            'hilfe_dateien' => 'Voor grotere herzieningen: Word (het liefst met „Wijzigingen bijhouden”), PDF, Markdown of afbeeldingen. Elke upload is een nieuwe versie, oudere blijven zichtbaar. Verandert een voorstel tijdens de stemming, dan begint er een nieuwe ronde.',
+            'hilfe_verantwortlich_kachel' => 'Wie voor deze taak zorgt. Laat je het veld leeg, dan staat er op de kaart „Wie pakt dit op?”, en elk lid kan de taak oppakken met „Dit pak ik op”.',
+            'hilfe_verantwortlich_vorschlag' => 'Wie het voorstel indient, is er automatisch verantwoordelijk voor. Als projectleiding kun je dat hier wijzigen.',
+            'hilfe_hilft_mit' => 'Andere mensen die meehelpen. Zij mogen deelstappen afvinken en bestanden uploaden.',
+            'hilfe_frist' => 'Wanneer het klaar moet zijn. Een dag van tevoren krijgt de verantwoordelijke persoon een herinnering.',
+            'hilfe_teilschritte' => 'Een kleine checklist, één stap per regel. De vinkjes zijn alleen een geheugensteun – ze zetten niets in gang, ook geen stemming.',
+            'hilfe_unterlagen' => 'Links naar documenten, één link per regel in de vorm „Titel | Adres”. Bestanden kun je beter direct uploaden – dan ziet iedereen ze meteen in de kaart.',
+            'hilfe_auswerten' => 'Hier leg je als leiding het resultaat van de ronde vast.
+Als aangenomen vastleggen – de kaart schuift naar „Klaar”. Bij consent en meerderheid verschijnt deze knop alleen als de uitslag dat toelaat.
+Als afgewezen vastleggen – de kaart schuift ook naar „Klaar”.
+Terug voor herziening – terug naar „Bezig”, het voorstel kan worden verbeterd.
+Bij het vastleggen krijgt iedereen die gestemd heeft een privébericht.',
+            'hilfe_auswahl_sammeln' => 'Zolang de kaart „Open” of „Bezig” is, kan elk lid van de kring afbeeldingsconcepten toevoegen. Ze krijgen de letters A, B, C … Voor een stemming is minstens één concept nodig.',
+            'hilfe_auswahl_abstimmen' => 'Onder elk concept kies je:
+Ik stem in – het bevalt je.
+Instemming met bedenkingen – het kan, maar je hebt een opmerking (schrijf die kort op).
+Zwaarwegend bezwaar – het kan voor jou echt niet (onderbouw het kort).
+Je hoeft niet bij elk concept iets te zeggen en je kunt je stem tot het einde van de ronde veranderen.',
+            'hilfe_auswahl_auswerten' => 'Er komt alleen een concept in aanmerking zonder zwaarwegend bezwaar en met minstens één instemming. Het concept met de meeste instemmingen wint, bij gelijkspel kiest de leiding.
+„Concept … kiezen” maakt de kaart klaar, en alle betrokkenen krijgen een privébericht.
+Komt geen enkel concept erdoor, dan gaat het verder met „Terug naar verzamelen”.',
+        ],
     ];
 }

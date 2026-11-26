@@ -109,6 +109,21 @@ class WillkommensService
             'fragen' => 'Si tu as des questions, réponds simplement à ce message – tu joindras ainsi Nova (assistante IA), notre assistante pour les questions sur N.E.X.U.S. et le portail. Si Nova ne sait pas répondre, ta question est transmise à une personne de l’équipe.',
             'schluss' => "Quel plaisir que tu sois là !\nTon équipe d’accueil",
         ],
+        'nl' => [
+            'titel' => 'Welkom bij N.E.X.U.S. 🌱',
+            'hallo_neu' => 'Hallo %s, van harte welkom bij N.E.X.U.S.! 🌱',
+            'hallo_nachgeholt' => 'Hallo %s, fijn dat je je bij N.E.X.U.S. hebt aangemeld! 🌱',
+            'ich' => 'We zijn blij dat je er bent en helpen je graag op weg.',
+            'ich_nachgeholt' => 'Misschien ben je er nog niet echt aan toegekomen om rond te kijken – daarom een paar tips om je op weg te helpen.',
+            'vorbei' => 'Kom gerust eens langs: %s',
+            'ohne_kreis' => 'In het overzicht van de kringen vind je alle werkkringen en gemeenschappen – kijk gerust wat je aanspreekt: %s',
+            'schritte' => [1 => 'Een eenvoudige eerste stap:', 2 => 'Twee eenvoudige eerste stappen:', 3 => 'Drie eenvoudige eerste stappen:'],
+            'vorstellen' => 'Stel je even kort voor in de kring ‘Voorstellen’ – twee, drie zinnen zijn genoeg: %s',
+            'runde' => 'Kom naar de welkomstronde – elke zondag om 18.00 uur (Duitse tijd), 30 minuten, heel ontspannen. Hier is de link: %s – en kort van tevoren verschijnt in het portaal ‘Nu live’ met een link om mee te doen.',
+            'bild' => 'Zet een foto in je profiel – het is altijd fijn als we je kunnen zien en herkennen: %s',
+            'fragen' => 'Heb je vragen? Antwoord dan gewoon op dit bericht – zo kom je bij Nova (AI-assistent), onze assistent voor vragen over N.E.X.U.S. en het portaal. Weet Nova het niet, dan gaat je vraag naar een mens uit het team.',
+            'schluss' => "Fijn dat je er bent!\nJe welkomstteam",
+        ],
     ];
 
     public function __construct(private readonly int $assistentId)
@@ -222,7 +237,7 @@ class WillkommensService
         foreach ($kreise as $kreis) {
             $liste[] = "- id {$kreis->id}: {$kreis->name} – " . trim(preg_replace('/\s+/', ' ', (string)$kreis->description));
         }
-        $sprachname = ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch', 'fr' => 'Französisch'][$sprache];
+        $sprachname = ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch', 'fr' => 'Französisch', 'nl' => 'Niederländisch'][$sprache];
         $prompt = "Ein neues Mitglied hat bei der Registrierung bei N.E.X.U.S. geschrieben:\n"
             . "- Was erhofft es sich: {$antworten['erwartung']}\n"
             . "- Fähigkeiten oder Beruf: {$antworten['faehigkeiten']}\n"

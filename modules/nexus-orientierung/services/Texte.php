@@ -73,6 +73,19 @@ class Texte
             'neuere' => 'Afficher les plus récents',
             'keine' => 'Il n’y a encore rien à voir ici.',
         ],
+        'nl' => [
+            'menue' => 'Berichten & reacties',
+            'titel_ich' => 'Jouw berichten & reacties',
+            'titel' => 'Berichten & reacties van {name}',
+            'einleitung' => 'Nieuwste eerst. Je ziet alleen wat je toch al mag lezen.',
+            'beitrag' => 'Bericht',
+            'kommentar' => 'Reactie',
+            'zu' => 'bij',
+            'profil' => 'Profiel van {name}',
+            'aeltere' => 'Oudere tonen',
+            'neuere' => 'Nieuwere tonen',
+            'keine' => 'Hier is nog niets te zien.',
+        ],
     ];
 
     public static function t(string $schluessel, array $werte = []): string

@@ -257,10 +257,76 @@ class Texte
         'v_zur_karte' => '← Retour à la carte',
     ];
 
+    /** Niederlaendisch (seit 26.11.2026): eigene Tabelle wie RU und FR, die anderen Sprachen bleiben unberuehrt. */
+    private const NL = [
+        'nav' => 'Kaart',
+        'titel' => 'Gemeenschappen bij jou in de buurt',
+        'einleitung' => 'Hier zie je waar al N.E.X.U.S.-gemeenschappen bestaan. Tik op een punt om meer te weten te komen en de kring van de gemeenschap te openen.',
+        'ort_hinweis' => 'De punten tonen alleen de plaats of regio – nooit een adres.',
+        'liste' => 'Alle gemeenschappen',
+        'zum_kreis' => 'Naar de kring',
+        'keine' => 'Er staat nog geen gemeenschap op de kaart.',
+        'gruenden_titel' => 'Nog geen bij jou in de buurt?',
+        'gruenden_text' => 'Richt dan je eigen gemeenschap op. De handleiding wijst je de weg – van het eerste contact tot een gemeenschap ter plaatse.',
+        'gruenden_knopf' => '🌱 Richt je gemeenschap op',
+        'hinweis_kreise' => 'Is er al een gemeenschap bij jou in de buurt?',
+        'hinweis_link' => 'Naar de gemeenschapskaart →',
+        'karte_quelle' => 'Kaartgegevens',
+        'web_finden' => 'Vind een gemeenschap bij jou in de buurt',
+        'web_gruenden' => 'Richt je eigen gemeenschap op',
+        'gast_titel' => 'Hier zijn al gemeenschappen',
+        'gast_text' => 'Misschien is er al een bij jou in de buurt. Registreer je om haar te leren kennen – of richt je eigen gemeenschap op.',
+        'gast_popup' => 'Na het inloggen kun je deze gemeenschap bezoeken.',
+        'legende_gemeinschaft' => 'Gemeenschap',
+        'legende_sucht' => 'Zoekt medewerkers',
+        'sucht_titel' => 'Zoekt medewerkers voor een gemeenschap',
+        'sucht_liste' => 'Deze mensen zoeken medewerkers',
+        'zum_profil' => 'Naar het profiel',
+        'sucht_box_titel' => 'Zoek je medewerkers in jouw regio?',
+        'sucht_box_text' => 'Zet jezelf op de kaart. Dan zien andere leden dat iemand in jouw omgeving een gemeenschap wil opbouwen – en kunnen ze contact met je opnemen.',
+        'sucht_box_knopf' => 'Zet mij op de kaart',
+        'sucht_box_aendern' => 'Mijn vermelding wijzigen',
+        's_titel' => 'Ik zoek medewerkers',
+        's_einleitung' => 'Wil je in jouw omgeving een gemeenschap opbouwen en zoek je anderen die meedoen? Vul hier je woonplaats in – dan verschijn je op de kaart.',
+        's_sichtbar_titel' => 'Wie ziet dit?',
+        's_sichtbar' => 'Alle ingelogde leden zien je naam, de plaats en je tekst. Bezoekers die niet zijn ingelogd, zien je niet. Het punt toont alleen het midden van de plaats, nooit je adres. Je kunt de vermelding altijd verwijderen.',
+        's_mein' => 'Mijn vermelding',
+        's_neu' => 'Waar zoek je?',
+        's_ort_aendern' => 'Plaats wijzigen',
+        's_ort_hilfe' => 'Alleen een plaats of regio, bijv. ‘Rosenheim’ – geen straat.',
+        's_nachricht' => 'Een paar woorden erbij (niet verplicht)',
+        's_nachricht_hilfe' => 'Bijvoorbeeld: ‘Ik zoek twee of drie mensen in de regio Rosenheim om regelmatig samen te komen.’',
+        's_text_speichern' => 'Tekst opslaan',
+        's_eintragen' => 'Met deze plaats opslaan',
+        's_gespeichert' => 'Opgeslagen – je staat nu op de kaart.',
+        's_fehler' => 'Dat is niet gelukt. Zoek de plaats nog een keer (tekst maximaal 300 tekens).',
+        's_loeschen' => 'Mijn vermelding verwijderen',
+        's_loeschen_frage' => 'Wil je je vermelding echt van de kaart halen?',
+        's_geloescht' => 'Je vermelding is verwijderd.',
+        'menue_standort' => 'Locatie (kaart)',
+        'verwalten' => '📍 Locaties beheren',
+        'v_titel' => 'Locaties van de gemeenschappen',
+        'v_einleitung' => 'Vul hier de plaats van je gemeenschap in. Alleen de plaats of regio (bijv. ‘Traunstein’ of ‘Tenerife’) – geen straat en geen huisnummer. Het punt komt in het midden van de plaats.',
+        'v_aktuell' => 'Huidige plaats',
+        'v_kein_ort' => 'nog geen plaats – verschijnt niet op de kaart',
+        'v_suchfeld' => 'Plaats of regio',
+        'v_suchen' => 'Plaats zoeken',
+        'v_treffer' => 'Welke plaats bedoel je?',
+        'v_uebernehmen' => 'Deze plaats invullen',
+        'v_anzeigename' => 'Zo staat de plaats op de kaart (aan te passen)',
+        'v_nichts' => 'Er is geen plaats gevonden. Vul alleen een plaats of regio in – geen straat.',
+        'v_suche_fehler' => 'Het zoeken naar plaatsen werkt op dit moment niet. Probeer het over een paar minuten nog eens.',
+        'v_gespeichert' => 'De plaats is opgeslagen.',
+        'v_fehler' => 'Dat is niet gelukt. Zoek de plaats nog een keer.',
+        'v_ort_entfernen' => 'Plaats verwijderen',
+        'v_ort_entfernt' => 'De plaats is verwijderd – de gemeenschap staat niet meer op de kaart.',
+        'v_zur_karte' => '← Naar de kaart',
+    ];
+
     public static function sprache(): string
     {
         $code = strtolower(explode('-', (string)Yii::$app->language)[0]);
-        return in_array($code, ['de', 'en', 'es', 'ru', 'fr'], true) ? $code : 'en';
+        return in_array($code, ['de', 'en', 'es', 'ru', 'fr', 'nl'], true) ? $code : 'en';
     }
 
     public static function t(string $schluessel): string
@@ -275,6 +341,9 @@ class Texte
         }
         if ($sprache === 'fr' && isset(self::FR[$schluessel])) {
             return self::FR[$schluessel];
+        }
+        if ($sprache === 'nl' && isset(self::NL[$schluessel])) {
+            return self::NL[$schluessel];
         }
         return $eintrag[$sprache] ?? $eintrag['en'] ?? $eintrag['de'];
     }

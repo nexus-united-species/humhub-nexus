@@ -124,10 +124,46 @@ class Texte
         'kein_kreis' => 'Tu n’es encore membre d’aucun cercle. Rejoins d’abord un cercle, tu pourras ensuite saisir des heures.',
     ];
 
+    /** Niederländisch (seit 26.11.2026): eigene Tabelle, die anderen Sprachen bleiben unberührt. */
+    private const NL = [
+        'titel' => 'Mijn werkuren',
+        'einleitung' => 'Heb je iets voor N.E.X.U.S. gedaan? Vul hier in hoe lang en wat – of het nu om teksten schrijven, uitzoeken, organiseren of programmeren gaat. Een beheerder controleert je invoer en keurt die goed.',
+        'tipp' => '💡 Nog makkelijker: stuur de assistent een privébericht, bijv. ‘Vandaag 2 uur aan de nieuwsbrief voor Kring 7 gewerkt’ – dan vult hij het voor je in.',
+        'freigegeben_gesamt' => 'Goedgekeurd in totaal',
+        'diesen_monat' => 'Goedgekeurd deze maand',
+        'wartet' => 'Wacht op goedkeuring',
+        'std' => 'uur',
+        'neu' => 'Nieuwe uren invoeren',
+        'stunden' => 'Hoeveel uur?',
+        'stunden_hilfe' => 'bijv. 2 of 1,5 (halve uren kan ook)',
+        'datum' => 'Op welke dag?',
+        'kreis' => 'Voor welke kring?',
+        'kreis_waehlen' => '– kies een kring –',
+        'taetigkeit' => 'Wat heb je gedaan?',
+        'taetigkeit_hilfe' => 'Een of twee zinnen zijn genoeg, bijv. ‘Nieuwsbrief voor oktober geschreven’.',
+        'speichern' => 'Invoeren',
+        'gespeichert' => 'Bedankt! Je uren zijn ingevoerd en wachten op goedkeuring.',
+        'fehler' => 'Controleer je gegevens:',
+        'fehler_stunden' => 'Uren: graag een getal tussen 0,25 en 16.',
+        'fehler_datum' => 'Dag: graag een datum, niet in de toekomst.',
+        'fehler_kreis' => 'Kring: kies een van jouw kringen.',
+        'fehler_text' => 'Activiteit: beschrijf het kort (maximaal 500 tekens).',
+        'meine_eintraege' => 'Mijn invoer',
+        'keine' => 'Nog niets ingevoerd – begin meteen!',
+        'st_offen' => '⏳ wacht op goedkeuring',
+        'st_freigegeben' => '✅ goedgekeurd',
+        'st_ruecksprache' => '💬 even overleggen',
+        'loeschen' => 'Verwijderen',
+        'loeschen_frage' => 'Deze invoer echt verwijderen?',
+        'geloescht' => 'Invoer verwijderd.',
+        'freigabe_link' => 'Uren goedkeuren',
+        'kein_kreis' => 'Je bent nog geen lid van een kring. Word eerst lid van een kring, daarna kun je uren invoeren.',
+    ];
+
     public static function sprache(): string
     {
         $code = strtolower(explode('-', (string)Yii::$app->language)[0]);
-        return in_array($code, ['de', 'en', 'es', 'ru', 'fr'], true) ? $code : 'en';
+        return in_array($code, ['de', 'en', 'es', 'ru', 'fr', 'nl'], true) ? $code : 'en';
     }
 
     public static function t(string $schluessel): string
@@ -141,6 +177,9 @@ class Texte
         }
         if (self::sprache() === 'fr' && isset(self::FR[$schluessel])) {
             return self::FR[$schluessel];
+        }
+        if (self::sprache() === 'nl' && isset(self::NL[$schluessel])) {
+            return self::NL[$schluessel];
         }
         return $eintrag[self::sprache()] ?? $eintrag['en'];
     }

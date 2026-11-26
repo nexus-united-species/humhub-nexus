@@ -17,7 +17,7 @@ use Yii;
  */
 class SprachErkennung
 {
-    public const SPRACHEN = ['de', 'en', 'es', 'ru', 'fr'];
+    public const SPRACHEN = ['de', 'en', 'es', 'ru', 'fr', 'nl'];
 
     private const WOERTER = [
         'de' => ['der', 'die', 'das', 'und', 'ist', 'nicht', 'mit', 'ich', 'wir', 'sie', 'ein', 'eine', 'auch', 'auf',
@@ -42,6 +42,16 @@ class SprachErkennung
             'avec', 'sur', 'mais', 'où', 'une', 'ce', 'cette', 'ces', 'sont', 'être', 'très', 'merci', 'bonjour', 'oui',
             'aussi', 'tout', 'comme', 'notre', 'votre', 'nos', 'vos', 'ici', 'plus', 'fait', 'faire', 'peut', 'tu', 'toi',
             'ton', 'ta', 'tes', 'qu', 'c', 'l', 'd', 'j', 'ça', 'bien', 'maintenant', 'cercle', 'communauté'],
+        // Niederlaendisch (seit 26.11.2026). Bewusst ohne "de"/"en" (spanisch), "die"/"hier"/"ja"/"als" (deutsch),
+        // "is"/"was" (englisch) und "je" (franzoesisch) -- sie kommen im Niederlaendischen haeufig vor und lassen
+        // die anderen Sprachen sonst mitzaehlen; dafuer viele rein niederlaendische Fuellwoerter.
+        'nl' => ['het', 'een', 'van', 'niet', 'ik', 'wij', 'we', 'jij', 'jullie', 'hij', 'zij', 'ze', 'dat', 'dit', 'deze',
+            'voor', 'met', 'maar', 'ook', 'naar', 'bij', 'heb', 'hebben', 'heeft', 'wordt', 'worden', 'zijn', 'ben', 'kan',
+            'kunnen', 'mijn', 'jouw', 'uw', 'onze', 'ons', 'wat', 'hoe', 'waar', 'omdat', 'nu', 'nog', 'wel', 'geen', 'goed',
+            'mooi', 'veel', 'heel', 'graag', 'bedankt', 'dank', 'groet', 'groeten', 'zou', 'moet', 'gaan', 'gaat', 'er', 'op',
+            'om', 'te', 'kring', 'gemeenschap', 'hallo', 'welkom', 'iets', 'alles', 'samen', 'echt', 'wil', 'willen',
+            'mensen', 'iemand', 'meer', 'dus', 'want', 'toch', 'even', 'eens', 'hun', 'hem', 'haar', 'mij', 'jou', 'uit',
+            'aan', 'door', 'tot', 'tegen', 'zonder', 'tussen', 'zoeken', 'helpen', 'weten', 'denk', 'vind'],
     ];
 
     /** Erkennt de/en/es oder liefert null, wenn es nicht eindeutig ist. */
@@ -92,11 +102,12 @@ class SprachErkennung
     public static function beschriftung(string $von): array
     {
         $namen = [
-            'de' => ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch', 'fr' => 'Französisch'],
-            'en' => ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French'],
-            'es' => ['de' => 'alemán', 'en' => 'inglés', 'es' => 'español', 'ru' => 'ruso', 'fr' => 'francés'],
-            'ru' => ['de' => 'немецкого', 'en' => 'английского', 'es' => 'испанского', 'ru' => 'русского', 'fr' => 'французского'],
-            'fr' => ['de' => 'de l’allemand', 'en' => 'de l’anglais', 'es' => 'de l’espagnol', 'ru' => 'du russe', 'fr' => 'du français'],
+            'de' => ['de' => 'Deutsch', 'en' => 'Englisch', 'es' => 'Spanisch', 'ru' => 'Russisch', 'fr' => 'Französisch', 'nl' => 'Niederländisch'],
+            'en' => ['de' => 'German', 'en' => 'English', 'es' => 'Spanish', 'ru' => 'Russian', 'fr' => 'French', 'nl' => 'Dutch'],
+            'es' => ['de' => 'alemán', 'en' => 'inglés', 'es' => 'español', 'ru' => 'ruso', 'fr' => 'francés', 'nl' => 'neerlandés'],
+            'ru' => ['de' => 'немецкого', 'en' => 'английского', 'es' => 'испанского', 'ru' => 'русского', 'fr' => 'французского', 'nl' => 'нидерландского'],
+            'fr' => ['de' => 'de l’allemand', 'en' => 'de l’anglais', 'es' => 'de l’espagnol', 'ru' => 'du russe', 'fr' => 'du français', 'nl' => 'du néerlandais'],
+            'nl' => ['de' => 'het Duits', 'en' => 'het Engels', 'es' => 'het Spaans', 'ru' => 'het Russisch', 'fr' => 'het Frans', 'nl' => 'het Nederlands'],
         ];
         $texte = [
             'de' => ['hinweis' => 'Automatisch übersetzt aus dem %s', 'original' => 'Original anzeigen', 'uebersetzung' => 'Übersetzung anzeigen'],
@@ -104,6 +115,7 @@ class SprachErkennung
             'es' => ['hinweis' => 'Traducido automáticamente del %s', 'original' => 'Ver original', 'uebersetzung' => 'Ver traducción'],
             'ru' => ['hinweis' => 'Автоматический перевод с %s языка', 'original' => 'Показать оригинал', 'uebersetzung' => 'Показать перевод'],
             'fr' => ['hinweis' => 'Traduit automatiquement %s', 'original' => 'Afficher l’original', 'uebersetzung' => 'Afficher la traduction'],
+            'nl' => ['hinweis' => 'Automatisch vertaald uit %s', 'original' => 'Origineel tonen', 'uebersetzung' => 'Vertaling tonen'],
         ];
         $leser = self::leser() ?? 'de';
         $t = $texte[$leser];

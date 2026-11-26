@@ -147,6 +147,24 @@ $texte = [
         'recht1' => 'Le Plan directeur, la version populaire et la trilogie romanesque sont la propriété intellectuelle de Josh Richman (© 2024–2026).',
         'recht2' => 'La lecture et le partage sont expressément encouragés. L’utilisation comme base de projets personnels sans autorisation n’est pas permise.',
     ],
+    // Niederlaendisch (seit 26.11.2026). Links zeigen auf die englische Webseite, bis /nl/ online ist.
+    'nl' => [
+        'titel' => 'Welkom bij N.E.X.U.S.',
+        'intro' => 'Samen bouwen we aan een nieuwe manier van samenleven — menselijk, decentraal en gegrond in echte gemeenschap. N.E.X.U.S. staat voor de volgende stap in onze ontwikkeling: niet afwachten, maar samen vormgeven. Doe mee.',
+        'anmelden' => 'Inloggen',
+        'registrieren' => 'Registreren',
+        'hilfe' => '❓ Problemen met inloggen of registreren? Hier vind je hulp',
+        'hinweis' => 'Al lid? Dan links op <strong>Inloggen</strong>. Nieuw hier? Dan rechts op <strong>Registreren</strong> — in een paar stappen ben je erbij.',
+        'telegram' => ['Telegramkanaal', 'https://t.me/nexus_canal_english'],
+        'amazon' => 'https://www.amazon.com/-/de/dp/B0HDTZ1QC9',
+        'datenschutz' => ['Privacy', 'https://www.nexus-terminal.org/en/datenschutz.html'],
+        'impressum' => ['Colofon', 'https://www.nexus-terminal.org/en/impressum.html'],
+        'webseite' => ['Website', 'https://www.nexus-terminal.org/en/'],
+        'kontakt' => 'Contact:',
+        'steht' => 'N.E.X.U.S. staat voor',
+        'recht1' => 'De Blauwdruk, de volksversie en de romantrilogie zijn intellectueel eigendom van Josh Richman (© 2024–2026).',
+        'recht2' => 'Lezen en delen wordt uitdrukkelijk aangemoedigd. Gebruik als basis voor eigen projecten zonder toestemming is niet toegestaan.',
+    ],
 ];
 // Andere Sprachen (z. B. Franzoesisch) bekommen Englisch -- international verstaendlicher als Deutsch.
 $t = $texte[$sprache] ?? $texte['en'];
@@ -156,6 +174,7 @@ $t = $texte[$sprache] ?? $texte['en'];
 $vorschau = [
     'de' => ['Willkommen bei N.E.X.U.S. – Gemeinschaft in deiner Nähe', 'Menschen, die gemeinsam eine neue Art des Zusammenlebens aufbauen: menschlich, dezentral, mit echten Gemeinschaften vor Ort. Sieh dir auf der Karte an, wo es schon Gemeinschaften gibt – und mach mit.'],
     'en' => ['Welcome to N.E.X.U.S. – community near you', 'People building a new way of living together: human, decentralised, with real local communities. See on the map where communities already exist – and join in.'],
+    'nl' => ['Welkom bij N.E.X.U.S. – gemeenschap bij jou in de buurt', 'Mensen die samen een nieuwe manier van samenleven opbouwen: menselijk, decentraal, met echte gemeenschappen ter plaatse. Bekijk op de kaart waar al gemeenschappen zijn – en doe mee.'],
     'fr' => ['Bienvenue chez N.E.X.U.S. – une communauté près de chez vous', 'Des personnes qui construisent ensemble une nouvelle façon de vivre ensemble : humaine, décentralisée, avec de vraies communautés locales. Regardez sur la carte où il existe déjà des communautés – et rejoignez-nous.'],
     'ru' => ['Добро пожаловать в N.E.X.U.S. — сообщество рядом с вами', 'Люди, которые вместе строят новый образ совместной жизни: человечный, децентрализованный, с настоящими сообществами на местах. Посмотрите на карте, где уже есть сообщества, — и присоединяйтесь.'],
     'es' => ['Bienvenido a N.E.X.U.S. – comunidad cerca de ti', 'Personas que construyen juntas una nueva forma de convivencia: humana, descentralizada, con comunidades reales en su lugar. Mira en el mapa dónde ya existen comunidades – y únete.'],

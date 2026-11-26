@@ -88,6 +88,22 @@ class Texte
             'email_falsch' => 'Indique une adresse e-mail valide.',
             'zu_oft' => 'Trop de tentatives. Réessaie plus tard.',
         ],
+        'nl' => [
+            'titel' => 'Je bent uitgenodigd!',
+            'eingeladen' => 'Je bent uitgenodigd voor de kring ‘{kreis}’.',
+            'erklaerung' => 'Vul hier je e-mailadres in. Daarna maak je je account aan – zodra je dat per e-mail hebt bevestigd, zit je automatisch in de kring, op welk apparaat je de e-mail ook opent.',
+            'email' => 'Je e-mailadres',
+            'weiter' => 'Verder',
+            'schon_konto' => 'Ik heb al een account – inloggen',
+            'bereit_titel' => 'Bijna klaar!',
+            'bereit' => 'Maak nu je account aan. Belangrijk: gebruik daarbij precies dit e-mailadres:',
+            'konto_anlegen' => 'Account aanmaken',
+            'konto_da' => 'Er bestaat al een account voor dit e-mailadres. Log gewoon in – daarna zit je in de kring ‘{kreis}’.',
+            'anmelden' => 'Inloggen',
+            'ungueltig' => 'Deze uitnodigingslink is niet meer geldig. Vraag de persoon die je heeft uitgenodigd om een nieuwe link.',
+            'email_falsch' => 'Vul een geldig e-mailadres in.',
+            'zu_oft' => 'Te veel pogingen. Probeer het later nog eens.',
+        ],
     ];
 
     public static function t(string $schluessel, array $werte = []): string

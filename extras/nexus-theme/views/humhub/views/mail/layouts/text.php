@@ -7,6 +7,9 @@ $nexusNichtAntworten = [
     'es' => "!!! POR FAVOR, NO RESPONDAS A ESTE CORREO !!!\nEste correo se ha enviado automáticamente. Una respuesta por correo\nno llega a nadie. Contesta directamente en tu portal N.E.X.U.S.:",
     'ru' => "!!! ПОЖАЛУЙСТА, НЕ ОТВЕЧАЙТЕ НА ЭТО ПИСЬМО !!!\nЭто письмо отправлено автоматически. Ответ по электронной почте\nникому не придёт. Пожалуйста, отвечайте прямо в вашем портале N.E.X.U.S.:",
     'fr' => "!!! MERCI DE NE PAS RÉPONDRE À CET E-MAIL !!!\nCet e-mail a été envoyé automatiquement. Une réponse par e-mail\nn’arrive chez personne. Réponds directement dans ton portail N.E.X.U.S. :",
+    'nl' => "!!! BEANTWOORD DEZE E-MAIL ALSJEBLIEFT NIET !!!
+Deze e-mail is automatisch verstuurd. Een antwoord per e-mail
+komt bij niemand aan. Antwoord direct in je N.E.X.U.S.-portaal:",
 ];
 $nexusSprache = strtolower(explode('-', (string)Yii::$app->language)[0]);
 ?>

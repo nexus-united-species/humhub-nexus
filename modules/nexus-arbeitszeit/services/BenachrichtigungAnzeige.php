@@ -24,25 +24,30 @@ class BenachrichtigungAnzeige
             'en' => '🔔 This is an automatic notification. You cannot reply here – nobody would read it. Please use the buttons next to the message.',
             'es' => '🔔 Esta es una notificación automática. Aquí no se puede responder: nadie lo leería. Usa los botones junto al mensaje.',
             'ru' => '🔔 Это автоматическое уведомление. Здесь нельзя ответить – этого никто не прочитает. Используйте кнопки у сообщения.',
-            'fr' => '🔔 Ceci est une notification automatique. On ne peut pas répondre ici – personne ne le lirait. Utilise les boutons à côté du message.'],
+            'fr' => '🔔 Ceci est une notification automatique. On ne peut pas répondre ici – personne ne le lirait. Utilise les boutons à côté du message.',
+            'nl' => '🔔 Dit is een automatische melding. Je kunt hier niet antwoorden – wat je hier schrijft, leest niemand. Gebruik de knoppen bij het bericht.'],
         'nova' => [
             'de' => '✉️ Neue Nachricht an Nova', 'en' => '✉️ New message to Nova', 'es' => '✉️ Nuevo mensaje a Nova',
-            'ru' => '✉️ Новое сообщение для Nova', 'fr' => '✉️ Nouveau message à Nova'],
+            'ru' => '✉️ Новое сообщение для Nova', 'fr' => '✉️ Nouveau message à Nova',
+            'nl' => '✉️ Nieuw bericht aan Nova'],
         'nova_wozu' => [
             'de' => 'für Fragen an Nova oder um Arbeitsstunden einzutragen',
             'en' => 'to ask Nova something or to log working hours',
             'es' => 'para preguntar a Nova o anotar horas de trabajo',
             'ru' => 'чтобы задать вопрос Nova или записать рабочие часы',
-            'fr' => 'pour poser une question à Nova ou noter des heures de travail'],
-        'kachel' => ['de' => '📋 Zur Kachel', 'en' => '📋 Open the card', 'es' => '📋 Ir a la tarjeta', 'ru' => '📋 Открыть карточку', 'fr' => '📋 Ouvrir la carte'],
+            'fr' => 'pour poser une question à Nova ou noter des heures de travail',
+            'nl' => 'om Nova iets te vragen of werkuren in te voeren'],
+        'kachel' => ['de' => '📋 Zur Kachel', 'en' => '📋 Open the card', 'es' => '📋 Ir a la tarjeta', 'ru' => '📋 Открыть карточку', 'fr' => '📋 Ouvrir la carte', 'nl' => '📋 Naar de kaart'],
         'antworten' => [
             'de' => '💬 In der Kachel antworten', 'en' => '💬 Reply in the card', 'es' => '💬 Responder en la tarjeta',
-            'ru' => '💬 Ответить в карточке', 'fr' => '💬 Répondre dans la carte'],
-        'anfrage' => ['de' => '🆘 Zur Anfrage', 'en' => '🆘 Open the request', 'es' => '🆘 Ir a la solicitud', 'ru' => '🆘 Открыть запрос', 'fr' => '🆘 Ouvrir la demande'],
-        'oeffnen' => ['de' => '🔗 Öffnen', 'en' => '🔗 Open', 'es' => '🔗 Abrir', 'ru' => '🔗 Открыть', 'fr' => '🔗 Ouvrir'],
+            'ru' => '💬 Ответить в карточке', 'fr' => '💬 Répondre dans la carte',
+            'nl' => '💬 In de kaart antwoorden'],
+        'anfrage' => ['de' => '🆘 Zur Anfrage', 'en' => '🆘 Open the request', 'es' => '🆘 Ir a la solicitud', 'ru' => '🆘 Открыть запрос', 'fr' => '🆘 Ouvrir la demande', 'nl' => '🆘 Naar de vraag'],
+        'oeffnen' => ['de' => '🔗 Öffnen', 'en' => '🔗 Open', 'es' => '🔗 Abrir', 'ru' => '🔗 Открыть', 'fr' => '🔗 Ouvrir', 'nl' => '🔗 Openen'],
         'person' => [
             'de' => '✉️ %s direkt schreiben', 'en' => '✉️ Write to %s directly', 'es' => '✉️ Escribir a %s directamente',
-            'ru' => '✉️ Написать %s напрямую', 'fr' => '✉️ Écrire directement à %s'],
+            'ru' => '✉️ Написать %s напрямую', 'fr' => '✉️ Écrire directement à %s',
+            'nl' => '✉️ Direct een bericht aan %s'],
     ];
 
     /**

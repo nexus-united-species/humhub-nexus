@@ -4,7 +4,7 @@ namespace nexus\modules\abzeichen\services;
 
 use Yii;
 
-/** Feste Oberflaechentexte (DE/EN/ES); Namen und Texte der Abzeichen kommen aus den Einstellungen. */
+/** Feste Oberflaechentexte (DE/EN/ES/RU/FR/NL); Namen und Texte der Abzeichen kommen aus den Einstellungen. */
 class Texte
 {
     private const TEXTE = [
@@ -152,6 +152,35 @@ class Texte
             'stufen' => 'Niveaux',
             'vorschau' => 'Voici à quoi ressemblera ta photo de profil',
             'abzeichen_eins' => 'Insigne',
+        ],
+        'nl' => [
+            'abzeichen' => 'Badges',
+            'einleitung' => 'Badges laten zien waar je voor staat – als rand rond je profielfoto. Niemand controleert dat, er is geen ranglijst en je kunt elke badge altijd weer weghalen.',
+            'bekennen' => 'Hier sta ik voor',
+            'loesen' => 'Rand weghalen',
+            'du_zeigst' => 'Je toont deze badge op je profielfoto.',
+            'bekannt' => 'Dank je! Je profielfoto heeft nu de rand.',
+            'geloest' => 'Weggehaald – zonder vragen, zonder spoor. Je bent altijd weer welkom.',
+            'hinweis_bekenntnis' => 'We slaan alleen op dat je de rand toont – geen datum, geen nummer, geen volgorde.',
+            'momente' => 'Jouw momenten',
+            'momente_hinweis' => 'Alleen jij ziet dit – tenzij je het zelf deelt. Er is geen ranglijst, en een rustigere week is helemaal prima.',
+            'noch_keine' => 'Nog geen – maar dat komt nog.',
+            'mehr' => 'Lees meer',
+            'zurueck' => 'Alle badges',
+            'weiter' => 'Mooi',
+            'neue_stufe' => 'Nieuw niveau bereikt: {stufe}! 🌟',
+            'teilen' => 'Delen met de gemeenschap',
+            'teilen_wo' => 'Verschijnt als jouw bericht in ‘{kreis}’. Alleen als je dat wilt.',
+            'notiz' => 'Een paar eigen woorden (vrijwillig)',
+            'senden' => 'Nu delen',
+            'geteilt_ok' => 'Gedeeld – fijn dat je anderen laat meegenieten!',
+            'teilen_fehler' => 'Dat is niet gelukt – misschien al gedeeld?',
+            'geteilt' => 'Gedeeld',
+            'naechste' => 'Volgend niveau: {stufe} bij {wert}',
+            'alle_stufen' => 'Alle niveaus bereikt – dank je!',
+            'stufen' => 'Niveaus',
+            'vorschau' => 'Zo ziet je profielfoto er dan uit',
+            'abzeichen_eins' => 'Badge',
         ],
     ];
 

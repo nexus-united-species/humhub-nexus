@@ -101,7 +101,25 @@
               keineKamera: 'Pas d’accès à la caméra ou au micro. Autorise-les dans ton navigateur (icône de cadenas à côté de l’adresse).',
               videoAngehaengt: 'Message vidéo joint ✓', videoAbspielen: 'Lire le message vidéo',
               leer: 'L’enregistrement est vide – la caméra n’a livré aucune image. Est-elle ouverte dans un autre programme (p. ex. un appel vidéo) ? Ferme-la et réessaie.',
-              kameraWeg: 'La caméra a cessé de livrer une image. Arrête l’enregistrement et recommence.' }
+              kameraWeg: 'La caméra a cessé de livrer une image. Arrête l’enregistrement et recommence.' },
+        nl: { knopf: 'Spraakbericht opnemen', stopp: 'Stop', abbrechen: 'Annuleren', anhaengen: 'Toevoegen',
+              verwerfen: 'Weggooien', laeuft: 'Opname loopt', fertig: 'Beluisteren en toevoegen:',
+              keinMikro: 'Geen toegang tot de microfoon. Sta die toe in je browser (slotje naast het adres).',
+              nichtMoeglich: 'Deze browser kan geen spraakberichten opnemen.',
+              uploadFehlt: 'Toevoegen is mislukt – laad de pagina opnieuw en probeer het nog eens.',
+              schreibt: 'Uitgeschreven tekst wordt gemaakt, nog niet versturen …',
+              hochladen: 'Bezig met uploaden … wacht nog even met versturen.', hochgeladen: 'Geüpload ✓ – je kunt nu versturen.',
+              nochNichtFertig: 'De opname wordt nog geüpload. Wacht tot „Geüpload ✓” verschijnt en verstuur dan.',
+              ohneMitschrift: 'Zonder uitgeschreven tekst',
+              nichtsVerstanden: 'Er is geen spraak herkend in de opname. Ze is toch toegevoegd.',
+              mitschriftFehlt: 'Het uitschrijven is niet gelukt. De opname is toch toegevoegd.',
+              anhoeren: 'Beluisteren', pause: 'Pauze', probeGehtNicht: 'Beluisteren gaat niet in deze browser – je kunt de opname toch toevoegen.',
+              videoKnopf: 'Videobericht opnemen', videoBereit: 'Klaar – maximaal 3 minuten', videoStart: 'Opname starten',
+              kameraWechseln: 'Andere camera', videoFertig: 'Opgenomen:', neu: 'Opnieuw opnemen',
+              keineKamera: 'Geen toegang tot camera of microfoon. Sta die toe in je browser (slotje naast het adres).',
+              videoAngehaengt: 'Videobericht toegevoegd ✓', videoAbspielen: 'Videobericht afspelen',
+              leer: 'De opname is leeg – de camera gaf geen beeld. Is hij geopend in een ander programma (bijv. een videogesprek)? Sluit dat en probeer het opnieuw.',
+              kameraWeg: 'De camera geeft geen beeld meer. Stop de opname en begin opnieuw.' }
     };
     var sprache = (document.documentElement.lang || 'de').toLowerCase().split('-')[0];
     var T = TEXTE[sprache] || TEXTE.en;
