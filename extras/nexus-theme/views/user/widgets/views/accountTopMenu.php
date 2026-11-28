@@ -122,7 +122,14 @@ $nexusText = $nexusTexte[$nexusSprache] ?? $nexusTexte['en']; // andere Sprachen
            Menues -- vorher fest dunkel, im dunklen Modus also unsichtbar (Josh, 28.09.2026, Screenshot). */
         /* Farbe wie die Menue-Links (".account .dropdown-menu li a" = --hh-primary-contrast): "inherit" lieferte die dunkle
            Grundschrift des Menues, sichtbar erst beim Drueberfahren (Josh, 28.09.2026, 2. Screenshot). */
-        .nexus-sprache-menue { color: var(--hh-primary-contrast, #fff); display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; padding: 6px 16px; white-space: nowrap; }
+        /* Umbruch erlaubt (Josh, 28.11.2026): mit sechs Sprachen war die Zeile breiter als ein Handy hochkant,
+           "NL" lag rechts ausserhalb des Bildschirms und war nur quer zu sehen. Die Knoepfe selbst brechen
+           weiter nicht (flex 0 0 auto), es rutschen nur ganze Knoepfe in die naechste Zeile. */
+        .nexus-sprache-menue { color: var(--hh-primary-contrast, #fff); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 16px; white-space: nowrap; max-width: 100vw; box-sizing: border-box; }
+        @media (max-width: 767px) {
+            .nexus-sprache-menue span { flex-basis: 100%; }
+            .nexus-sprache-menue button { min-width: 38px; padding: 5px 8px; }
+        }
         .nexus-sprache-menue span { flex: 0 0 auto; font-size: 13px; color: inherit; opacity: .75; margin-right: 4px; }
         .nexus-sprache-menue button { flex: 0 0 auto; min-width: 42px; background: none; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 5px 10px; font-size: 13px; line-height: 1.2; white-space: nowrap; cursor: pointer; }
         .nexus-sprache-menue button:hover { border-color: #D4AF37; }
